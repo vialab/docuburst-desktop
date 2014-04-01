@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry excluding="ca/utoronto/cs/prefuseextensions/layout/ConcaveHullLayoutGroupBased.java|ca/utoronto/cs/prefuseextensions/render/PolygonRendererPoint2D.java" kind="src" path=""/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/prefuse-3D"/>
+	<classpathentry kind="output" path=""/>
+</classpath>

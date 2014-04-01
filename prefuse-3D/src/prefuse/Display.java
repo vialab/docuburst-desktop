@@ -1,0 +1,125 @@
+package prefuse;
+
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.Insets;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.event.ComponentListener;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.NoninvertibleTransformException;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.io.OutputStream;
+
+import javax.swing.BorderFactory;
+import javax.swing.JToolTip;
+import javax.swing.border.Border;
+import javax.swing.text.JTextComponent;
+
+import prefuse.controls.Control;
+import prefuse.data.expression.Predicate;
+import prefuse.util.display.ItemBoundsListener;
+import prefuse.util.display.PaintListener;
+import prefuse.visual.VisualItem;
+import prefuse.visual.sort.ItemSorter;
+
+public interface Display {
+	
+		// from JComponent
+		public Graphics getGraphics();
+	
+		// from original Display
+	    public void setSize(int width, int height);
+	    public void setSize(Dimension d);
+	    public void invalidate();
+	    public void setBounds(int x, int y, int w, int h);
+	    public void setBounds(Rectangle bounds);
+	    public void setFont(Font f);
+	    public double getFrameRate();
+	    public void setHighQuality(boolean on);
+	    public boolean isHighQuality();
+	    public Visualization getVisualization();
+	    public void setVisualization(Visualization vis);
+	    public Predicate getPredicate();
+	    public void setPredicate(String expr);
+	    public void setPredicate(Predicate p);
+	    public int getVisibleItemCount();
+	    public ItemSorter getItemSorter();
+	    public void setItemSorter(ItemSorter cmp);
+	    public void setBackgroundImage(Image image,boolean fixed, boolean tileImage);
+	    public void setBackgroundImage(String location,boolean fixed, boolean tileImage);
+	    public JToolTip createToolTip();
+	    public void setCustomToolTip(JToolTip tooltip);
+	    public JToolTip getCustomToolTip();
+	    public boolean isDamageRedraw();
+	    public void setDamageRedraw(boolean b);
+	    public void damageReport(Rectangle2D region);
+	    public void damageReport();
+	    public void clearDamage();
+	    public Rectangle2D getItemBounds();
+	    public Rectangle2D getItemBounds(Rectangle2D b);
+	    public BufferedImage getOffscreenBuffer();
+	    public BufferedImage getNewOffscreenBuffer(int width, int height);
+	    public boolean saveImage(OutputStream output, String format, double scale);
+	    public void update(Graphics g);
+	    public void paintBufferToScreen(Graphics g);
+	    public void repaintImmediate();
+	    public void prepareGraphics(Graphics2D g);
+	    public void setRenderingHints(Graphics2D g);
+	    //public void paintComponent(Graphics g);
+	    public void paintDisplay(Graphics2D g2D, Dimension d);	   
+	    public void renderImmediate(VisualItem item);
+	    public void setTransform(AffineTransform transform) throws NoninvertibleTransformException;
+	    public AffineTransform getTransform();
+	    public AffineTransform getInverseTransform();
+	    public Point2D getAbsoluteCoordinate(Point2D screen, Point2D abs);
+	    public double getScale();
+	    public double getDisplayX();
+	    public double getDisplayY();
+	    public void pan(double dx, double dy);
+	    public void panAbs(double dx, double dy);
+	    public void panTo(Point2D p);
+	    public void panToAbs(Point2D p);
+	    public void zoom(final Point2D p, double scale);
+	    public void zoomAbs(final Point2D p, double scale);
+	    public void rotate(final Point2D p, double theta);
+	    public void rotateAbs(final Point2D p, double theta); 
+	    public void animatePan(double dx, double dy, long duration);
+	    public void animatePanAbs(double dx, double dy, long duration); 
+	    public void animatePanTo(Point2D p, long duration);
+	    public void animatePanToAbs(Point2D p, long duration);
+	    public void animateZoom(final Point2D p, double scale, long duration);
+	    public void animateZoomAbs(final Point2D p, double scale, long duration);
+	    public void animatePanAndZoomTo(final Point2D p, double scale, long duration);
+	    public void animatePanAndZoomToAbs(final Point2D p, double scale, long duration);
+	    public boolean isTranformInProgress();
+	    public void addPaintListener(PaintListener pl);
+	    public void removePaintListener(PaintListener pl);
+	    public void addItemBoundsListener(ItemBoundsListener ibl);
+	    public void removeItemBoundsListener(ItemBoundsListener ibl);
+	    public void addControlListener(Control cl);
+	    public void addComponentListener(ComponentListener cl);
+	    public void removeControlListener(Control cl);
+	    public VisualItem findItem(Point p);
+	    public JTextComponent getTextEditor();
+	    public void setTextEditor(JTextComponent tc);
+	    public void editText(VisualItem item, String attribute);
+	    public void editText(VisualItem item, String attribute, Rectangle r);
+	    public void editText(String txt, Rectangle r);
+	    public void stopEditing();
+	    public void repaint();
+	    public Insets getInsets(Insets insets);
+	    public Insets getInsets();
+	    public int getWidth();
+	    public int getHeight();
+	    public void setCursor(Cursor cursor);
+	    public void setToolTipText(String text);
+	    
+	    public void setBorder(Border border);
+}

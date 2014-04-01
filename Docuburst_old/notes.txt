@@ -1,0 +1,34 @@
+DOCUBURST NOTES
+
+[- note; . sub note; * to do; ? to consider; X to fix]
+
+X DocuBurst ArrayList exception
+* implement document pre-processor for DocuBurst: 
+	create an XML file format which includes full text, a per-tile table for all synsets (indexed/load index)
+* as Grame mentioned the line length of the text panels in DocuBurst is too long: new document browser?
+* remove spinners, allow direct selection and direct indication of document subset included in vis
+? connect a DocuBurst cell to the document vis with hover lines 
+? click to highlight co-occurrences in a coordinated view
+* select subtree
+* show document title on background
+
+1 December, 2008
+- tried MapBackedDictionary, much slower
+- tried FileBackedDictionary in new JWNL, also slower as relies on java.io.RandomAccessFile, which is much slower than the buffered IO I adapted the old one to use
+- adapted new JWNL to use uio buffered IO
+
+X refactor legend into it's own class; allow setting of colours, 2 scales (positive and negative)
+X attenuate section brightness based on relative occurrence density
+
+6 December, 2008
+- tried two different text books with "science" in the title -- General Science and "Practice and Art of Drawing" and they looked almost the same!
+
+10 December, 2008
+- created 4 measures: EVEN, RANK, FIRST, FIRSTEVEN... seems like FIRST and FIRSTEVEN are the best; using actual probablities would be better: could distribute among highly likely
+? perhaps the spread of the colour scale isn't wide enough?  Or it should change non-linearly
+- "spread" verb and noun are highlighting the same paragraphs, and under "stuff", a focus search for "spread" yeild 0 even though it's there
+? highlight occurring words with border if they aren't the first sense; don't propagate counts
+X first layer of synsets not working: if central word root is in the doc, they appear as 0
+- synset details and gloss should always be visible, not only on panel which is sometimes hidden
+? add DLL against BNC as a scoring method?
+? for FIRST scoring method, remove all synsets who have no member words for which it is the first synset (i.e. they will always be 0)
