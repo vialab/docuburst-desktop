@@ -17,11 +17,39 @@ import prefuse.data.Node;
  * 
  * @author Rafael Veras
  */
-
-import ca.utoronto.cs.docuburst.data.treecut.LiAbe;
-
 public class MDLTreeCut {
     
+	
+	/**
+     * Given a subtree, finds the tree cut that minimizes the description
+     * length. Described in Figure 7 of Li and Abe, 1998.
+     * <br><br>
+     * Uses the default description length calculation described in the 
+     * aforementioned paper.
+     * @see http://dl.acm.org/citation.cfm?id=972734
+     * @param node root of the subtree
+     * @param sampleSize length of the sample (e.g., number of words)
+     * @return a list of {@link Node}, representing the best (uneven) horizontal cut of the subtree 
+     */
+    public List<Node> findcut(Node root){
+        // pass an adapted replica of the tree to the tree cut algorithm
+        TreeCutNode replica = generateAdaptedTree(root);
+        
+ 		float sampleSize = sum((float[]) root.get("childCount")); 
+//        float sampleSize = 2732f;
+        List<TreeCutNode> cut = findcut(replica, (int)sampleSize, new LiAbe());
+        
+        List<Node> relevantCut = new ArrayList<Node>();
+        // each node of the replica (TreeCutNode) references a real node (prefuse.data.Node).
+        // extract and return a list of the latter
+        for (TreeCutNode c : cut)
+            if (c.getRefNode()!=null)
+                relevantCut.add(c.getRefNode());
+        
+        return relevantCut; 
+    }
+	
+	
     /**
      * Given a subtree, finds the tree cut that minimizes the description
      * length. Described in Figure 7 of Li and Abe, 1998.
@@ -44,7 +72,6 @@ public class MDLTreeCut {
         for (TreeCutNode c : cut)
             if (c.getRefNode()!=null)
                 relevantCut.add(c.getRefNode());
-        
         
         return relevantCut; 
     }
@@ -85,35 +112,28 @@ public class MDLTreeCut {
     
     
     /**
-     * Generates a copy of the provided tree with the modifications
-     * required by the tree cut algorithm.<br>
-     * In summary, senses are separated from semantic class, i.e.,
-     * for each inner node, a node with prefix 's'
-     * is appended as first child representing its sense.
-     * So all leaves represent senses, all internal nodes
-     * represent classes.
-     * For example: <br>
-     *  person.n.01 <br>
-     *      s.person.n.01 <br>
-     *      cripple.n.01  <br>
-     *          s.cripple.n.01 <br>
-     *          humpback.n.02  <br>
-     *      faller.n.02  <br>                 
-     *      hater.n.01   <br>
-     * @param root
-     * @return
+     * Translates the provided tree into the data structure used by
+     * the tree cut algorithm. In particular, for every node,
+     * the number of leaves that can be found under it is stored.<br>
+ 	 *
+     * @param root the root of the subtree
+     * @return an object {@link TreeCutNode} storing a copy of {@code root}. 
      */
     private TreeCutNode generateAdaptedTree(Node root){
         TreeCutNode adapt = new TreeCutNode();
         
         String name = root.getString("label") + root.getString("pos") + root.getLong("offset");
-        double freq = root.getDouble("childCount");
+        double freq = sum((float[])root.get("childCount"));
         
         int nBottomLeaves = 0;
         for (Iterator it = root.children(); it.hasNext();) {
             TreeCutNode c = generateAdaptedTree((Node) it.next());
             adapt.addChild(c);
-            nBottomLeaves += c.getnBottomLeaves();
+            // if this child is a leaf, increments the count by one
+            if (!c.hasChildren())
+            	nBottomLeaves += 1;
+            else // otherwise, accumulates the value of the child
+            	nBottomLeaves += c.getnBottomLeaves();
         }
         
         adapt.setnBottomLeaves(nBottomLeaves);
@@ -121,14 +141,28 @@ public class MDLTreeCut {
         adapt.setName(name);
         adapt.setFrequency(freq);
         
-        // if it's an internal node, duplicate it as a child
-        if (root.getFirstChild()==null){
-            TreeCutNode dupe = new TreeCutNode("s."+name, root.getDouble("nodeCount"), 0, null);
-            adapt.addChild(dupe);
-        }
+        // This is not necessary. Unlike my first impression, internal nodes
+        // cannot have counts associated to them, cause the tree includes not 
+        // only synsets, but also words. "nodeCount" is only set to nodes of
+        // type WORD.
+//        // if it's an internal node, duplicate it as a child
+//        if (root.getInt("type")==SENSE){
+//            TreeCutNode dupe = new TreeCutNode("s."+name, sum((float[])root.get("nodeCount")), 0, null);
+//            adapt.addChild(dupe);
+//        }
         
         return adapt;
     }
+    
+	private float sum(float[] array){
+		if (array==null)
+			return 0;
+		float sum = 0;
+		for (int i = 0; i < array.length; i++)
+			sum += array[i];
+		
+		return sum;
+	}
 
     public static void main(String[] args){
     	TreeCutNode ANIMAL  = new TreeCutNode("ANIMAL", 10, 7);
@@ -153,7 +187,6 @@ public class MDLTreeCut {
         for (List<TreeCutNode> c : Arrays.asList(new List[]{cut1, cut2, cut3, cut4, cut5})){
         	System.out.println(liAbe.dl(c, 10));
         }
-        
     }
     
    // TODO: Test the example provided in Li&Abe

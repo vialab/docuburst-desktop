@@ -26,8 +26,8 @@ public class TreeCutNode {
     private int nBottomLeaves; // number of leaves under this node
     private Node refNode; // the real Node represented by this, if any
     
-    private TreeCutNode firstChild;
-    private TreeCutNode rightSibling;
+    private TreeCutNode firstChild = null;
+    private TreeCutNode rightSibling = null;
     
     public TreeCutNode(String name, double frequency, int nBottomLeaves,
             Node refNode) {

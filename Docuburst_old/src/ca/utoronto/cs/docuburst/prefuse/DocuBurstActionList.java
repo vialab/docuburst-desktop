@@ -99,6 +99,10 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 	 */
 	public static final String CACHECOUNT = "cacheCount";
 	public static final String CACHERANGE = "cacheRange";
+	
+	// This column indicates whether or not a node belongs to the tree cut.
+	// 1 = True; 0 = False. For some reason the Node structure does not support Boolean.
+	public static final String CUT = "cut";
 
 	/**
 	 * Counts are stored as arrays of counts for each section or tile of the document.
@@ -592,7 +596,9 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 		countsSchema.addColumn(CACHERANGE, String.class, null);
 		countsSchema.addColumn(CACHECOUNT + CHILDCOUNT, float.class, null);
 		countsSchema.addColumn(CACHECOUNT + NODECOUNT, float.class, null);
-
+		// if true, the nodes belongs to the tree cut
+		countsSchema.addColumn(CUT, boolean.class, null);
+		
 		// Graph graph = (Graph) m_vis.getGroup(m_group);
 		graph.addColumns(countsSchema);
 		Tree t = graph.getSpanningTree();
@@ -939,6 +945,11 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 			}
 
 			public int getColor(VisualItem item) {
+				// test 
+				if (item.getBoolean("cut")){
+					return new Color(222,13,107).getRGB();
+				}
+				
 				int color = sca.getColor(item);
 				
 				// lemmas and senses in the pathToRoot

@@ -27,6 +27,7 @@ import java.awt.geom.AffineTransform;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashSet;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -64,6 +65,7 @@ import prefuse.Display;
 import prefuse.DisplayComponent;
 import prefuse.Visualization;
 import prefuse.data.Graph;
+import prefuse.data.Node;
 import prefuse.data.Table;
 import prefuse.data.Tree;
 import prefuse.data.expression.Predicate;
@@ -78,6 +80,8 @@ import prefuse.util.ui.JSearchPanel;
 import prefuse.util.ui.UILib;
 import prefuse.visual.VisualGraph;
 import ca.utoronto.cs.docuburst.data.WordNetTree;
+import ca.utoronto.cs.docuburst.data.treecut.LiAbe;
+import ca.utoronto.cs.docuburst.data.treecut.MDLTreeCut;
 import ca.utoronto.cs.docuburst.prefuse.DocuBurstActionList;
 import ca.utoronto.cs.docuburst.swing.ConcordancePanel;
 import ca.utoronto.cs.docuburst.swing.TilesPanel;
@@ -583,6 +587,17 @@ public class DocuBurst extends JPanel implements LoadData {
 		docuburstLayout.addLabels();
 		docuburstLayout.processCounts(graph);
 
+		// Finds tree cut
+		MDLTreeCut treeCutter = new MDLTreeCut();
+		
+		Tree spanningTree = graph.getSpanningTree();
+		List<Node> cut = treeCutter.findcut(spanningTree.getRoot());
+ 		
+ 		// Marks members of the tree cut
+ 		for (Node n : cut) {
+ 			n.setBoolean("cut", true);
+ 		}
+		
 		docuburstVisualization.setInteractive("graph.edges", null, false);
 		docuburstVisualization.run("layout");
 		docuburstVisualization.run("resize");
@@ -670,12 +685,14 @@ public class DocuBurst extends JPanel implements LoadData {
 		};
 		return worker;
 	}
+	
 
 	private SwingWorker<Graph, Void> loadDataWorker(final IndexWord indexWord, final HashSet<PointerType> relationshipTypes, final boolean countPolysemy,
 			final boolean mergeWords) throws JWNLException {
 		final SwingWorker<Graph, Void> worker = new SwingWorker<Graph, Void>() {
 			protected Graph doInBackground() throws InterruptedException, ExecutionException, JWNLException {
 				Graph tempgraph = WordNetTree.fillGraph(indexWord, relationshipTypes, countPolysemy, mergeWords);
+				
 				return tempgraph;
 			}
 
