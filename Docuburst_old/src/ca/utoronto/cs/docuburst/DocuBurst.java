@@ -546,7 +546,7 @@ public class DocuBurst extends JPanel implements LoadData {
 			e.printStackTrace();
 		}
 	}
-
+	
 	/**
 	 * Run DocuBurst layout
 	 */
@@ -559,7 +559,7 @@ public class DocuBurst extends JPanel implements LoadData {
 	/***************************************************************************
 	 * prefuse visualization
 	 **************************************************************************/
-
+	
 	/**
 	 * Display the given graph in DocuBurst.
 	 * 
@@ -570,15 +570,15 @@ public class DocuBurst extends JPanel implements LoadData {
 		docuburstVisualization.reset();
 		// clean up after clearing data structures
 		System.gc();
-
+	
 		LOGGER.info("Nodes: " + graph.getNodeCount() + " Edges: " + graph.getEdgeCount());
-
+	
 		// DOCUBURST
-
+	
 		fishEyeDocument.getVisualization().getFocusGroup(Visualization.FOCUS_ITEMS).clear();
 		docuburstLayout.getHighlightTextHoverActionControl().updateTextArea(true);
 		VisualGraph docuburstVG = docuburstVisualization.addGraph("graph", graph);
-
+	
 		try {
 			docuburstVG.addColumns(SectorRenderer.SECTOR_SCHEMA);
 		} catch (IllegalArgumentException e) {
@@ -586,27 +586,31 @@ public class DocuBurst extends JPanel implements LoadData {
 		}
 		docuburstLayout.addLabels();
 		docuburstLayout.processCounts(graph);
-
+	
 		// Finds tree cut
 		MDLTreeCut treeCutter = new MDLTreeCut();
 		
 		Tree spanningTree = graph.getSpanningTree();
 		List<Node> cut = treeCutter.findcut(spanningTree.getRoot());
- 		
- 		// Marks members of the tree cut
- 		for (Node n : cut) {
- 			n.setBoolean("cut", true);
- 		}
 		
-		docuburstVisualization.setInteractive("graph.edges", null, false);
-		docuburstVisualization.run("layout");
-		docuburstVisualization.run("resize");
-
+		// Marks members of the tree cut
+		for (Node n : cut) {
+			n.setBoolean("cut", true);
+		}
+		
+		// Moving down the block below is all it takes to solve issue #2 (see github repo)
+		// I guess the code below (search sets) triggers some update in the underlying table
+		// structure, solving the cause of issue #2 (outdated data).
+		
+//		docuburstVisualization.setInteractive("graph.edges", null, false);
+//		docuburstVisualization.run("layout");
+//		docuburstVisualization.run("resize");
+	
 		// SEARCH SETS
-
+	
 		// clear search sets
 		docuburstVisualization.getFocusGroup(Visualization.SEARCH_ITEMS).clear();
-
+	
 		// Search depth tracks search results: 0 -- no result; 1 -- result; d >
 		// 1 -- a descendent at depth d is a result
 		graph.addColumn("searchDepth", int.class, 0);
@@ -618,7 +622,7 @@ public class DocuBurst extends JPanel implements LoadData {
 		// create a column for limiting multi-word searches to exact match, not
 		// prefix
 		graph.addColumn("multiWordLimitedSearchKey", "CONCAT(multiWordSearchKey, \"|\", \" \", \"|\", multiWordSearchKey, \"|\")");
-
+	
 		// create a search panel and index radial search set
 		SearchQueryBinding sq = new SearchQueryBinding((Table) docuburstVisualization.getGroup("graph.nodes"), "label", (SearchTupleSet) docuburstVisualization
 				.getFocusGroup(Visualization.SEARCH_ITEMS));
@@ -626,7 +630,12 @@ public class DocuBurst extends JPanel implements LoadData {
 		((SearchTupleSet) docuburstVisualization.getFocusGroup(Visualization.SEARCH_ITEMS)).index(docuburstVG.getNodeTable().tuples(), "limitedSearchKey");
 		((SearchTupleSet) docuburstVisualization.getFocusGroup(Visualization.SEARCH_ITEMS)).index(docuburstVG.getNodeTable().tuples(),
 				"multiWordLimitedSearchKey");
-
+	
+		// RUNS LAYOUT
+		docuburstVisualization.setInteractive("graph.edges", null, false);
+		docuburstVisualization.run("layout");
+		docuburstVisualization.run("resize");
+		
 		JSearchPanel search = new JSearchPanel(sq.getSearchSet(), "label", true) {
 			public String getQuery() {
 				String query = super.getQuery();
@@ -636,7 +645,7 @@ public class DocuBurst extends JPanel implements LoadData {
 					return query;
 			}
 		};
-
+	
 		search.setShowBorder(false);
 		search.setShowResultCount(true);
 		search.setLabelText("Focus:");
@@ -648,6 +657,12 @@ public class DocuBurst extends JPanel implements LoadData {
 		filterPanel.validate();
 		search.requestFocusInWindow();
 	}
+
+
+
+	/***************************************************************************
+	 * prefuse visualization
+	 **************************************************************************/
 
 	/**
 	 * Initialize the JWNL off the event-dispatching thread, to provide for
@@ -686,7 +701,7 @@ public class DocuBurst extends JPanel implements LoadData {
 		return worker;
 	}
 	
-
+	
 	private SwingWorker<Graph, Void> loadDataWorker(final IndexWord indexWord, final HashSet<PointerType> relationshipTypes, final boolean countPolysemy,
 			final boolean mergeWords) throws JWNLException {
 		final SwingWorker<Graph, Void> worker = new SwingWorker<Graph, Void>() {
