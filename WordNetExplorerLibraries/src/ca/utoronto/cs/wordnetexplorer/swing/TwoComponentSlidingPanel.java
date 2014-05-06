@@ -132,7 +132,8 @@ public class TwoComponentSlidingPanel extends JPanel implements ComponentListene
     private BufferedImage pinUp;
     private BufferedImage pinDown;
     
-    public TwoComponentSlidingPanel(JComponent slidingComponent, JComponent complementComponent, Position position, int pixelDelta, int waitTime) {
+    public TwoComponentSlidingPanel(JComponent slidingComponent, JComponent complementComponent, Position position, 
+            int pixelDelta, int waitTime, boolean isVisible, boolean isLocked) {
         super();
         setLayout(null);
         backgroundColor = UIManager.getLookAndFeel().getDefaults().getColor("JPanel.background");
@@ -140,7 +141,8 @@ public class TwoComponentSlidingPanel extends JPanel implements ComponentListene
     		pinUp = ImageIO.read(this.getClass().getResource("images/pin_up.png"));
     		pinDown = ImageIO.read(this.getClass().getResource("images/pin_down.png"));
     	} catch (IOException e) {}
-    		
+    	this.isVisible = isVisible;
+    	this.lock = isLocked;
         slidingComponent.setBackground(Color.LIGHT_GRAY);
         addSlidingComponent(slidingComponent, position);
         addComplementaryComponent(complementComponent);
@@ -154,12 +156,17 @@ public class TwoComponentSlidingPanel extends JPanel implements ComponentListene
         ignore = false;
         addComponentListener(this);
     }
+    
+    public TwoComponentSlidingPanel(JComponent slidingComponent, JComponent complementComponent, Position position, int pixelDelta, 
+            int waitTime) {
+        this(slidingComponent, complementComponent, position, pixelDelta, waitTime, true, true);
+    }
 
     public void addComplementaryComponent(JComponent complementComponent) {
         complementaryComponent = complementComponent;
         oldBounds = complementaryComponent.getBounds();
         add(complementaryComponent);
-        initialize();
+        reset();
     }
     
     public void fireStateChanged() {
@@ -182,7 +189,7 @@ public class TwoComponentSlidingPanel extends JPanel implements ComponentListene
         slidingComponent = _slidingComponent; 
         
         location = position;
-        lock = false;
+//        lock = false;
     
         slidingComponent.addMouseListener(new MouseListener() {
             public void mouseEntered(MouseEvent e) {
@@ -231,25 +238,40 @@ public class TwoComponentSlidingPanel extends JPanel implements ComponentListene
             }
         });
         add(slidingComponent);
-        initialize();
+//        init();
     }
     
-    private void lock(boolean lock) {
+    public void reset() {
+        if (isVisible)
+            positionVisible();
+        else
+            positionHidden();
+        return;
+    }
+    
+    public void lock(boolean lock) {
         this.lock = lock;
         if (lock) {
-            if (location == Position.TOP) {
-                positionComponentTop(-slidingComponent.getHeight());
-            } 
-            if (location == Position.BOTTOM) {
-                positionComponentBottom(-slidingComponent.getHeight());
-            }
-            if (location == Position.LEFT) {
-                positionComponentLeft(-slidingComponent.getHeight());
-            }
-            if (location == Position.RIGHT) {
-                positionComponentRight(-slidingComponent.getHeight());
-            }
+            positionVisible();
         } 
+    }
+    
+    /**
+     * Positions the sliding component for full visibility.
+     */
+    public void positionVisible(){
+        if (location == Position.TOP) {
+            positionComponentTop(slidingComponent.getHeight());
+        } 
+        if (location == Position.BOTTOM) {
+            positionComponentBottom(slidingComponent.getHeight());
+        }
+        if (location == Position.LEFT) {
+            positionComponentLeft(slidingComponent.getHeight());
+        }
+        if (location == Position.RIGHT) {
+            positionComponentRight(slidingComponent.getHeight());
+        }
     }
     
     private void positionComponentTop(final int offset) {
@@ -315,7 +337,10 @@ public class TwoComponentSlidingPanel extends JPanel implements ComponentListene
         return label;
     }
 
-    public void initialize() {
+    /**
+     * Positions the sliding component for low visibility.
+     */
+    private void positionHidden(){
         if (location == Position.TOP) 
             positionComponentTop(-slidingComponent.getHeight() + 5);
         if (location == Position.BOTTOM) 
@@ -324,9 +349,9 @@ public class TwoComponentSlidingPanel extends JPanel implements ComponentListene
             positionComponentLeft(-slidingComponent.getWidth() + 5);
         if (location == Position.RIGHT)
             positionComponentRight(5);
-        isVisible = false;
-        lock = false;
     }
+    
+
     
     
     /**
@@ -438,12 +463,13 @@ public class TwoComponentSlidingPanel extends JPanel implements ComponentListene
          * timer update
          */
         public void actionPerformed(ActionEvent e) {
+            isVisible = false;
             if (location == Position.TOP) {
                 if (offset >= (-slidingComponent.getHeight())+pixelDelta) {
                     offset -= pixelDelta;
                     positionComponentTop(offset);
                 } else {
-                    initialize();
+                    reset();
                     hideTimer.stop();
                 }
             } 
@@ -452,7 +478,7 @@ public class TwoComponentSlidingPanel extends JPanel implements ComponentListene
                     offset -= pixelDelta;
                     positionComponentBottom(offset);
                 } else {
-                    initialize();
+                    reset();
                     hideTimer.stop();
                 }
             }
@@ -461,7 +487,7 @@ public class TwoComponentSlidingPanel extends JPanel implements ComponentListene
                     offset -= pixelDelta;
                     positionComponentLeft(offset);
                 } else {
-                    initialize();
+                    reset();
                     hideTimer.stop();
                 }
             }
@@ -470,7 +496,7 @@ public class TwoComponentSlidingPanel extends JPanel implements ComponentListene
                     offset -= pixelDelta;
                     positionComponentRight(offset);
                 } else {
-                    initialize();
+                    reset();
                     hideTimer.stop();
                 }
             }
@@ -528,7 +554,7 @@ public class TwoComponentSlidingPanel extends JPanel implements ComponentListene
             oldBounds = complementaryComponent.getBounds();
             // resize width of sliding component to match panel
             slidingComponent.setPreferredSize(new Dimension((int)size.getWidth(), (int)slidingComponent.getSize().getHeight()));
-            initialize();
+            reset();
          }
         if ((location == Position.LEFT) || (location == Position.RIGHT)) {
             // make complementary component full size of resized panel
@@ -538,7 +564,7 @@ public class TwoComponentSlidingPanel extends JPanel implements ComponentListene
             oldBounds = complementaryComponent.getBounds();
             // resize width of sliding component to match panel
             slidingComponent.setPreferredSize(new Dimension((int)slidingComponent.getSize().getWidth(), (int)getSize().getHeight()));
-            initialize();
+            reset();
          }
     }
     
