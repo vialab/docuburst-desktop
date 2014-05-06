@@ -678,7 +678,7 @@ public class DocuBurst extends JPanel implements LoadData {
 			protected Dictionary doInBackground() throws Exception {
 				// initialize JWNL using properties file; must be done before
 				// use
-				String propsFile = "/home/rafa/Dev/workspace/docuburst/jwnl-sf/config/file_properties.xml"; // jwnl properties
+				String propsFile = "lib/jwnl_file_properties.xml"; // jwnl properties
 				try {
 					InputStream propsStream = IOLib.streamFromString(propsFile);
 					JWNL.initialize(propsStream);
