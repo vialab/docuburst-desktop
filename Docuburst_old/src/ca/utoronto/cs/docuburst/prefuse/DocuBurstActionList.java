@@ -79,6 +79,7 @@ import prefuse.visual.expression.StartVisiblePredicate;
 import prefuse.visual.expression.VisiblePredicate;
 import ca.utoronto.cs.docuburst.DocuBurst;
 import ca.utoronto.cs.prefuseextensions.layout.StarburstLayout;
+import ca.utoronto.cs.prefuseextensions.layout.StarburstLayout.WidthType;
 import ca.utoronto.cs.prefuseextensions.lib.Colors;
 import ca.utoronto.cs.prefuseextensions.render.ArcLabelRenderer;
 import ca.utoronto.cs.prefuseextensions.render.DecoratorLabelRenderer;
@@ -135,7 +136,7 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 	private float nodeMaxTotal;
 
 	// currently selected type of count 
-	private String countType = CHILDCOUNT;
+	private String countType = NODECOUNT;
 
 	// text document
 	private String[] fullText;
@@ -390,6 +391,12 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 		m_vis.putAction("animatePaint", animatePaint);
 
 		treeLayout = new StarburstLayout("graph");
+		if (countType == NODECOUNT){
+		    treeLayout.setWidthType(WidthType.FIELD, CACHECOUNT + NODECOUNT);
+		} else {
+		    treeLayout.setWidthType(WidthType.CHILDCOUNT, null);
+		}
+//		treeLayout.setWidthType(widthType, widthField);
 		// set layout anchor so it doesn't reset on reload new data
 
 		// move display to have (0,0) at center
@@ -418,7 +425,7 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 				item.setString("gloss", wrap(item.getString("gloss"), 30));
 			};
 		});
-		fisheyeTreeFilter = new FisheyeTreeFilter("graph", "searchAndFocus", 3);
+		fisheyeTreeFilter = new FisheyeTreeFilter("graph", "searchAndFocus", 6);
 
 		// recentre and rezoom on reload
 		Action resizeAction = new Action() {
@@ -597,7 +604,7 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 		countsSchema.addColumn(CACHECOUNT + CHILDCOUNT, float.class, null);
 		countsSchema.addColumn(CACHECOUNT + NODECOUNT, float.class, null);
 		// if true, the nodes belongs to the tree cut
-		countsSchema.addColumn(CUT, boolean.class, null);
+		countsSchema.addColumn(CUT, boolean.class, false);
 		
 		// Graph graph = (Graph) m_vis.getGroup(m_group);
 		graph.addColumns(countsSchema);

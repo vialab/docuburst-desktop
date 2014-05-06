@@ -128,7 +128,7 @@ public class DocuBurst extends JPanel implements LoadData {
 
 	// Predicates
 	public static final Predicate NOT_LEAF_PREDICATE = (Predicate) ExpressionParser.parse("childcount() > 0");
-
+	
 	public static final Predicate NOT_S2W_PREDICATE = (Predicate) ExpressionParser.parse("type != " + S2W);
 
 	public static final Predicate OMIT_WORDS_PREDICATE = (Predicate) ExpressionParser.parse("(type != " + WORD + ") and (type != " + S2W + ")");
@@ -796,7 +796,7 @@ public class DocuBurst extends JPanel implements LoadData {
 		depthFilterPanel.setBorder(new TitledBorder("Depth Filter"));
 
 		JLabel depthLabel = new JLabel("Maximum tree depth:");
-		depthSpinner = new JSpinner(new SpinnerNumberModel(3, 1, 20, 1));
+		depthSpinner = new JSpinner(new SpinnerNumberModel(docuburstLayout.getFisheyeTreeFilter().getDistance(), 1, 20, 1));
 		depthLabel.setDisplayedMnemonic('d');
 		depthFilterPanel.add(depthLabel);
 		depthFilterPanel.add(depthSpinner);
@@ -1078,6 +1078,7 @@ public class DocuBurst extends JPanel implements LoadData {
 			contentPane.setPreferredSize(new Dimension(2800, 2150));
 		else
 			contentPane.setPreferredSize(new Dimension(1400, 1000));
+		
 		return contentPane;
 	}
 }
