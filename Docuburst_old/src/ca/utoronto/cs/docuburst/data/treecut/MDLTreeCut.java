@@ -32,21 +32,10 @@ public class MDLTreeCut {
      * @return a list of {@link Node}, representing the best (uneven) horizontal cut of the subtree 
      */
     public List<Node> findcut(Node root){
-        // pass an adapted replica of the tree to the tree cut algorithm
-        TreeCutNode replica = generateAdaptedTree(root);
         
- 		float sampleSize = sum((float[]) root.get("childCount")); 
-//        float sampleSize = 2732f;
-        List<TreeCutNode> cut = findcut(replica, (int)sampleSize, new LiAbe());
-        
-        List<Node> relevantCut = new ArrayList<Node>();
-        // each node of the replica (TreeCutNode) references a real node (prefuse.data.Node).
-        // extract and return a list of the latter
-        for (TreeCutNode c : cut)
-            if (c.getRefNode()!=null)
-                relevantCut.add(c.getRefNode());
-        
-        return relevantCut; 
+ 		float sampleSize = sum((float[]) root.get("childCount"));
+ 		
+        return findcut(root, (int)sampleSize); 
     }
 	
 	
@@ -65,6 +54,7 @@ public class MDLTreeCut {
         // pass an adapted replica of the tree to the tree cut algorithm
         TreeCutNode replica = generateAdaptedTree(root);
         List<TreeCutNode> cut = findcut(replica, sampleSize, new LiAbe());
+//        List<TreeCutNode> cut = findcut(replica, sampleSize, new Wagner(0, sampleSize));
         
         List<Node> relevantCut = new ArrayList<Node>();
         // each node of the replica (TreeCutNode) references a real node (prefuse.data.Node).
@@ -141,16 +131,6 @@ public class MDLTreeCut {
         adapt.setName(name);
         adapt.setFrequency(freq);
         
-        // This is not necessary. Unlike my first impression, internal nodes
-        // cannot have counts associated to them, cause the tree includes not 
-        // only synsets, but also words. "nodeCount" is only set to nodes of
-        // type WORD.
-//        // if it's an internal node, duplicate it as a child
-//        if (root.getInt("type")==SENSE){
-//            TreeCutNode dupe = new TreeCutNode("s."+name, sum((float[])root.get("nodeCount")), 0, null);
-//            adapt.addChild(dupe);
-//        }
-        
         return adapt;
     }
     
@@ -189,6 +169,4 @@ public class MDLTreeCut {
         }
     }
     
-   // TODO: Test the example provided in Li&Abe
-   // TODO: Generate a simple visual representation of the tree cut (sectors of different color).
 }

@@ -281,8 +281,9 @@ public abstract class WordNetTree {
                         // Create synsetNode for this sense
                         Node targetNode;
                         // if already encountered synset, use it, unless mergeWords not selected
-                        if (nodeHashMap.containsKey(targetSynset.getKey()) && (mergeWords))
+                        if (nodeHashMap.containsKey(targetSynset.getKey()) && (mergeWords)){
                             targetNode = (Node) nodeHashMap.get(targetSynset.getKey());
+                        }
                         else {
                             targetNode = g.addNode();
                             setupSynsetNode(targetNode, parent, targetSynset);
