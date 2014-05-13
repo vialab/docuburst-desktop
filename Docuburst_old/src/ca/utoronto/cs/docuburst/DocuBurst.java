@@ -587,17 +587,6 @@ public class DocuBurst extends JPanel implements LoadData {
 		docuburstLayout.addLabels();
 		docuburstLayout.processCounts(graph);
 	
-		// Finds tree cut
-		MDLTreeCut treeCutter = new MDLTreeCut();
-		
-		Tree spanningTree = graph.getSpanningTree();
-		List<Node> cut = treeCutter.findcut(spanningTree.getRoot());
-		
-		// Marks members of the tree cut
-		for (Node n : cut) {
-			n.setBoolean("cut", true);
-		}
-		
 		// Moving down the block below is all it takes to solve issue #2 (see github repo)
 		// I guess the code below (search sets) triggers some update in the underlying table
 		// structure, solving the cause of issue #2 (outdated data).
@@ -1079,6 +1068,7 @@ public class DocuBurst extends JPanel implements LoadData {
 		else
 			contentPane.setPreferredSize(new Dimension(1400, 1000));
 		
+
 		return contentPane;
 	}
 }

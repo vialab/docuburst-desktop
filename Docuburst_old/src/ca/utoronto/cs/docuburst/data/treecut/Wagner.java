@@ -14,8 +14,12 @@ import java.util.Collection;
  */
 public class Wagner extends LiAbe {
 	
+    /**
+     * w C constant (here named w) in Wagner's paper. Impacts on the weighting factor, 
+     * determining the level of generalization. The higher this value, the more specific
+     * is the resulting cut.
+     */
 	double w = 500;
-	int s = 0;
 	
 	public Wagner() {
 	}
@@ -33,8 +37,16 @@ public class Wagner extends LiAbe {
 			w = s / (Math.log(s)/Math.log(2)); // |S|/log2|S|
 		}
 		this.w = w;
-		this.s = s;
-		
+	}
+	
+	
+	
+	/**
+	 * Calculates the weighting factor according to Wagner (2000).
+	 * @param s sample size
+	 */
+	public double weightingFactor(int s){
+	    return w*((Math.log(s)/Math.log(2))/(float)s);
 	}
 	
 	/**
@@ -43,8 +55,6 @@ public class Wagner extends LiAbe {
      * @param s Sample size. Number of occurrences in the whole subtree (total count). 
      */
     public double dl(Collection<TreeCutNode> cut, int s){
-    	System.out.println("DESCRIPTION LENGTH");
-    	System.out.println(pdl(cut, s) + w*((Math.log(s)/Math.log(2))/(float)s)*ddl(cut, s));
-        return pdl(cut, s) + w*((Math.log(s)/Math.log(2))/(float)s)*ddl(cut, s);
+        return pdl(cut, s) + weightingFactor(s)*ddl(cut, s);
     }
 }

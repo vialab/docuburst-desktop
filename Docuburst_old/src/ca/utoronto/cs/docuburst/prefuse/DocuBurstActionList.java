@@ -151,7 +151,8 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 
 	// prefuse controls and actions 
 
-	private FisheyeTreeFilter fisheyeTreeFilter;
+	private FisheyeTreeFilter fisheyeTreeFilter; // TODO: Get rid
+	private TreeCutFilter treeCutFilter;
 	private NodeColorAction nodeColor;
 
 	StarburstLayout treeLayout;
@@ -426,6 +427,7 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 			};
 		});
 		fisheyeTreeFilter = new FisheyeTreeFilter("graph", "searchAndFocus", 6);
+		treeCutFilter = new TreeCutFilter("graph", "searchAndFocus");
 
 		// recentre and rezoom on reload
 		Action resizeAction = new Action() {
@@ -441,7 +443,8 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 		m_vis.putAction("resize", resizeAction);
 
 		// create the filtering and layout
-		this.add(fisheyeTreeFilter);
+//		this.add(fisheyeTreeFilter);
+		this.add(treeCutFilter);
 		this.add(vF);
 		this.add(treeLayout);
 		this.add(new LabelLayout(LABELS));
@@ -476,17 +479,26 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 			highlightTextHAC.setCountField(CACHECOUNT + NODECOUNT);
 			display.addControlListener(panControl = new PanControl(true));
 			display.addControlListener(zoomControl = new ZoomControl());
+//			display.addControlListener(mouseWheelControl = new ControlAdapter() {
+//				public void itemWheelMoved(VisualItem item, MouseWheelEvent e) {
+//					if (e.getWheelRotation() < 0)
+//						item.setDouble("angleFactor", item.getDouble("angleFactor") + 0.1);
+//					else
+//						item.setDouble("angleFactor", (item.getDouble("angleFactor") > 0.2 ? item.getDouble("angleFactor") - 0.1 : 0.1));
+//					m_vis.cancel("layout");
+//					m_vis.cancel("animate");
+//					m_vis.run("layout");
+//				}
+//			});
 			display.addControlListener(mouseWheelControl = new ControlAdapter() {
-				public void itemWheelMoved(VisualItem item, MouseWheelEvent e) {
-					if (e.getWheelRotation() < 0)
-						item.setDouble("angleFactor", item.getDouble("angleFactor") + 0.1);
-					else
-						item.setDouble("angleFactor", (item.getDouble("angleFactor") > 0.2 ? item.getDouble("angleFactor") - 0.1 : 0.1));
-					m_vis.cancel("layout");
-					m_vis.cancel("animate");
-					m_vis.run("layout");
-				}
-			});
+              public void itemWheelMoved(VisualItem item, MouseWheelEvent e) {
+                  System.out.println(e.getWheelRotation());
+                  treeCutFilter.updateDistance(e.getWheelRotation());
+                  m_vis.cancel("layout");
+                  m_vis.cancel("animate");
+                  m_vis.run("layout");
+              }
+            });
 			display.addControlListener(displaySenseMouseOverControl = new DisplaySenseMouseOverControl(DocuBurst.filterPane));
 		}
 	}

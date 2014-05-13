@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import ca.utoronto.cs.docuburst.util.Util;
 import prefuse.data.Node;
 
 /**
@@ -19,6 +20,25 @@ import prefuse.data.Node;
  */
 public class MDLTreeCut {
     
+    private DescriptionLength measure;
+
+    /**
+     * By default, initializes this class with Li & Abe's
+     * measure of description length.
+     */
+    public MDLTreeCut() {
+        this(new LiAbe());
+    }
+    
+    /**
+     * Initializes this class with a certain measure, to be
+     * used in the tree cut calculations.
+     * @param measure determines how the description length is
+     * be calculated.
+     */
+    public MDLTreeCut(DescriptionLength measure) {
+        this.measure = measure;
+    }
 	
 	/**
      * Given a subtree, finds the tree cut that minimizes the description
@@ -28,12 +48,11 @@ public class MDLTreeCut {
      * aforementioned paper.
      * @see http://dl.acm.org/citation.cfm?id=972734
      * @param node root of the subtree
-     * @param sampleSize length of the sample (e.g., number of words)
      * @return a list of {@link Node}, representing the best (uneven) horizontal cut of the subtree 
      */
     public List<Node> findcut(Node root){
         
- 		float sampleSize = sum((float[]) root.get("childCount"));
+ 		float sampleSize = Util.sum((float[]) root.get("childCount"));
  		
         return findcut(root, (int)sampleSize); 
     }
@@ -43,8 +62,7 @@ public class MDLTreeCut {
      * Given a subtree, finds the tree cut that minimizes the description
      * length. Described in Figure 7 of Li and Abe, 1998.
      * <br><br>
-     * Uses the default description length calculation described in the 
-     * aforementioned paper.
+     * Uses the description length calculation passed to this class at construction time.
      * @see http://dl.acm.org/citation.cfm?id=972734
      * @param node root of the subtree
      * @param sampleSize length of the sample (e.g., number of words)
@@ -53,7 +71,7 @@ public class MDLTreeCut {
     public List<Node> findcut(Node root, int sampleSize){
         // pass an adapted replica of the tree to the tree cut algorithm
         TreeCutNode replica = generateAdaptedTree(root);
-        List<TreeCutNode> cut = findcut(replica, sampleSize, new LiAbe());
+        List<TreeCutNode> cut = findcut(replica, sampleSize, measure);
 //        List<TreeCutNode> cut = findcut(replica, sampleSize, new Wagner(0, sampleSize));
         
         List<Node> relevantCut = new ArrayList<Node>();
@@ -113,7 +131,7 @@ public class MDLTreeCut {
         TreeCutNode adapt = new TreeCutNode();
         
         String name = root.getString("label") + root.getString("pos") + root.getLong("offset");
-        double freq = sum((float[])root.get("childCount"));
+        double freq = Util.sum((float[])root.get("childCount"));
         
         int nBottomLeaves = 0;
         for (Iterator it = root.children(); it.hasNext();) {
@@ -133,16 +151,6 @@ public class MDLTreeCut {
         
         return adapt;
     }
-    
-	private float sum(float[] array){
-		if (array==null)
-			return 0;
-		float sum = 0;
-		for (int i = 0; i < array.length; i++)
-			sum += array[i];
-		
-		return sum;
-	}
 
     public static void main(String[] args){
     	TreeCutNode ANIMAL  = new TreeCutNode("ANIMAL", 10, 7);
