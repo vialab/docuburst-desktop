@@ -1,4 +1,8 @@
 *.class
+bin/
+build/
+
+*.attach_pid*
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/

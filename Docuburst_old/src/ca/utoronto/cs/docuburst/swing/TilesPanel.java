@@ -15,7 +15,7 @@ import javax.swing.JTextPane;
 
 import ca.utoronto.cs.docuburst.Parameters;
 import ca.utoronto.cs.docuburst.prefuse.DocuBurstActionList;
-import ca.utoronto.cs.docuburst.prefuse.HighlightTextHoverActionControl;
+import ca.utoronto.cs.docuburst.prefuse.action.HighlightTextHoverActionControl;
 import ca.utoronto.cs.prefuseextensions.swing.ValueChangedEvent;
 import ca.utoronto.cs.prefuseextensions.swing.ValueListener;
 
