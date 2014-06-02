@@ -569,7 +569,7 @@ public class DocuBurst extends JPanel implements LoadData {
 	public void visualize(Graph graph) {
 		docuburstVisualization.reset();
 		// clean up after clearing data structures
-		System.gc();
+//		System.gc();
 	
 		LOGGER.info("Nodes: " + graph.getNodeCount() + " Edges: " + graph.getEdgeCount());
 	

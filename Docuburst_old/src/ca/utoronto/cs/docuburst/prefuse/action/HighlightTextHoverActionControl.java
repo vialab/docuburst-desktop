@@ -1,4 +1,4 @@
-package ca.utoronto.cs.docuburst.prefuse;
+package ca.utoronto.cs.docuburst.prefuse.action;
 
 import static ca.utoronto.cs.wordnetexplorer.utilities.Constants.LEMMA;
 import static ca.utoronto.cs.wordnetexplorer.utilities.Constants.SENSE;
@@ -35,6 +35,8 @@ import prefuse.util.ColorLib;
 import prefuse.visual.NodeItem;
 import prefuse.visual.VisualItem;
 import ca.utoronto.cs.docuburst.Parameters;
+import ca.utoronto.cs.docuburst.prefuse.ColorScheme;
+import ca.utoronto.cs.docuburst.prefuse.DocuBurstActionList;
 import ca.utoronto.cs.docuburst.swing.ConcordancePanel;
 import ca.utoronto.cs.wordnetexplorer.prefuse.FisheyeDocument;
 

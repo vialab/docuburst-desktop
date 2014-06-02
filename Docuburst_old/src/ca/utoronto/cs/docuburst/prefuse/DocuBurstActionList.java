@@ -11,7 +11,6 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.GradientPaint;
 import java.awt.Graphics2D;
-import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -72,12 +71,16 @@ import prefuse.util.GraphicsLib;
 import prefuse.util.PrefuseLib;
 import prefuse.util.display.DisplayLib;
 import prefuse.visual.DecoratorItem;
-import prefuse.visual.NodeItem;
 import prefuse.visual.VisualItem;
 import prefuse.visual.expression.HoverPredicate;
 import prefuse.visual.expression.StartVisiblePredicate;
 import prefuse.visual.expression.VisiblePredicate;
 import ca.utoronto.cs.docuburst.DocuBurst;
+import ca.utoronto.cs.docuburst.prefuse.action.HighlightTextHoverActionControl;
+import ca.utoronto.cs.docuburst.prefuse.action.NodeColorAction;
+import ca.utoronto.cs.docuburst.prefuse.action.NodeStrokeColorAction;
+import ca.utoronto.cs.docuburst.prefuse.action.PathTraceHoverActionControl;
+import ca.utoronto.cs.docuburst.prefuse.action.StarburstScaleFontAction;
 import ca.utoronto.cs.prefuseextensions.layout.StarburstLayout;
 import ca.utoronto.cs.prefuseextensions.layout.StarburstLayout.WidthType;
 import ca.utoronto.cs.prefuseextensions.lib.Colors;
@@ -126,9 +129,9 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 	private static Predicate labelPredicate = new AndPredicate(ExpressionParser.predicate("(type = 1 or type = 0)"), 
 			new OrPredicate(new VisiblePredicate(), new StartVisiblePredicate()));
 
-	private static final boolean FONTFROMDIAGONAL = false;
+	public static final boolean FONTFROMDIAGONAL = false;
 	
-	private static final double MAXFONTHEIGHT = 40.0;
+	public static final double MAXFONTHEIGHT = 40.0;
 
 	private static final double MINFONTHEIGHT = 6.0;
 	
@@ -136,7 +139,7 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 	private float nodeMaxTotal;
 
 	// currently selected type of count 
-	private String countType = NODECOUNT;
+	public String countType = NODECOUNT;
 
 	// text document
 	private String[] fullText;
@@ -207,51 +210,6 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 			System.err.println("WordNet dictionary not initialized.");
 		fullText = LanguageLib.fillWordCountsMap(wordMap = new HashMap<String, float[]>(), wordsFile, fullTextFile, CountMethod.RANK);
 		
-		// uncomment to subtract second file
-		/*fullTextFile = "texts/2008_third_presidential_debate.tiled.txt";
-		wordsFile = "texts/2008_third_presidential_debate.tiled.tagged.cleaned.txt";
-		
-		fullText2 = LanguageLib.fillWordCountsMap(wordMap2 = new HashMap<String, float[]>(), wordsFile, fullTextFile);
-		
-		Iterator it = wordMap.keySet().iterator();
-		
-		int size = 0;
-		while (it.hasNext()) {
-			String key = (String) it.next();
-			if (wordMap2.containsKey(key)) {
-				float sum = 0;
-				float[] counts = wordMap2.get(key);
-				size = wordMap.get(key).length;
-				
-				for (float count : counts) {
-					sum += count;
-				}
-				
-				wordMap.get(key)[0] -= sum;
-				wordMap2.remove(key);
-			}
-		}
-		
-		it = wordMap2.keySet().iterator();
-		
-		while (it.hasNext()) {
-			String key = (String) it.next();
-			if (wordMap2.containsKey(key)) {
-				float sum = 0;
-				float[] counts = wordMap2.get(key);
-				
-				float[] newCounts = new float[size];
-				
-				for (float count : counts) {
-					sum += count;
-				}
-				
-				newCounts[0] -= sum;
-				wordMap.put(key, newCounts);
-			}
-
-		}
-		*/
 		fisheyeDocument.initializeText(fullText);
 		fisheyeDocument.getVisualization().run("init");
 
@@ -302,8 +260,8 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 		});
 
 		// colors
-		nodeColor = new NodeColorAction("graph.nodes", true);
-		ColorAction nodeStrokeColor = new NodeStrokeColorAction("graph.nodes");
+		nodeColor = new NodeColorAction(this, "graph.nodes", true);
+		ColorAction nodeStrokeColor = new NodeStrokeColorAction(this, "graph.nodes");
 		// Color by POS
 		// DataColorAction dca = new DataColorAction("graph.nodes", "pos",
 		// Constants.NOMINAL, VisualItem.FILLCOLOR);
@@ -877,7 +835,7 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 		return vF;
 	}
 
-	private float getMaxTotal(String type) {
+	public float getMaxTotal(String type) {
 		if (type.equals(CHILDCOUNT))
 			return childMaxTotal;
 		if (type.equals(NODECOUNT))
@@ -927,327 +885,4 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 			}
 		}
 	} // end of inner class LabelLayout
-
-	/**
-	 * Set node fill colors
-	 */
-	class NodeColorAction extends ColorAction {
-
-		public NodeColorAction(String group, boolean trackSenseIndex) {
-			super(group, VisualItem.FILLCOLOR, ColorLib.rgba(100, 100, 100, 0));
-			add("type = 1", new WordCountColorAction(group, VisualItem.FILLCOLOR));
-		}
-
-		class SenseColorAction extends ColorAction {
-
-			public SenseColorAction(String group, String field) {
-				super(group, field);
-			}
-
-			public int getColor(VisualItem item) {
-				if (item.getInt("searchDepth") == 1)
-					return ColorScheme.searchColor;
-
-				if (item.canGetInt("senseIndex"))
-					return ColorScheme.sensesPalette[item.getInt("senseIndex") % ColorScheme.sensesPalette.length];
-				else
-					return ColorScheme.resultsColor;
-			}
-		}
-
-		class WordCountColorAction extends ColorAction {
-			SenseColorAction sca;
-
-			public WordCountColorAction(String group, String field) {
-				super(group, field);
-				sca = new SenseColorAction(group, VisualItem.FILLCOLOR);
-			}
-
-			public int getColor(VisualItem item) {
-				// test 
-				if (item.getBoolean("cut")){
-					return new Color(222,13,107).getRGB();
-				}
-				
-				int color = sca.getColor(item);
-				
-				// lemmas and senses in the pathToRoot
-				if (item.isInGroup("pathToRoot") && ((item.getInt("type") == 1) || (item.getInt("type") == 4)))
-					color = ColorScheme.pathToRootColor;
-
-				// count off -- just return color
-				if (countType.equals(NOCOUNT))
-					return color;
-
-				float total = (float) (item.getFloat(CACHECOUNT + countType));
-				float maxTotal = getMaxTotal(countType);
-
-				if (total < 0) color = ColorScheme.negativeColor;
-				
-				if (total == 0) {
-					if (color != ColorScheme.pathToRootColor)
-						// zero senses get grey, zero lemmas and words get clear
-						return ColorLib.setAlpha(ColorScheme.zeroOccurrenceSenseColor, ColorScheme.zeroAlpha);
-					else
-						// modulate path to root color 
-						return ColorLib.setAlpha(color, ColorScheme.zeroAlpha);
-				}
-
-				// initial alpha for zero and one count
-				int alpha = ColorScheme.zeroAlpha;
-
-				alpha += (int) (((float) total / (float) maxTotal) * (float) (255 - alpha));
-
-				if (total < 0)
-					System.err.println("total: " + total + " node: " + item.getString("label") + " alpha: " + alpha);
-
-				// this should not occur except for rounding errors
-				if (alpha > 255)
-					alpha = 255;
-
-				return ColorLib.setAlpha(color, alpha);
-			}
-		}
-	} // end of inner class NodeColorAction
-
-	/**
-	 * Set node fill colors
-	 */
-	class NodeStrokeColorAction extends ColorAction {
-
-		public NodeStrokeColorAction(String group) {
-			// default is invisible stroke (for word and lemma nodes)
-			super(group, VisualItem.STROKECOLOR, ColorLib.gray(0, 0));
-			add("ingroup('highlight')", ColorScheme.highlightColor);
-			add("_hover", ColorScheme.hoverColor);
-			add("type = 1 or ingroup('_search_')", new WordCountColorAction(group, VisualItem.STROKECOLOR));
-			// if it's a sense node, run the count-based action
-		}
-
-		class SenseColorAction extends ColorAction {
-
-			public SenseColorAction(String group, String field) {
-				super(group, field);
-			}
-
-			public int getColor(VisualItem item) {
-				// search results always pink, alpha changes based on count
-				if (item.getInt("searchDepth") == 1)
-					return ColorScheme.searchColor;
-
-				if (item.canGetInt("senseIndex"))
-					return ColorScheme.sensesPalette[item.getInt("senseIndex") % ColorScheme.sensesPalette.length];
-				else
-					return ColorScheme.zeroOccurrenceSenseColor;
-			}
-		}
-
-		class WordCountColorAction extends ColorAction {
-			SenseColorAction sca;
-
-			public WordCountColorAction(String group, String field) {
-				super(group, field);
-				sca = new SenseColorAction(group, VisualItem.FILLCOLOR);
-			}
-
-			public int getColor(VisualItem item) {
-				int color = ColorLib.darker(item.getFillColor());//ColorLib.darker(sca.getColor(item));
-				int alpha = ColorScheme.zeroAlpha + 10;
-
-				// return search color if match; don't modulate based on occurrence or omit due to size
-				if (item.getInt("searchDepth") == 1)
-					return ColorScheme.searchColor;
-
-				// for small nodes, omit border
-				if (item.getDouble("angleExtent") < 2)
-					alpha = 0;
-
-				// if we aren't counting, just return border colour
-				if (countType.equals(NOCOUNT))
-					return color;
-
-				float maxTotal = getMaxTotal(countType);
-				//float total = (float) Math.log(item.getFloat(CACHECOUNT + countType));
-				float total = (float) (item.getFloat(CACHECOUNT + countType));
-
-				// no search results, return senseColor, with 0 alpha if < 2 degrees
-				if (total == 0)
-					return ColorLib.setAlpha(ColorLib.darker(sca.getColor(item)), alpha);
-
-				// if we are have a single sense and count is non-zero, set color to results colour
-				// otherwise keep it as fill color 
-				if (color == ColorScheme.zeroOccurrenceSenseColor)
-					color = ColorScheme.resultsColor;
-
-				// base border alpha on count; alpha starts darker than for fill
-				alpha = 80;
-				alpha += (int) ((total / maxTotal) * (float) (255 - alpha));
-
-				if (alpha > 255)
-					alpha = 255;
-
-				if (item.getDouble("angleExtent") < 2)
-					alpha = 0;
-				return ColorLib.setAlpha(color, alpha);
-			}
-
-		}
-	} // end of inner class NodeColorAction
-
-	class PathTraceHoverActionControl extends HoverActionControl {
-		Predicate p;
-
-		public PathTraceHoverActionControl(String action) {
-			super(action);
-			p = ExpressionParser.predicate("type = 2");
-		}
-
-		/**
-		 * Add all nodes between hover node and root to pathToRoot focus group
-		 * 
-		 * @param item the item under hover
-		 * @param e the mouse event for itemEntered
-		 */
-		public void itemEntered(VisualItem item, MouseEvent e) {
-			if (item instanceof NodeItem) {
-				TupleSet pathToRoot = item.getVisualization().getFocusGroup("pathToRoot");
-				pathToRoot.clear();
-				traceToRoot((Node) item, pathToRoot, p);
-
-				super.itemEntered(item, e);
-			}
-		}
-
-		/**
-		 * Remove all nodes between hover node and root to pathToRoot focus group
-		 * 
-		 * @param item the item under hover
-		 * @param e the mouse event for itemEntered
-		 */
-		public void itemExited(VisualItem item, MouseEvent e) {
-			if (item instanceof NodeItem) {
-				TupleSet pathToRoot = item.getVisualization().getFocusGroup("pathToRoot");
-				pathToRoot.clear();
-				super.itemExited(item, e);
-			}
-		}
-
-		/**
-		 * Trace from node to root along edges in which node is target (child).
-		 * Also add word nodes for all sense nodes along the way.
-		 * 
-		 * @param n
-		 *            the starting node to trace up from
-		 * @param pathToRoot
-		 *            the tuple set to add the nodes to (usually a focus group)
-		 * @param p
-		 *            predicate to filter non child edges on
-		 */
-		public void traceToRoot(Node n, TupleSet pathToRoot, Predicate p) {
-			if (n != null) {
-				pathToRoot.addTuple(n);
-				Iterator edges = n.edges();
-				while (edges.hasNext()) {
-					Edge edge = (Edge) edges.next();
-					// add edges where current node is child (n is target)
-					if (edge.getTargetNode() == n) {
-						pathToRoot.addTuple(n);
-						pathToRoot.addTuple(edge);
-						traceToRoot(edge.getSourceNode(), pathToRoot, p);
-					} else {
-						// add "word" nodes along the way (n is source)
-						if (p.getBoolean(edge)) {
-							pathToRoot.addTuple(edge.getTargetNode());
-						}
-					}
-				}
-			}
-		}
-	}
-
-	class StarburstScaleFontAction extends FontAction {
-		public StarburstScaleFontAction(String labels) {
-			super(labels);
-		}
-
-		public double getArcHeight(VisualItem item) {
-			// the outer-inner distance between rings minus 2 for borders
-			if (item.getDouble("angleExtent") == 360)
-				return 2 * (item.getDouble("outerRadius") - item.getDouble("innerRadius") - 4);
-			else
-				return (item.getDouble("outerRadius") - item.getDouble("innerRadius") - 4);
-
-		}
-
-		public double getArcWidth(VisualItem item) {
-			// the chord length between two points at midpoint of circle
-			double R = (item.getDouble("outerRadius") + item.getDouble("innerRadius")) / 2;
-			if (item.getDouble("innerRadius") == 0)
-				return 2 * R; // render across middle of circle
-			else
-				return R * Math.toRadians(item.getDouble("angleExtent")); // length along arc
-		}
-
-		public double getDiagonal(Rectangle2D bounds) {
-			// set font based on diagonal not width to make more even around the circle
-			return Math.sqrt(bounds.getWidth() * bounds.getHeight());
-		}
-
-		public Font getFont(VisualItem item) {
-			if (FONTFROMDIAGONAL)
-				return getFontDiagonal(item);
-			else
-				return getFontPrecise(item);
-		}
-
-		public Font getFontDiagonal(VisualItem item) {
-			DecoratorItem dItem = (DecoratorItem) item;
-			Font currentFont = (Font) item.getSchema().getDefault(VisualItem.FONT);
-			FontMetrics fm = LabelRenderer.DEFAULT_GRAPHICS.getFontMetrics(currentFont);
-			// too bigDouble("innerRadius")
-
-			while (((fm.stringWidth(item.getString("label")) > getDiagonal(dItem.getDecoratedItem().getBounds())) || (fm.getHeight() > getArcHeight(dItem)))
-					&& (currentFont.getSize() > 0)) {
-				currentFont = FontLib.getFont(currentFont.getFontName(), currentFont.getStyle(), currentFont.getSize() - 1);
-				fm = LabelRenderer.DEFAULT_GRAPHICS.getFontMetrics(currentFont);
-			}
-			while ((fm.stringWidth(item.getString("label")) < getDiagonal(dItem.getDecoratedItem().getBounds())) && (fm.getHeight() < getArcHeight(dItem))) {
-				Font testFont = FontLib.getFont(currentFont.getFontName(), currentFont.getStyle(), currentFont.getSize() + 1);
-				FontMetrics fmTest = LabelRenderer.DEFAULT_GRAPHICS.getFontMetrics(testFont);
-				if (fmTest.stringWidth(item.getString("label")) < getDiagonal(dItem.getDecoratedItem().getBounds()) * 0.75) {
-					currentFont = testFont;
-					fm = LabelRenderer.DEFAULT_GRAPHICS.getFontMetrics(currentFont);
-				} else {
-					break;
-				}
-			}
-			dItem.setFont(currentFont);
-			return currentFont;
-		}
-
-		public Font getFontPrecise(VisualItem item) {
-			DecoratorItem dItem = (DecoratorItem) item;
-			Font currentFont = (Font) item.getSchema().getDefault(VisualItem.FONT);
-			FontMetrics fm = LabelRenderer.DEFAULT_GRAPHICS.getFontMetrics(currentFont);
-
-			if (item.getDouble("rotation") != 0) {
-				// scale based on string width and difference between arc inner and out radii
-				double scaleFactor = getArcHeight(dItem.getDecoratedItem()) / fm.stringWidth(dItem.getString("label"));
-				// ensure scaled height doesn't exceed median arc width
-				if (fm.getHeight() * scaleFactor > getArcWidth(dItem))
-					scaleFactor = getArcWidth(dItem) / fm.getHeight();
-				currentFont = FontLib.getFont(currentFont.getFontName(), currentFont.getStyle(), Math.min(currentFont.getSize() * scaleFactor, MAXFONTHEIGHT));
-			} else {
-				// scale based on string height and difference between arc inner and out radii
-				double scaleFactor = getArcHeight(dItem.getDecoratedItem()) / fm.getHeight();
-				// ensure scaled height doesn't exceed median arc width
-				if (fm.stringWidth(dItem.getString("label")) * scaleFactor > getArcWidth(dItem))
-					scaleFactor = getArcWidth(dItem) / fm.stringWidth(dItem.getString("label"));
-				// scale is later refined by the renderer
-				currentFont = FontLib.getFont(currentFont.getFontName(), currentFont.getStyle(), Math.min(currentFont.getSize() * scaleFactor, MAXFONTHEIGHT));
-			}
-
-			return currentFont;
-		}
-	}
 }
