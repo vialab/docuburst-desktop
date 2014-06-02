@@ -426,7 +426,7 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 				item.setString("gloss", wrap(item.getString("gloss"), 30));
 			};
 		});
-		fisheyeTreeFilter = new FisheyeTreeFilter("graph", "searchAndFocus", 6);
+//		fisheyeTreeFilter = new FisheyeTreeFilter("graph", "searchAndFocus", 6);
 		treeCutFilter = new TreeCutFilter("graph", "searchAndFocus");
 
 		// recentre and rezoom on reload

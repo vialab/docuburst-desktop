@@ -35,7 +35,7 @@ public class StarburstLayout extends TreeLayout {
     protected double m_theta1, m_theta2;
     protected boolean m_setTheta = false;
     protected boolean m_autoScale = true;
-    protected WidthType widthType = WidthType.CHILDCOUNT;
+    protected WidthType widthType = WidthType.FIELD;
     public boolean rootRadiusHalf = true;
     
     protected Point2D m_origin;
@@ -69,6 +69,7 @@ public class StarburstLayout extends TreeLayout {
         m_radiusInc = radius;
         m_autoScale = false;
     }
+    
 
     /**
      * Set the radius increment to use between concentric circles. Note
