@@ -48,9 +48,9 @@ public class NodeColorAction extends ColorAction {
 
 		public int getColor(VisualItem item) {
 			// test 
-			if (item.getBoolean("cut")){
-				return new Color(222,13,107).getRGB();
-			}
+//			if (item.getBoolean("cut")){
+//				return new Color(222,13,107).getRGB();
+//			}
 			
 			int color = sca.getColor(item);
 			

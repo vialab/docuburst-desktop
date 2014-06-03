@@ -450,8 +450,7 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 //			});
 			display.addControlListener(mouseWheelControl = new ControlAdapter() {
               public void itemWheelMoved(VisualItem item, MouseWheelEvent e) {
-                  System.out.println(e.getWheelRotation());
-                  treeCutFilter.updateDistance(e.getWheelRotation());
+                  treeCutFilter.updateDistance(- e.getWheelRotation());
                   m_vis.cancel("layout");
                   m_vis.cancel("animate");
                   m_vis.run("layout");

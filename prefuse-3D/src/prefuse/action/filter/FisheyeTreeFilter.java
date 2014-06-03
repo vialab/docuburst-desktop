@@ -133,7 +133,7 @@ public class FisheyeTreeFilter extends GroupAction {
         m_divisor = tree.getNodeCount();
         m_root = (NodeItem)tree.getRoot();
         
-        // mark the items
+        // mark visible items as non-expanded and minimum interest
         Iterator items = m_vis.visibleItems(m_group);
         while ( items.hasNext() ) {
             VisualItem item = (VisualItem)items.next();

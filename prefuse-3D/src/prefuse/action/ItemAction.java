@@ -98,9 +98,16 @@ public abstract class ItemAction extends GroupAction {
      */
     public void run(double frac) {
         Iterator items = getVisualization().items(m_group, m_predicate);
+        int i = 0;
         while ( items.hasNext() ) {
-            process((VisualItem)items.next(), frac);
+            i++;
+            VisualItem item = (VisualItem)items.next();
+            process(item, frac);
         }
+//        // For debugging
+//        String[] className = this.getClass().getName().split("\\.");
+//        System.out.println(String.format("[%s] Iterated over %s items", 
+//                className[className.length - 1],  i));
     }
     
     /**

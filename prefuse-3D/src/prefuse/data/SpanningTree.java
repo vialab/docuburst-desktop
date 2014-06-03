@@ -78,7 +78,16 @@ public class SpanningTree extends Tree {
             Node p = (Node)q.removeFirst();
             for ( Iterator iter = (m_backing.isDirected() ? p.outEdges() : p.edges()); iter.hasNext(); ) {
                 Edge e = (Edge)iter.next();
-                Node n = e.getAdjacentNode(p);
+                Node n = null;
+                try {
+                n = e.getAdjacentNode(p);
+                } catch (Exception k) {
+                	System.out.println(String.format("Prefused failed in finding the adjacent node of an edge. Details:\n"
+                			+ "Source node: %s\nCount: %s\nType: %s", p.get("label"),
+                			p.get("childCount"), p.get("type")));
+                    k.printStackTrace();
+                    throw k;
+                }
                 if ( !visit.get(n.getRow()) ) {
                     q.add(n); visit.set(n.getRow());
                     int er = super.addChildEdge(p.getRow(), n.getRow());
