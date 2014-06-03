@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import prefuse.Constants;
 import prefuse.action.GroupAction;
 import prefuse.data.Graph;
 import prefuse.data.Node;
@@ -11,6 +12,7 @@ import prefuse.data.Tree;
 import prefuse.data.expression.Predicate;
 import prefuse.util.PrefuseLib;
 import prefuse.visual.NodeItem;
+import prefuse.visual.VisualItem;
 import prefuse.visual.expression.InGroupPredicate;
 import ca.utoronto.cs.docuburst.data.treecut.MDLTreeCut;
 import ca.utoronto.cs.docuburst.data.treecut.Wagner;
@@ -24,7 +26,6 @@ public class TreeCutFilter extends GroupAction {
     private Predicate group;
     
     List<Node> lastCut = new ArrayList<Node>();
-    
     
     /**
     * @param group the data group to process. This should resolve to
@@ -62,8 +63,6 @@ public class TreeCutFilter extends GroupAction {
         
     }
     
-    
-    
     @Override
     public void run(double frac) {
         
@@ -76,13 +75,21 @@ public class TreeCutFilter extends GroupAction {
         Wagner measure = new Wagner(w, Math.round(s));
         MDLTreeCut treeCutter = new MDLTreeCut(measure);
         
+        // mark current visible items as invisible and non-expanded
+        Iterator items = m_vis.visibleItems(m_group);
+        while ( items.hasNext() ) {
+            VisualItem item = (VisualItem)items.next();
+            PrefuseLib.updateVisible(item, false);
+            item.setExpanded(false);
+        }
+        
+        
         // Finds tree cut
         List<Node> cut = treeCutter.findcut(root);
         
         /*
          * Marks all descendants of cut members as invisible and
          * all ancestors as visible.
-         * Breadth-first algorithm to visit all nodes under cut. 
          */
 
         // unmark all items belonging to the last cut
@@ -90,23 +97,30 @@ public class TreeCutFilter extends GroupAction {
             n.setBoolean("cut", false);
         }
         
-        
         // mark all items belonging to the new cut
         for (Node n : cut) {
             n.setBoolean("cut", true);
         }
         
-        
-        
         markNode((NodeItem)root, true);
 
         lastCut = cut;
+        System.out.println(String.format("Tree cut has %s nodes", cut.size()));
     }
-
+    
+    /**
+     * Marks a node and its children as visible or invisible.
+     * The children will be invisible if their parent is invisible, or visible and
+     * member of the tree cut.
+     * @param n node
+     * @param isVisible determines if the node is visible/invisible
+     */
     public void markNode(NodeItem n, boolean isVisible){
         
         PrefuseLib.updateVisible(n, isVisible);
-
+        if (!isVisible)
+            n.setDOI(-Constants.MINIMUM_DOI);
+        
         // if n is visible and not member of the cut, its children will be visible too
         boolean isChildrenVisible = isVisible && !n.getBoolean("cut");
         
