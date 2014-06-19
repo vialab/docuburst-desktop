@@ -14,8 +14,8 @@ import prefuse.util.PrefuseLib;
 import prefuse.visual.NodeItem;
 import prefuse.visual.VisualItem;
 import prefuse.visual.expression.InGroupPredicate;
+import ca.uoit.science.vialab.Wagner;
 import ca.utoronto.cs.docuburst.data.treecut.MDLTreeCut;
-import ca.utoronto.cs.docuburst.data.treecut.Wagner;
 import ca.utoronto.cs.docuburst.util.Util;
 
 public class TreeCutFilter extends GroupAction {

@@ -1,12 +1,14 @@
 package ca.utoronto.cs.docuburst.data.treecut;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import ca.utoronto.cs.docuburst.util.Util;
 import prefuse.data.Node;
+import ca.uoit.science.vialab.DescriptionLength;
+import ca.uoit.science.vialab.ITreeCutNode;
+import ca.uoit.science.vialab.LiAbe;
+import ca.utoronto.cs.docuburst.util.Util;
 
 /**
  * Given a tree, chooses the best tree cut based
@@ -14,20 +16,25 @@ import prefuse.data.Node;
  * it minimizes the sum of Parameter Description Length (PDL)
  * and Data Description Length (DDL).
  * 
+ * This class adapts the Prefuse tree structure
+ * to the structures suitable for calling 
+ * {@link ca.uoit.science.vialab.MDLTreeCut}'s methods. In
+ * particular, every instance of {@link Node} is wrapped into
+ * a {@link TreeCutNode} instance.
+ * 
  * @see http://dl.acm.org/citation.cfm?id=972734
  * 
  * @author Rafael Veras
  */
-public class MDLTreeCut {
+public class MDLTreeCut extends ca.uoit.science.vialab.MDLTreeCut {
     
-    private DescriptionLength measure;
-
+	
     /**
      * By default, initializes this class with Li & Abe's
      * measure of description length.
      */
     public MDLTreeCut() {
-        this(new LiAbe());
+        super(new LiAbe());
     }
     
     /**
@@ -37,9 +44,9 @@ public class MDLTreeCut {
      * be calculated.
      */
     public MDLTreeCut(DescriptionLength measure) {
-        this.measure = measure;
+        super(measure);
     }
-	
+    
 	/**
      * Given a subtree, finds the tree cut that minimizes the description
      * length. Described in Figure 7 of Li and Abe, 1998.
@@ -70,52 +77,19 @@ public class MDLTreeCut {
      */
     public List<Node> findcut(Node root, int sampleSize){
         // pass an adapted replica of the tree to the tree cut algorithm
-        TreeCutNode replica = generateAdaptedTree(root);
-        List<TreeCutNode> cut = findcut(replica, sampleSize, measure);
-//        List<TreeCutNode> cut = findcut(replica, sampleSize, new Wagner(0, sampleSize));
+        ITreeCutNode replica = generateAdaptedTree(root);
+        List<ITreeCutNode> cut = findcut(replica, sampleSize, measure);
         
         List<Node> relevantCut = new ArrayList<Node>();
         // each node of the replica (TreeCutNode) references a real node (prefuse.data.Node).
         // extract and return a list of the latter
-        for (TreeCutNode c : cut)
-            if (c.getRefNode()!=null)
-                relevantCut.add(c.getRefNode());
+        for (ITreeCutNode c : cut){
+        	TreeCutNode tcn = (TreeCutNode)c;
+            if (tcn.getRefNode()!=null)
+                relevantCut.add(tcn.getRefNode());
+        }
         
         return relevantCut; 
-    }
-    
-    
-    /**
-     * Given a subtree, finds the tree cut that minimizes the description
-     * length. Described in Figure 7 of Li and Abe, 1998.
-     * @see http://dl.acm.org/citation.cfm?id=972734
-     * @param node root of the subtree
-     * @param sampleSize length of the sample (e.g., number of words)
-     * @param measure a method to calculate the description length of a cut 
-     * @return a list of {@link TreeCutNode}, representing the best (uneven) horizontal cut of the subtree 
-     */
-    public List<TreeCutNode> findcut(TreeCutNode node, int sampleSize, DescriptionLength measure){
-        ArrayList<TreeCutNode> rootCut = new ArrayList<TreeCutNode>();
-        rootCut.add(node);
-
-        if (!node.hasChildren()){
-            return rootCut;
-        }
-        else {
-            ArrayList<TreeCutNode> childrenCut = new ArrayList<TreeCutNode>();
-            
-            for (Iterator it = node.children(); it.hasNext();) {
-                TreeCutNode child = (TreeCutNode)it.next();
-                childrenCut.addAll(findcut(child, sampleSize, measure));
-            }
-            
-            if (measure.dl(rootCut, sampleSize) <= measure.dl(childrenCut, sampleSize)){
-                return rootCut;
-            }
-            else {
-                return childrenCut;
-            }
-        }
     }
     
     
@@ -152,29 +126,5 @@ public class MDLTreeCut {
         return adapt;
     }
 
-    public static void main(String[] args){
-    	TreeCutNode ANIMAL  = new TreeCutNode("ANIMAL", 10, 7);
-    	TreeCutNode BIRD    = new TreeCutNode("BIRD", 8, 4);
-    	TreeCutNode bird    = new TreeCutNode("bird", 4, 1);
-    	TreeCutNode INSECT  = new TreeCutNode("INSECT", 2, 3);
-    	TreeCutNode insect  = new TreeCutNode("insect", 0, 1);
-    	TreeCutNode bug     = new TreeCutNode("bug", 0, 1);
-    	TreeCutNode bee     = new TreeCutNode("bee", 2, 1);
-    	TreeCutNode swallow = new TreeCutNode("swallow", 0, 1);
-    	TreeCutNode crow    = new TreeCutNode("crow", 2, 1);
-    	TreeCutNode eagle   = new TreeCutNode("eagle", 2, 1);
-    	
-        List<TreeCutNode> cut1 = Arrays.asList(new TreeCutNode[]{ANIMAL});
-        List<TreeCutNode> cut2 = Arrays.asList(new TreeCutNode[]{BIRD, INSECT});
-        List<TreeCutNode> cut3 = Arrays.asList(new TreeCutNode[]{BIRD, bug, bee, insect});
-        List<TreeCutNode> cut4 = Arrays.asList(new TreeCutNode[]{swallow, crow, eagle, bird, INSECT});
-        List<TreeCutNode> cut5 = Arrays.asList(new TreeCutNode[]{swallow, crow, eagle, bird, bug, bee, insect});
-        
-        
-        LiAbe liAbe = new LiAbe();
-        for (List<TreeCutNode> c : Arrays.asList(new List[]{cut1, cut2, cut3, cut4, cut5})){
-        	System.out.println(liAbe.dl(c, 10));
-        }
-    }
     
 }
