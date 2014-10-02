@@ -70,7 +70,7 @@ public class TreeCutFilter extends GroupAction {
         Node root = tree.getRoot();
         float s = Util.sum((float[]) root.get("childCount")); // sample size
         
-        double w = distance * 500;
+        double w = distance * 350;
         
         Wagner measure = new Wagner(w, Math.round(s));
         MDLTreeCut treeCutter = new MDLTreeCut(measure);

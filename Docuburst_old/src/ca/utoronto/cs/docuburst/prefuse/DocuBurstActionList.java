@@ -384,7 +384,7 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 				item.setString("gloss", wrap(item.getString("gloss"), 30));
 			};
 		});
-//		fisheyeTreeFilter = new FisheyeTreeFilter("graph", "searchAndFocus", 6);
+		fisheyeTreeFilter = new FisheyeTreeFilter("graph", "searchAndFocus", 6);
 		treeCutFilter = new TreeCutFilter("graph", "searchAndFocus");
 
 		// recentre and rezoom on reload
@@ -401,8 +401,8 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 		m_vis.putAction("resize", resizeAction);
 
 		// create the filtering and layout
-//		this.add(fisheyeTreeFilter);
-		this.add(treeCutFilter);
+		this.add(fisheyeTreeFilter);
+//		this.add(treeCutFilter);
 		this.add(vF);
 		this.add(treeLayout);
 		this.add(new LabelLayout(LABELS));

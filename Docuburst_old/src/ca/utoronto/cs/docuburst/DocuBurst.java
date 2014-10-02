@@ -1063,7 +1063,7 @@ public class DocuBurst extends JPanel implements LoadData {
 		if (isTableDisplay)
 			contentPane.setPreferredSize(new Dimension(2800, 2150));
 		else
-			contentPane.setPreferredSize(new Dimension(1400, 1000));
+			contentPane.setPreferredSize(new Dimension(1280, 720));
 		
 
 		return contentPane;
