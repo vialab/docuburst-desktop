@@ -133,7 +133,7 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 	
 	public static final double MAXFONTHEIGHT = 40.0;
 
-	private static final double MINFONTHEIGHT = 6.0;
+	private static final double MINFONTHEIGHT = 1.0;
 	
 	private float childMaxTotal;
 	private float nodeMaxTotal;
