@@ -26,7 +26,9 @@ import java.awt.event.WindowEvent;
 import java.awt.geom.AffineTransform;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -63,7 +65,10 @@ import net.didion.jwnl.dictionary.Dictionary;
 import prefuse.Display;
 import prefuse.DisplayComponent;
 import prefuse.Visualization;
+import prefuse.activity.Activity;
+import prefuse.activity.ActivityListener;
 import prefuse.data.Graph;
+import prefuse.data.Node;
 import prefuse.data.Table;
 import prefuse.data.Tree;
 import prefuse.data.expression.Predicate;
@@ -77,10 +82,18 @@ import prefuse.util.io.IOLib;
 import prefuse.util.ui.JSearchPanel;
 import prefuse.util.ui.UILib;
 import prefuse.visual.VisualGraph;
+import ca.uoit.science.vialab.treecut.Wagner;
 import ca.utoronto.cs.docuburst.data.WordNetTree;
+import ca.utoronto.cs.docuburst.data.treecut.DocuburstTreeCut;
+import ca.utoronto.cs.docuburst.data.treecut.TreeCutCache;
 import ca.utoronto.cs.docuburst.prefuse.DocuBurstActionList;
 import ca.utoronto.cs.docuburst.swing.ConcordancePanel;
 import ca.utoronto.cs.docuburst.swing.TilesPanel;
+import ca.utoronto.cs.docuburst.swing.widget.BasicScentedSliderUI;
+import ca.utoronto.cs.docuburst.swing.widget.ScentedSlider;
+import ca.utoronto.cs.docuburst.swing.widget.ScentedSliderModel;
+import ca.utoronto.cs.docuburst.swing.widget.ScentedSliderModel.Point;
+import ca.utoronto.cs.docuburst.util.Util;
 import ca.utoronto.cs.prefuseextensions.layout.StarburstLayout;
 import ca.utoronto.cs.prefuseextensions.render.SectorRenderer;
 import ca.utoronto.cs.prefuseextensions.swing.Utilities;
@@ -230,6 +243,8 @@ public class DocuBurst extends JPanel implements LoadData {
 	// Option variables
 	private boolean mergeWords;
 
+	private ScentedSlider scentedSlider;
+	
 	/**
 	 * Action which resets the graph and updates the sense panel when the search
 	 * button is clicked.
@@ -317,7 +332,7 @@ public class DocuBurst extends JPanel implements LoadData {
 	 */
 	private static void createAndShowFrame() {
 		// Create and set up the window.
-		final JFrame jFrame = new JFrame(APP_NAME);
+		final JFrame jFrame = new JFrame(String.format("%s - %s", APP_NAME, documentFile));
 		jFrame.setIconImage(new ImageIcon("wne.gif").getImage());
 
 		isApplet = false;
@@ -449,7 +464,7 @@ public class DocuBurst extends JPanel implements LoadData {
 		}
 
 		docuburstLayout = new DocuBurstActionList(docuburstVisualization, fishEyeDocument, documentFile);
-
+		docuburstLayout.addActivityListener(getDocuBurstActivityListener());
 		/**
 		 * Setup Swing layout and content pane
 		 */
@@ -465,6 +480,32 @@ public class DocuBurst extends JPanel implements LoadData {
 		this.setLayout(new BorderLayout());
 		this.add(contentPane);
 	}
+	
+	public ActivityListener getDocuBurstActivityListener(){
+	    
+	    return new ActivityListener() {
+            
+            @Override
+            public void activityStepped(Activity a) {}
+            
+            @Override
+            public void activityStarted(Activity a) {}
+            
+            @Override
+            public void activityScheduled(Activity a) {}
+            
+            @Override
+            public void activityFinished(Activity a) {
+                if (scentedSlider == null){
+                    interfacePane.addTab("Tree Cut", createTreeCutPanel());
+                }
+            }
+            
+            @Override
+            public void activityCancelled(Activity a) {}
+        };
+	}
+	
 
 	public void cancelLayouts() {
 		docuburstLayout.cancel();
@@ -556,6 +597,7 @@ public class DocuBurst extends JPanel implements LoadData {
 	 * prefuse visualization
 	 **************************************************************************/
 	
+	
 	/**
 	 * Display the given graph in DocuBurst.
 	 * 
@@ -563,7 +605,10 @@ public class DocuBurst extends JPanel implements LoadData {
 	 *            the graph to visualize
 	 */
 	public void visualize(Graph graph) {
+	    long t1 = System.currentTimeMillis();
+	    
 		docuburstVisualization.reset();
+
 		// clean up after clearing data structures
 //		System.gc();
 	
@@ -641,6 +686,10 @@ public class DocuBurst extends JPanel implements LoadData {
 		filterPanel.add(search, 0);
 		filterPanel.validate();
 		search.requestFocusInWindow();
+		
+		
+		long t2 = System.currentTimeMillis();
+		System.out.println(String.format("visualize() took %d seconds.", (t2-t1)/1000));
 	}
 
 
@@ -765,6 +814,27 @@ public class DocuBurst extends JPanel implements LoadData {
 		filterTab.add(sensePanel, c);
 		return filterTab;
 
+	}
+	
+	private JPanel createTreeCutPanel(){
+	    JPanel panel = new JPanel(new BorderLayout());
+	    TreeCutCache cache = docuburstLayout.getTreeCutFilter().getTreeCutCache();
+	    List<Double> weights = cache.getSortedWeights();
+	    ArrayList<Point> points = new ArrayList<ScentedSliderModel.Point>();
+	    for (Double w : weights) {
+            points.add(new Point(w, cache.get(w).size()));
+        }
+	    this.scentedSlider = new ScentedSlider(points, 0, true);
+	    this.scentedSlider.getModel().addChangeListener(new ChangeListener() {
+            
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                docuburstLayout.setTreeCutWeight(scentedSlider.getModel().getValue());
+                
+            }
+        });
+	    panel.add(scentedSlider, BorderLayout.CENTER);
+	    return panel;
 	}
 
 	private JPanel createOptionsPanel() {
@@ -1031,7 +1101,7 @@ public class DocuBurst extends JPanel implements LoadData {
 		JPanel optionsPanel = createOptionsPanel();
 		interfacePane.addTab("Options", optionsPanel);
 		interfacePane.setMnemonicAt(interfacePane.getTabCount() - 1, KeyEvent.VK_O);
-
+		
 		// text tiles panel
 		final TilesPanel tilesPanel = new TilesPanel(docuburstLayout.getHighlightTextHoverActionControl());
 		fishEyeDocument.addValueListener(tilesPanel);

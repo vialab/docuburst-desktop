@@ -14,11 +14,11 @@ import prefuse.util.PrefuseLib;
 import prefuse.visual.NodeItem;
 import prefuse.visual.VisualItem;
 import prefuse.visual.expression.InGroupPredicate;
-import ca.uoit.science.vialab.Wagner;
-import ca.utoronto.cs.docuburst.data.treecut.MDLTreeCut;
+import ca.uoit.science.vialab.treecut.Wagner;
+import ca.utoronto.cs.docuburst.data.treecut.DocuburstTreeCut;
 import ca.utoronto.cs.docuburst.util.Util;
 
-public class TreeCutFilter extends GroupAction {
+public class TreeCutFilterWagner extends GroupAction {
     
     private double distance;
     
@@ -32,7 +32,7 @@ public class TreeCutFilter extends GroupAction {
     * a Graph instance, otherwise exceptions will result when this
     * Action is run.
     **/
-    public TreeCutFilter(String group, String sources) {
+    public TreeCutFilterWagner(String group, String sources) {
         super(group);
         this.distance = 0;
         this.sources  = sources;
@@ -73,7 +73,7 @@ public class TreeCutFilter extends GroupAction {
         double w = distance * 500;
         
         Wagner measure = new Wagner(w, Math.round(s));
-        MDLTreeCut treeCutter = new MDLTreeCut(measure);
+        DocuburstTreeCut treeCutter = new DocuburstTreeCut(measure);
         
         // mark current visible items as invisible and non-expanded
         Iterator items = m_vis.visibleItems(m_group);
@@ -132,24 +132,3 @@ public class TreeCutFilter extends GroupAction {
         }
     }
 }
-
-
-//// Initialize a queue with children of cut members
-//Queue<Node> queue = new LinkedList<Node>();
-//for (Node n : cut) {
-//  n.setBoolean("cut", true);
-//  ((NodeItem)n).setExpanded(false);
-//  for (Iterator iterator = n.children(); iterator.hasNext();) {
-//      queue.add((Node) iterator.next());
-//  }
-//}
-//
-//while (!queue.isEmpty()){
-//  Node head = queue.poll();
-//  
-//  PrefuseLib.updateVisible((NodeItem)head, false);
-//  
-//  for (Iterator iterator = head.children(); iterator.hasNext();) {
-//      queue.add((Node) iterator.next());
-//  }
-//}

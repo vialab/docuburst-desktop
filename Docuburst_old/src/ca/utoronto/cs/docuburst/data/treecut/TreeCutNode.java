@@ -1,8 +1,8 @@
 package ca.utoronto.cs.docuburst.data.treecut;
 
 import prefuse.data.Node;
-import ca.uoit.science.vialab.BasicTreeCutNode;
-import ca.uoit.science.vialab.ITreeCutNode;
+import ca.uoit.science.vialab.treecut.BasicTreeCutNode;
+import ca.uoit.science.vialab.treecut.ITreeCutNode;
 
 /**
  * This class encapsulates an instance of {@link prefuse.data.Node},

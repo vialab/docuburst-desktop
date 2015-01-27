@@ -54,6 +54,14 @@ public class ScentedSlider extends JComponent {
         return model;
     }
     
+    public double getValue(){
+    	return model.getValue();
+    }
+    
+    public void setValue(double v){
+    	model.setValue(v);
+    }
+    
     public List<Point> getControlPoints(){
         return model.getPoints();
     }
