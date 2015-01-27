@@ -5,9 +5,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import prefuse.data.Node;
-import ca.uoit.science.vialab.DescriptionLength;
-import ca.uoit.science.vialab.ITreeCutNode;
-import ca.uoit.science.vialab.LiAbe;
+import ca.uoit.science.vialab.treecut.DescriptionLength;
+import ca.uoit.science.vialab.treecut.ITreeCutNode;
+import ca.uoit.science.vialab.treecut.LiAbe;
 import ca.utoronto.cs.docuburst.util.Util;
 
 /**
@@ -18,7 +18,7 @@ import ca.utoronto.cs.docuburst.util.Util;
  * 
  * This class adapts the Prefuse tree structure
  * to the structures suitable for calling 
- * {@link ca.uoit.science.vialab.MDLTreeCut}'s methods. In
+ * {@link ca.uoit.science.vialab.treecut.MDLTreeCut}'s methods. In
  * particular, every instance of {@link Node} is wrapped into
  * a {@link TreeCutNode} instance.
  * 
@@ -26,14 +26,14 @@ import ca.utoronto.cs.docuburst.util.Util;
  * 
  * @author Rafael Veras
  */
-public class MDLTreeCut extends ca.uoit.science.vialab.MDLTreeCut {
+public class DocuburstTreeCut extends ca.uoit.science.vialab.treecut.MDLTreeCut {
     
 	
     /**
      * By default, initializes this class with Li & Abe's
      * measure of description length.
      */
-    public MDLTreeCut() {
+    public DocuburstTreeCut() {
         super(new LiAbe());
     }
     
@@ -43,9 +43,11 @@ public class MDLTreeCut extends ca.uoit.science.vialab.MDLTreeCut {
      * @param measure determines how the description length is
      * be calculated.
      */
-    public MDLTreeCut(DescriptionLength measure) {
+    public DocuburstTreeCut(DescriptionLength measure) {
         super(measure);
     }
+    
+    
     
 	/**
      * Given a subtree, finds the tree cut that minimizes the description
@@ -63,7 +65,7 @@ public class MDLTreeCut extends ca.uoit.science.vialab.MDLTreeCut {
  		
         return findcut(root, (int)sampleSize); 
     }
-	
+ 
 	
     /**
      * Given a subtree, finds the tree cut that minimizes the description
@@ -92,7 +94,19 @@ public class MDLTreeCut extends ca.uoit.science.vialab.MDLTreeCut {
         return relevantCut; 
     }
     
-    
+    public List<Node> extractPrefuseNodes(List<ITreeCutNode> cut){
+        List<Node> prefuseNodes = new ArrayList<Node>();
+        // each node of the replica (TreeCutNode) references a real node (prefuse.data.Node).
+        // extract and return a list of the latter
+        for (ITreeCutNode c : cut){
+            TreeCutNode tcn = (TreeCutNode)c;
+            if (tcn.getRefNode()!=null)
+                prefuseNodes.add(tcn.getRefNode());
+        }
+        
+        return prefuseNodes;
+    }
+      
     /**
      * Translates the provided tree into the data structure used by
      * the tree cut algorithm. In particular, for every node,
@@ -101,7 +115,7 @@ public class MDLTreeCut extends ca.uoit.science.vialab.MDLTreeCut {
      * @param root the root of the subtree
      * @return an object {@link TreeCutNode} storing a copy of {@code root}. 
      */
-    private TreeCutNode generateAdaptedTree(Node root){
+    public TreeCutNode generateAdaptedTree(Node root){
         TreeCutNode adapt = new TreeCutNode();
         
         String name = root.getString("label") + root.getString("pos") + root.getLong("offset");

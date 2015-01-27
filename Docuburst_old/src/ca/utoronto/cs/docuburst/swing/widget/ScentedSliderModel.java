@@ -2,6 +2,8 @@ package ca.utoronto.cs.docuburst.swing.widget;
 
 import java.util.List;
 
+import javax.swing.event.ChangeListener;
+
 public interface ScentedSliderModel {
 
     public static class Point {
@@ -14,6 +16,10 @@ public interface ScentedSliderModel {
         }
     }
     
+    public double getValue();
+    public void setValue(double v);
+    public boolean valueIsAdjusting();
+    public void setValueIsAdjusting(boolean isAdjusting);
     public void setDiscrete(boolean isDiscrete);
     public boolean isDiscrete();
     public void setPoints(List<Point> points);
@@ -23,4 +29,6 @@ public interface ScentedSliderModel {
     public double getMaxY();
     public double getMinY();
     public double getExtentX();
+    public void addChangeListener(ChangeListener l);    
+    public void removeChangeListener(ChangeListener l);
 }

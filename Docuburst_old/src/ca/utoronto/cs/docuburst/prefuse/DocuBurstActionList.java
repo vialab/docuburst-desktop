@@ -16,6 +16,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.JTextPane;
@@ -75,12 +76,16 @@ import prefuse.visual.VisualItem;
 import prefuse.visual.expression.HoverPredicate;
 import prefuse.visual.expression.StartVisiblePredicate;
 import prefuse.visual.expression.VisiblePredicate;
+import ca.uoit.science.vialab.treecut.Wagner;
 import ca.utoronto.cs.docuburst.DocuBurst;
+import ca.utoronto.cs.docuburst.data.treecut.DocuburstTreeCut;
+import ca.utoronto.cs.docuburst.data.treecut.TreeCutCache;
 import ca.utoronto.cs.docuburst.prefuse.action.HighlightTextHoverActionControl;
 import ca.utoronto.cs.docuburst.prefuse.action.NodeColorAction;
 import ca.utoronto.cs.docuburst.prefuse.action.NodeStrokeColorAction;
 import ca.utoronto.cs.docuburst.prefuse.action.PathTraceHoverActionControl;
 import ca.utoronto.cs.docuburst.prefuse.action.StarburstScaleFontAction;
+import ca.utoronto.cs.docuburst.util.Util;
 import ca.utoronto.cs.prefuseextensions.layout.StarburstLayout;
 import ca.utoronto.cs.prefuseextensions.layout.StarburstLayout.WidthType;
 import ca.utoronto.cs.prefuseextensions.lib.Colors;
@@ -154,10 +159,12 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 
 	// prefuse controls and actions 
 
-	private FisheyeTreeFilter fisheyeTreeFilter; // TODO: Get rid
-	private TreeCutFilter treeCutFilter;
+	private FisheyeTreeFilter fisheyeTreeFilter; // TODO: Get rid of
+	private TreeCutFilterWagner treeCutFilterWagner;
+	private TreeCutFilterIncremental treeCutFilterInc;
+	public CachedTreeCutFilter cachedTreeCutFilter;
 	private NodeColorAction nodeColor;
-
+	
 	StarburstLayout treeLayout;
 	
 	private PanControl panControl;
@@ -385,7 +392,9 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 			};
 		});
 //		fisheyeTreeFilter = new FisheyeTreeFilter("graph", "searchAndFocus", 6);
-		treeCutFilter = new TreeCutFilter("graph", "searchAndFocus");
+//		treeCutFilterWagner = new TreeCutFilterWagner("graph", "searchAndFocus");
+//		treeCutFilterInc = new TreeCutFilterIncremental("graph", "searchAndFocus");
+		cachedTreeCutFilter = new CachedTreeCutFilter("graph", "searchAndFocus", null);
 
 		// recentre and rezoom on reload
 		Action resizeAction = new Action() {
@@ -402,7 +411,9 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 
 		// create the filtering and layout
 //		this.add(fisheyeTreeFilter);
-		this.add(treeCutFilter);
+//		this.add(treeCutFilterWagner);
+//		this.add(treeCutFilterInc);
+		this.add(cachedTreeCutFilter);
 		this.add(vF);
 		this.add(treeLayout);
 		this.add(new LabelLayout(LABELS));
@@ -448,18 +459,33 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 //					m_vis.run("layout");
 //				}
 //			});
-			display.addControlListener(mouseWheelControl = new ControlAdapter() {
-              public void itemWheelMoved(VisualItem item, MouseWheelEvent e) {
-                  treeCutFilter.updateDistance(- e.getWheelRotation());
-                  m_vis.cancel("layout");
-                  m_vis.cancel("animate");
-                  m_vis.run("layout");
-              }
-            });
+//			display.addControlListener(mouseWheelControl = new ControlAdapter() {
+//              public void itemWheelMoved(VisualItem item, MouseWheelEvent e) {
+//                  int deltaWeightIndex = -e.getWheelRotation();
+//                  double currWeight    = cachedTreeCutFilter.getWeight();
+//                  List<Double> weights = cachedTreeCutFilter.getSortedWeights();
+//                  int currWeightIndex  = weights.indexOf(currWeight);
+//                  int newWeightIndex   = currWeightIndex + deltaWeightIndex;
+//                  double newWeight     = weights.get(newWeightIndex);
+////                  treeCutFilterWagner.updateDistance(- e.getWheelRotation());
+////                  treeCutFilterInc.updateDistance(- e.getWheelRotation());
+//                  setTreeCutWeight(newWeight);
+//              }
+//            });
 			display.addControlListener(displaySenseMouseOverControl = new DisplaySenseMouseOverControl(DocuBurst.filterPane));
 		}
+		
+//		this.treeCutCache = buildTreeCutCache();
 	}
-
+	
+	public void setTreeCutWeight(double w){
+	    cachedTreeCutFilter.setWeight(w);
+        m_vis.cancel("layout");
+        m_vis.cancel("animate");
+        m_vis.run("layout");
+	}
+	
+	
 	public void addLabels() {
 		m_vis.addDecorators(LABELS, "graph.nodes", labelPredicate, LABEL_SCHEMA);
 	}
@@ -852,6 +878,10 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 		else
 			nodeMaxTotal = maxTotal;
 	};
+	
+	public CachedTreeCutFilter getTreeCutFilter(){
+	    return this.cachedTreeCutFilter;
+	}
 
 	/**
 	 * Set label positions. Labels are assumed to be DecoratorItem instances,

@@ -1,6 +1,5 @@
 package ca.utoronto.cs.docuburst.swing.widget;
 
-import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.BoundedRangeModel;
@@ -15,6 +14,7 @@ public class DefaultScentedSliderModel implements ScentedSliderModel{
     private boolean isDiscrete;
     private double value = Double.NaN;
     private double extent = Double.NaN;
+    private boolean isAdjusting = false;
     
     /**
      * Data model for {@link ScentedSlider}.
@@ -27,6 +27,16 @@ public class DefaultScentedSliderModel implements ScentedSliderModel{
         this.points = points;
         this.isDiscrete = isDiscrete;
         this.extent = extent;
+    }
+    
+    @Override
+    public void setValueIsAdjusting(boolean isAdjusting) {
+    	this.isAdjusting = isAdjusting;
+    }
+    
+    @Override
+    public boolean valueIsAdjusting() {
+    	return isAdjusting;
     }
     
     public void setValue(double value) {
