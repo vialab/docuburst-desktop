@@ -146,7 +146,7 @@ public class FisheyeTreeFilter extends GroupAction {
         while ( iter.hasNext() )
             visitFocus((NodeItem)iter.next(), null);
         visitFocus(m_root, null);
-
+        
         // mark unreached items
         items = m_vis.visibleItems(m_group);
         while ( items.hasNext() ) {

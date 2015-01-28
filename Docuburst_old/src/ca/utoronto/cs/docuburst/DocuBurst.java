@@ -159,29 +159,43 @@ public class DocuBurst extends JPanel implements LoadData {
 		public void actionPerformed(ActionEvent event) {
 			String actionCommand = event.getActionCommand();
 
-			if (actionCommand.equals("Search and Focus")) {
-				if (!docuburstLayout.getFisheyeTreeFilter().getSources().equals("searchAndFocus")) {
-					// update filter sources to search and focus
-
-					docuburstLayout.getFisheyeTreeFilter().setSources("searchAndFocus");
-					if (docuburstVisualization.getGroup("graph").getTupleCount() > 0) {
-						docuburstVisualization.run("layout");
-						docuburstVisualization.run("resize");
-					}
-				}
-			}
 			if (actionCommand.equals("Focus")) {
-				if (!docuburstLayout.getFisheyeTreeFilter().getSources().equals(Visualization.FOCUS_ITEMS)) {
-					// update filter sources to only focus
-
-					docuburstLayout.getFisheyeTreeFilter().setSources(Visualization.FOCUS_ITEMS);
-					if (docuburstVisualization.getGroup("graph").getTupleCount() > 0) {
-						docuburstVisualization.run("layout");
-						docuburstVisualization.run("resize");
-					}
-				}
-			}
+                    if (docuburstVisualization.getGroup("graph").getTupleCount() > 0) {
+                        docuburstVisualization.run("layout");
+                        docuburstVisualization.run("resize");
+                    }
+            }
+            
+		    if (actionCommand.equals("Search and Focus")) {
+		        if (docuburstVisualization.getGroup("graph").getTupleCount() > 0) {
+                    docuburstVisualization.run("layout");
+                    docuburstVisualization.run("resize");
+                }
+		    }
 		}
+//			if (actionCommand.equals("Search and Focus")) {
+//				if (!docuburstLayout.getFisheyeTreeFilter().getSources().equals("searchAndFocus")) {
+//					// update filter sources to search and focus
+//
+//					docuburstLayout.getFisheyeTreeFilter().setSources("searchAndFocus");
+//					if (docuburstVisualization.getGroup("graph").getTupleCount() > 0) {
+//						docuburstVisualization.run("layout");
+//						docuburstVisualization.run("resize");
+//					}
+//				}
+//			}
+//			if (actionCommand.equals("Focus")) {
+//				if (!docuburstLayout.getFisheyeTreeFilter().getSources().equals(Visualization.FOCUS_ITEMS)) {
+//					// update filter sources to only focus
+//
+//					docuburstLayout.getFisheyeTreeFilter().setSources(Visualization.FOCUS_ITEMS);
+//					if (docuburstVisualization.getGroup("graph").getTupleCount() > 0) {
+//						docuburstVisualization.run("layout");
+//						docuburstVisualization.run("resize");
+//					}
+//				}
+//			}
+		
 	};
 
 	/**
@@ -317,7 +331,7 @@ public class DocuBurst extends JPanel implements LoadData {
 	 */
 	private static void createAndShowFrame() {
 		// Create and set up the window.
-		final JFrame jFrame = new JFrame(APP_NAME);
+		final JFrame jFrame = new JFrame(String.format("%s - %s", APP_NAME, documentFile));
 		jFrame.setIconImage(new ImageIcon("wne.gif").getImage());
 
 		isApplet = false;
@@ -782,7 +796,7 @@ public class DocuBurst extends JPanel implements LoadData {
 
 		JLabel depthLabel = new JLabel("Maximum tree depth:");
 //		depthSpinner = new JSpinner(new SpinnerNumberModel(docuburstLayout.getFisheyeTreeFilter().getDistance(), 1, 20, 1));
-		depthSpinner = new JSpinner(new SpinnerNumberModel(3, 1, 20, 1));
+		depthSpinner = new JSpinner(new SpinnerNumberModel(DocuBurstActionList.DEFAULT_OVERVIEW_DEPTH, 1, 20, 1));
 		depthLabel.setDisplayedMnemonic('d');
 		depthFilterPanel.add(depthLabel);
 		depthFilterPanel.add(depthSpinner);
@@ -791,7 +805,7 @@ public class DocuBurst extends JPanel implements LoadData {
 			public void stateChanged(ChangeEvent e) {
 				JSpinner spinner = (JSpinner) e.getSource();
 				SpinnerNumberModel model = (SpinnerNumberModel) spinner.getModel();
-				docuburstLayout.getFisheyeTreeFilter().setDistance(model.getNumber().intValue());
+				docuburstLayout.getDepthTreeFilter().setDistance(model.getNumber().intValue());
 				run();
 				docuburstVisualization.run("resize"); // zoom to fit because
 														// layout doesn't
@@ -953,8 +967,8 @@ public class DocuBurst extends JPanel implements LoadData {
 		cButtonGroup.add(nodeCountsButton);
 		cButtonGroup.add(childCountsButton);
 		childCountsButton.doClick();
-		zerosCheckBox.doClick();
-		wordsCheckBox.doClick();
+//		zerosCheckBox.doClick();
+//		wordsCheckBox.doClick();
 
 		Utilities.setGBC(c, 0, 0, 3, 0, 3, 1, GridBagConstraints.HORIZONTAL);
 		bottomPanel.add(docuBurstOptionsPanel, c);

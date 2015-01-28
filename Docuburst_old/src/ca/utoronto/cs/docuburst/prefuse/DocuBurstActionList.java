@@ -39,6 +39,7 @@ import prefuse.action.filter.FisheyeTreeFilter;
 import prefuse.action.filter.VisibilityFilter;
 import prefuse.action.layout.CollapsedSubtreeLayout;
 import prefuse.action.layout.Layout;
+import prefuse.activity.Activity;
 import prefuse.activity.SlowInSlowOutPacer;
 import prefuse.controls.ControlAdapter;
 import prefuse.controls.HoverActionControl;
@@ -81,6 +82,7 @@ import ca.utoronto.cs.docuburst.prefuse.action.NodeColorAction;
 import ca.utoronto.cs.docuburst.prefuse.action.NodeStrokeColorAction;
 import ca.utoronto.cs.docuburst.prefuse.action.PathTraceHoverActionControl;
 import ca.utoronto.cs.docuburst.prefuse.action.StarburstScaleFontAction;
+import ca.utoronto.cs.docuburst.prefuse.filter.DepthTreeFilter;
 import ca.utoronto.cs.prefuseextensions.layout.StarburstLayout;
 import ca.utoronto.cs.prefuseextensions.layout.StarburstLayout.WidthType;
 import ca.utoronto.cs.prefuseextensions.lib.Colors;
@@ -104,10 +106,6 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 	public static final String CACHECOUNT = "cacheCount";
 	public static final String CACHERANGE = "cacheRange";
 	
-	// This column indicates whether or not a node belongs to the tree cut.
-	// 1 = True; 0 = False. For some reason the Node structure does not support Boolean.
-	public static final String CUT = "cut";
-
 	/**
 	 * Counts are stored as arrays of counts for each section or tile of the document.
 	 */
@@ -120,7 +118,7 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 	public static final String LABELS = "labels";
 	
 	public static boolean omitWords = true;
-	public static boolean omitZeros = false;
+	public static boolean omitZeros = true;
 	
 	// create data description of labels, setting colors, fonts ahead of time
 	private static final Schema LABEL_SCHEMA = PrefuseLib.getVisualItemSchema();
@@ -129,11 +127,14 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 	private static Predicate labelPredicate = new AndPredicate(ExpressionParser.predicate("(type = 1 or type = 0)"), 
 			new OrPredicate(new VisiblePredicate(), new StartVisiblePredicate()));
 
+	public static final int DEFAULT_OVERVIEW_DEPTH = 6;
+	
 	public static final boolean FONTFROMDIAGONAL = false;
 	
 	public static final double MAXFONTHEIGHT = 40.0;
 
 	private static final double MINFONTHEIGHT = 1.0;
+	
 	
 	private float childMaxTotal;
 	private float nodeMaxTotal;
@@ -154,8 +155,8 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 
 	// prefuse controls and actions 
 
-	private FisheyeTreeFilter fisheyeTreeFilter; // TODO: Get rid
-	private TreeCutFilter treeCutFilter;
+	private FisheyeTreeFilter fisheyeTreeFilter;
+	private DepthTreeFilter depthTreeFilter;
 	private NodeColorAction nodeColor;
 
 	StarburstLayout treeLayout;
@@ -167,6 +168,8 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 	private DisplaySenseMouseOverControl displaySenseMouseOverControl;
 	private ZoomControl zoomControl;
 	private ZoomToFitControl zoomToFitControl;
+	
+	
 
 	static {
 		LABEL_SCHEMA.addColumn("rotation", double.class, 0.0);
@@ -246,15 +249,15 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 					m_vis.cancel("visibility");
 					m_vis.cancel("labelVisibility");
 					m_vis.cancel("labelFilter");
-					if (getFisheyeTreeFilter().getSources().equals("searchAndFocus")) {
-						m_vis.run("layout"); // rerun everything because want to show related to search results
-						m_vis.runAfter("layout", "resize");
-					} else {
+//					if (getFisheyeTreeFilter().getSources().equals("searchAndFocus")) {
+//						m_vis.run("layout"); // rerun everything because want to show related to search results
+//						m_vis.runAfter("layout", "resize");
+//					} else {
 						m_vis.run("recolor");
 						m_vis.run("labelVisibility");
 						m_vis.run("labelFilter");
 						m_vis.run("animatePaint");
-					}
+//					}
 				}
 			}
 		});
@@ -384,8 +387,8 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 				item.setString("gloss", wrap(item.getString("gloss"), 30));
 			};
 		});
-		fisheyeTreeFilter = new FisheyeTreeFilter("graph", "searchAndFocus", 6);
-		treeCutFilter = new TreeCutFilter("graph", "searchAndFocus");
+//		fisheyeTreeFilter = new FisheyeTreeFilter("graph", "searchAndFocus", DEFAULT_OVERVIEW_DEPTH);
+		depthTreeFilter = new DepthTreeFilter("graph", DEFAULT_OVERVIEW_DEPTH);
 
 		// recentre and rezoom on reload
 		Action resizeAction = new Action() {
@@ -401,8 +404,8 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 		m_vis.putAction("resize", resizeAction);
 
 		// create the filtering and layout
-		this.add(fisheyeTreeFilter);
-//		this.add(treeCutFilter);
+//		this.add(fisheyeTreeFilter);
+		this.add(depthTreeFilter);
 		this.add(vF);
 		this.add(treeLayout);
 		this.add(new LabelLayout(LABELS));
@@ -420,8 +423,8 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 		animate.add(new VisibilityAnimator("graph"));
 		animate.add(new ColorAnimator("graph"));
 		animate.add(new RepaintAction());
-		m_vis.putAction("animate", animate);
-		m_vis.alwaysRunAfter("layout", "animate");
+//		m_vis.putAction("animate", animate);
+//		m_vis.alwaysRunAfter("layout", "animate");
 
 		// add listeners to displays, for "click" and "hover"
 		for (int i = 0; i < m_vis.getDisplayCount(); i++) {
@@ -450,7 +453,8 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 //			});
 			display.addControlListener(mouseWheelControl = new ControlAdapter() {
               public void itemWheelMoved(VisualItem item, MouseWheelEvent e) {
-                  treeCutFilter.updateDistance(- e.getWheelRotation());
+//                  fisheyeTreeFilter.setDistance(fisheyeTreeFilter.getDistance() - e.getWheelRotation());
+                  depthTreeFilter.setDistance(depthTreeFilter.getDistance() - e.getWheelRotation());
                   m_vis.cancel("layout");
                   m_vis.cancel("animate");
                   m_vis.run("layout");
@@ -462,6 +466,34 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 
 	public void addLabels() {
 		m_vis.addDecorators(LABELS, "graph.nodes", labelPredicate, LABEL_SCHEMA);
+	}
+	
+	@Override
+	public void run(double frac) {
+	    System.out.println(String.format("Started run(%s)...", frac));
+	    long t1 = System.currentTimeMillis();
+	    super.run(frac);
+	    long t2 = System.currentTimeMillis();
+	    System.out.println(String.format("Finished run(%s). It took %s seconds", frac, (t2-t1)/1000));
+	}
+	
+	
+	@Override
+	protected void run(long elapsedTime) {
+	    System.out.println(String.format("Started run(%s)...", elapsedTime));
+	    long t1 = System.currentTimeMillis();
+	    super.run(elapsedTime);
+	    long t2 = System.currentTimeMillis();
+	    System.out.println(String.format("Finished run(%s). It took %s seconds", elapsedTime, (t2-t1)/1000));
+	}
+	
+	
+	@Override
+	public void run() {
+	    long t1 = System.currentTimeMillis();
+	    super.run();
+	    long t2 = System.currentTimeMillis();
+	    System.out.println(String.format("Action Layout took %s.", (t2-t1)/1000));
 	}
 
 	public void cancel() {
@@ -547,9 +579,13 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 		g.drawRect(ulx, uly, w, h);
 	}
 
-	public FisheyeTreeFilter getFisheyeTreeFilter() {
-		return fisheyeTreeFilter;
-	}
+//	public FisheyeTreeFilter getFisheyeTreeFilter() {
+//		return fisheyeTreeFilter;
+//	}
+	
+	 public DepthTreeFilter getDepthTreeFilter() {
+	     return depthTreeFilter;
+	 }
 
 	public HighlightTextHoverActionControl getHighlightTextHoverActionControl() {
 		return highlightTextHAC;
@@ -573,7 +609,6 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 		countsSchema.addColumn(CACHECOUNT + CHILDCOUNT, float.class, null);
 		countsSchema.addColumn(CACHECOUNT + NODECOUNT, float.class, null);
 		// if true, the nodes belongs to the tree cut
-		countsSchema.addColumn(CUT, boolean.class, false);
 		
 		// Graph graph = (Graph) m_vis.getGroup(m_group);
 		graph.addColumns(countsSchema);
