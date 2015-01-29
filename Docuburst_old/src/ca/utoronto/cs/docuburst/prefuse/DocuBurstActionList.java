@@ -368,7 +368,7 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 		// set autoscale off so if display is zoomed on repaint, the layout isn't resized to fit in full display 
 		treeLayout.setAutoScale(false);
 
-		CollapsedSubtreeLayout subLayout = new CollapsedSubtreeLayout("graph");
+//		CollapsedSubtreeLayout subLayout = new CollapsedSubtreeLayout("graph");
 
 		CompositeTupleSet searchAndFocus = new CompositeTupleSet();
 		searchAndFocus.addSet(Visualization.FOCUS_ITEMS, m_vis.getFocusGroup(Visualization.FOCUS_ITEMS));
@@ -411,18 +411,19 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 		this.add(new LabelLayout(LABELS));
 		this.add(decoratorFonts);
 		this.add(lemmaFont);
-		this.add(subLayout);
+//		this.add(subLayout);
 		this.add(recolor);
+		
 		m_vis.putAction("layout", this);
 
 		// animated transition
-		ActionList animate = new ActionList(500);
-		animate.setPacingFunction(new SlowInSlowOutPacer());
-		animate.add(new QualityControlAnimator());
-		animate.add(new VisibilityAnimator(LABELS));
-		animate.add(new VisibilityAnimator("graph"));
-		animate.add(new ColorAnimator("graph"));
-		animate.add(new RepaintAction());
+//		ActionList animate = new ActionList(500);
+//		animate.setPacingFunction(new SlowInSlowOutPacer());
+//		animate.add(new QualityControlAnimator());
+//		animate.add(new VisibilityAnimator(LABELS));
+//		animate.add(new VisibilityAnimator("graph"));
+//		animate.add(new ColorAnimator("graph"));
+//		animate.add(new RepaintAction());
 //		m_vis.putAction("animate", animate);
 //		m_vis.alwaysRunAfter("layout", "animate");
 

@@ -60,7 +60,8 @@ public class DepthTreeFilter extends GroupAction {
         Iterator items = m_vis.visibleItems(m_group);
         while ( items.hasNext() ) {
             VisualItem item = (VisualItem)items.next();
-            PrefuseLib.updateVisible(item, false);
+//            PrefuseLib.updateVisible(item, false);
+            item.setVisible(false);
             item.setExpanded(false);
         }
         
@@ -75,7 +76,8 @@ public class DepthTreeFilter extends GroupAction {
                 break;
             
             // update visibility and expandability as a function of depth
-            PrefuseLib.updateVisible(n.node, true);
+//            PrefuseLib.updateVisible(n.node, true);
+            n.node.setVisible(true); // THIS CRAP!
             n.node.setExpanded(n.depth < distance && n.node.children().hasNext());
 
             for (Iterator it = n.node.children(); it.hasNext();) {
