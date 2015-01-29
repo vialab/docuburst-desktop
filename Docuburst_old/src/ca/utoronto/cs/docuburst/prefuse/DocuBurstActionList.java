@@ -11,12 +11,10 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.GradientPaint;
 import java.awt.Graphics2D;
-import java.awt.event.MouseWheelEvent;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Vector;
 
 import javax.swing.JTextPane;
@@ -32,15 +30,12 @@ import prefuse.action.ActionList;
 import prefuse.action.ItemAction;
 import prefuse.action.RepaintAction;
 import prefuse.action.animate.ColorAnimator;
-import prefuse.action.animate.QualityControlAnimator;
-import prefuse.action.animate.VisibilityAnimator;
 import prefuse.action.assignment.ColorAction;
 import prefuse.action.assignment.FontAction;
 import prefuse.action.filter.FisheyeTreeFilter;
 import prefuse.action.filter.VisibilityFilter;
 import prefuse.action.layout.CollapsedSubtreeLayout;
 import prefuse.action.layout.Layout;
-import prefuse.activity.SlowInSlowOutPacer;
 import prefuse.controls.ControlAdapter;
 import prefuse.controls.HoverActionControl;
 import prefuse.controls.PanControl;
@@ -76,16 +71,12 @@ import prefuse.visual.VisualItem;
 import prefuse.visual.expression.HoverPredicate;
 import prefuse.visual.expression.StartVisiblePredicate;
 import prefuse.visual.expression.VisiblePredicate;
-import ca.uoit.science.vialab.treecut.Wagner;
 import ca.utoronto.cs.docuburst.DocuBurst;
-import ca.utoronto.cs.docuburst.data.treecut.DocuburstTreeCut;
-import ca.utoronto.cs.docuburst.data.treecut.TreeCutCache;
 import ca.utoronto.cs.docuburst.prefuse.action.HighlightTextHoverActionControl;
 import ca.utoronto.cs.docuburst.prefuse.action.NodeColorAction;
 import ca.utoronto.cs.docuburst.prefuse.action.NodeStrokeColorAction;
 import ca.utoronto.cs.docuburst.prefuse.action.PathTraceHoverActionControl;
 import ca.utoronto.cs.docuburst.prefuse.action.StarburstScaleFontAction;
-import ca.utoronto.cs.docuburst.util.Util;
 import ca.utoronto.cs.prefuseextensions.layout.StarburstLayout;
 import ca.utoronto.cs.prefuseextensions.layout.StarburstLayout.WidthType;
 import ca.utoronto.cs.prefuseextensions.lib.Colors;
@@ -125,7 +116,7 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 	public static final String LABELS = "labels";
 	
 	public static boolean omitWords = true;
-	public static boolean omitZeros = false;
+	public static boolean omitZeros = true;
 	
 	// create data description of labels, setting colors, fonts ahead of time
 	private static final Schema LABEL_SCHEMA = PrefuseLib.getVisualItemSchema();
@@ -394,7 +385,7 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 //		fisheyeTreeFilter = new FisheyeTreeFilter("graph", "searchAndFocus", 6);
 //		treeCutFilterWagner = new TreeCutFilterWagner("graph", "searchAndFocus");
 //		treeCutFilterInc = new TreeCutFilterIncremental("graph", "searchAndFocus");
-		cachedTreeCutFilter = new CachedTreeCutFilter("graph", "searchAndFocus", null);
+		cachedTreeCutFilter = new CachedTreeCutFilter("graph", null);
 
 		// recentre and rezoom on reload
 		Action resizeAction = new Action() {
@@ -404,35 +395,33 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 				if (bounds.getWidth() == 0)
 					return;
 				GraphicsLib.expand(bounds, (int) (1 / m_vis.getDisplay(0).getScale()));
-				DisplayLib.fitViewToBounds(m_vis.getDisplay(0), bounds, (long) 2000);
+				DisplayLib.fitViewToBounds(m_vis.getDisplay(0), bounds, (long) 1000);
 			}
 		};
 		m_vis.putAction("resize", resizeAction);
 
 		// create the filtering and layout
-//		this.add(fisheyeTreeFilter);
-//		this.add(treeCutFilterWagner);
-//		this.add(treeCutFilterInc);
 		this.add(cachedTreeCutFilter);
 		this.add(vF);
 		this.add(treeLayout);
 		this.add(new LabelLayout(LABELS));
 		this.add(decoratorFonts);
 		this.add(lemmaFont);
-		this.add(subLayout);
+//		this.add(subLayout);
 		this.add(recolor);
 		m_vis.putAction("layout", this);
 
+		
 		// animated transition
-		ActionList animate = new ActionList(500);
-		animate.setPacingFunction(new SlowInSlowOutPacer());
-		animate.add(new QualityControlAnimator());
-		animate.add(new VisibilityAnimator(LABELS));
-		animate.add(new VisibilityAnimator("graph"));
-		animate.add(new ColorAnimator("graph"));
-		animate.add(new RepaintAction());
-		m_vis.putAction("animate", animate);
-		m_vis.alwaysRunAfter("layout", "animate");
+//		ActionList animate = new ActionList(500);
+//		animate.setPacingFunction(new SlowInSlowOutPacer());
+//		animate.add(new QualityControlAnimator());
+//		animate.add(new VisibilityAnimator(LABELS));
+//		animate.add(new VisibilityAnimator("graph"));
+//		animate.add(new ColorAnimator("graph"));
+//		animate.add(new RepaintAction());
+//		m_vis.putAction("animate", animate);
+//		m_vis.alwaysRunAfter("layout", "animate");
 
 		// add listeners to displays, for "click" and "hover"
 		for (int i = 0; i < m_vis.getDisplayCount(); i++) {
@@ -483,6 +472,7 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
         m_vis.cancel("layout");
         m_vis.cancel("animate");
         m_vis.run("layout");
+        m_vis.run("resize");
 	}
 	
 	

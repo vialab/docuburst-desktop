@@ -829,7 +829,8 @@ public class DocuBurst extends JPanel implements LoadData {
             
             @Override
             public void stateChanged(ChangeEvent e) {
-                docuburstLayout.setTreeCutWeight(scentedSlider.getModel().getValue());
+                if (!scentedSlider.getModel().valueIsAdjusting())
+                    docuburstLayout.setTreeCutWeight(scentedSlider.getModel().getValue());
                 
             }
         });
@@ -998,6 +999,7 @@ public class DocuBurst extends JPanel implements LoadData {
 		});
 
 		final JCheckBox wordsCheckBox = new JCheckBox("Words");
+		wordsCheckBox.setSelected(!DocuBurstActionList.omitWords);
 		wordsCheckBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				DocuBurstActionList.omitWords = !wordsCheckBox.isSelected();
@@ -1006,6 +1008,7 @@ public class DocuBurst extends JPanel implements LoadData {
 		});
 
 		zerosCheckBox = new JCheckBox("Zeros");
+		zerosCheckBox.setSelected(!DocuBurstActionList.omitZeros);
 		zerosCheckBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				DocuBurstActionList.omitZeros = !zerosCheckBox.isSelected();
@@ -1023,8 +1026,6 @@ public class DocuBurst extends JPanel implements LoadData {
 		cButtonGroup.add(nodeCountsButton);
 		cButtonGroup.add(childCountsButton);
 		childCountsButton.doClick();
-		zerosCheckBox.doClick();
-		wordsCheckBox.doClick();
 
 		Utilities.setGBC(c, 0, 0, 3, 0, 3, 1, GridBagConstraints.HORIZONTAL);
 		bottomPanel.add(docuBurstOptionsPanel, c);

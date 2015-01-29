@@ -21,9 +21,6 @@ import ca.utoronto.cs.docuburst.util.Util;
 
 public class CachedTreeCutFilter extends GroupAction {
 
-    private String sources;
-    private Predicate group;
-    
     private TreeCutCache cache; 
     
     private double weight = Double.NaN;
@@ -35,12 +32,8 @@ public class CachedTreeCutFilter extends GroupAction {
     * a Graph instance, otherwise exceptions will result when this
     * Action is run.
     **/
-    public CachedTreeCutFilter(String group, String sources, TreeCutCache cache) {
+    public CachedTreeCutFilter(String group, TreeCutCache cache) {
         super(group);
-        this.cache    = cache;
-        this.sources  = sources;
-        this.group    = new InGroupPredicate(
-                PrefuseLib.getGroupName(group, Graph.NODES));
     }
     
     @Override
@@ -53,6 +46,7 @@ public class CachedTreeCutFilter extends GroupAction {
         while ( items.hasNext() ) {
             VisualItem item = (VisualItem)items.next();
             PrefuseLib.updateVisible(item, false);
+//            item.setVisible(false);
             item.setExpanded(false);
         }
         
@@ -93,8 +87,6 @@ public class CachedTreeCutFilter extends GroupAction {
     public void markNode(NodeItem n, boolean isVisible){
         
         PrefuseLib.updateVisible(n, isVisible);
-        if (!isVisible)
-            n.setDOI(-Constants.MINIMUM_DOI);
         
         // if n is visible and not member of the cut, its children will be visible too
         boolean isChildrenVisible = isVisible && !n.getBoolean("cut");

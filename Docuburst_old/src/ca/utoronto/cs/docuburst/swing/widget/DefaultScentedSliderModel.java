@@ -49,6 +49,8 @@ public class DefaultScentedSliderModel implements ScentedSliderModel{
     public double getValue(){
         return this.value;
     }
+    
+    
 
     public void addChangeListener(ChangeListener l){
         listenerList.add(ChangeListener.class, l);

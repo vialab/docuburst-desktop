@@ -103,12 +103,12 @@ public class BasicScentedSliderUI extends ScentedSliderUI {
 			@Override
 			public void mousePressed(MouseEvent e) {
 				scentedSlider.getModel().setValueIsAdjusting(true);
-				double modelValue = sliderValueToModelValue(e.getX());
-				// do the "magic" of snapping the slider thumb to control 
-				// points of discrete ranges.
-				int snappedValue = modelValueToSliderValue(modelValue);
-				scentedSlider.setValue(snappedValue);
-				slider.setValue(snappedValue);
+//				double modelValue = sliderValueToModelValue(e.getX());
+//				// do the "magic" of snapping the slider thumb to control 
+//				// points of discrete ranges.
+//				int snappedValue = modelValueToSliderValue(modelValue);
+//				scentedSlider.setValue(snappedValue);
+//				slider.setValue(snappedValue);
 			}
 		};   
 		this.scentedSlider.addMouseListener(mouseListener);
