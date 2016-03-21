@@ -15,6 +15,8 @@ public class NodeColorAction extends ColorAction {
 
     private final DocuBurstActionList docuBurstActionList;
 
+    private final boolean ENTROPY_COLOR = true;
+    
     public NodeColorAction(DocuBurstActionList docuBurstActionList, String group, boolean trackSenseIndex) {
 		super(group, VisualItem.FILLCOLOR, ColorLib.rgba(100, 100, 100, 0));
         this.docuBurstActionList = docuBurstActionList;
@@ -45,13 +47,66 @@ public class NodeColorAction extends ColorAction {
 			super(group, field);
 			sca = new SenseColorAction(group, VisualItem.FILLCOLOR);
 		}
+		
+		public int entropyColor(VisualItem item){
+			// color is fixed, what changes as a function of the value is the transparency (alpha)
+			int color = sca.getColor(item);
+			
+			if (item.getString("label").equals("now"))
+				System.out.println("stop");
+			
+			// lemmas and senses in the pathToRoot
+			if (item.isInGroup("pathToRoot") && ((item.getInt("type") == 1) || (item.getInt("type") == 4)))
+				color = ColorScheme.pathToRootColor;
+
+			// count off -- just return color
+			if (NodeColorAction.this.docuBurstActionList.countType.equals(DocuBurstActionList.NOCOUNT))
+				return color;
+
+			//float total = item.getFloat(DocuBurstActionList.CONDENTROPY);
+			float total = item.getFloat(DocuBurstActionList.CONDENTROPY);
+			float maxTotal = NodeColorAction.this.docuBurstActionList.getMaxTotal(DocuBurstActionList.CONDENTROPY);
+
+			if (total < 0) color = ColorScheme.negativeColor;
+			
+			if (total == 0) {
+				if (color != ColorScheme.pathToRootColor)
+					// zero senses get grey, zero lemmas and words get clear
+					return ColorLib.setAlpha(color, 255);
+				else
+					// modulate path to root color 
+					return ColorLib.setAlpha(color, ColorScheme.zeroAlpha);
+			}
+
+			// initial alpha for zero and one count
+			int alpha = 10;
+
+
+			
+			float condEntropyMin = NodeColorAction.this.docuBurstActionList.getCondEntropyMinTotal();
+			
+			//alpha += (int) ( (1 - Math.log(total/maxTotal)/Math.log(condEntropyMin)) * (float) (255 - alpha));
+			alpha += (int) ( (Math.log(total/maxTotal)/Math.log(condEntropyMin)) * (float) (255 - alpha));
+			
+			if (total < 0)
+				System.err.println("total: " + total + " node: " + item.getString("label") + " alpha: " + alpha);
+
+			// this should not occur except for rounding errors
+			if (alpha > 255)
+				alpha = 255;
+
+			return ColorLib.setAlpha(color, alpha);
+		}
 
 		public int getColor(VisualItem item) {
+			if (ENTROPY_COLOR)
+				return entropyColor(item);
 			// test 
 //			if (item.getBoolean("cut")){
 //				return new Color(222,13,107).getRGB();
 //			}
 			
+			// color is fixed, what changes as a function of the value is the transparency (alpha)
 			int color = sca.getColor(item);
 			
 			// lemmas and senses in the pathToRoot

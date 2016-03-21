@@ -13,13 +13,17 @@ import java.awt.GradientPaint;
 import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.JTextPane;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
+
+import java.awt.event.*;
 
 import prefuse.Constants;
 import prefuse.Display;
@@ -77,6 +81,7 @@ import ca.utoronto.cs.docuburst.prefuse.action.NodeColorAction;
 import ca.utoronto.cs.docuburst.prefuse.action.NodeStrokeColorAction;
 import ca.utoronto.cs.docuburst.prefuse.action.PathTraceHoverActionControl;
 import ca.utoronto.cs.docuburst.prefuse.action.StarburstScaleFontAction;
+import ca.utoronto.cs.docuburst.util.Util;
 import ca.utoronto.cs.prefuseextensions.layout.StarburstLayout;
 import ca.utoronto.cs.prefuseextensions.layout.StarburstLayout.WidthType;
 import ca.utoronto.cs.prefuseextensions.lib.Colors;
@@ -107,9 +112,12 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 	/**
 	 * Counts are stored as arrays of counts for each section or tile of the document.
 	 */
-	public static final String CHILDCOUNT = "childCount";
+	public static final String CHILDCOUNT = "childCount"; // accumulated frequency of a node's subtree
 	public static final String NOCOUNT = "noCount";
-	public static final String NODECOUNT = "nodeCount";
+	public static final String NODECOUNT = "nodeCount"; // frequency directly associated with a node
+	public static final String LEAFCOUNT = "leafCount"; // number of leaves dominated by a node
+	// specific conditional entropy. see http://www.autonlab.org/tutorials/infogain11.pdf
+	public static final String CONDENTROPY = "condEntropy"; 
 
 	// node field names
 	public static final String HIGHLIGHT = "highlight";
@@ -131,8 +139,11 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 
 	private static final double MINFONTHEIGHT = 6.0;
 	
+	// sum of all values childCount and nodeCount, respectively, over the active document region
 	private float childMaxTotal;
 	private float nodeMaxTotal;
+	private float condEntropyMaxTotal;
+	private float condEntropyMinTotal = Float.MAX_VALUE;
 
 	// currently selected type of count 
 	public String countType = NODECOUNT;
@@ -448,19 +459,19 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 //					m_vis.run("layout");
 //				}
 //			});
-//			display.addControlListener(mouseWheelControl = new ControlAdapter() {
-//              public void itemWheelMoved(VisualItem item, MouseWheelEvent e) {
-//                  int deltaWeightIndex = -e.getWheelRotation();
-//                  double currWeight    = cachedTreeCutFilter.getWeight();
-//                  List<Double> weights = cachedTreeCutFilter.getSortedWeights();
-//                  int currWeightIndex  = weights.indexOf(currWeight);
-//                  int newWeightIndex   = currWeightIndex + deltaWeightIndex;
-//                  double newWeight     = weights.get(newWeightIndex);
-////                  treeCutFilterWagner.updateDistance(- e.getWheelRotation());
-////                  treeCutFilterInc.updateDistance(- e.getWheelRotation());
-//                  setTreeCutWeight(newWeight);
-//              }
-//            });
+			display.addControlListener(mouseWheelControl = new ControlAdapter() {
+              public void itemWheelMoved(VisualItem item, MouseWheelEvent e) {
+                  int deltaWeightIndex = -e.getWheelRotation();
+                  double currWeight    = cachedTreeCutFilter.getWeight();
+                  List<Double> weights = cachedTreeCutFilter.getSortedWeights();
+                  int currWeightIndex  = weights.indexOf(currWeight);
+                  int newWeightIndex   = currWeightIndex + deltaWeightIndex;
+                  double newWeight     = weights.get(newWeightIndex);
+//                  treeCutFilterWagner.updateDistance(- e.getWheelRotation());
+//                  treeCutFilterInc.updateDistance(- e.getWheelRotation());
+                  setTreeCutWeight(newWeight);
+              }
+            });
 			display.addControlListener(displaySenseMouseOverControl = new DisplaySenseMouseOverControl(DocuBurst.filterPane));
 		}
 		
@@ -588,6 +599,8 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 		countsSchema.addColumn(CACHERANGE, String.class, null);
 		countsSchema.addColumn(CACHECOUNT + CHILDCOUNT, float.class, null);
 		countsSchema.addColumn(CACHECOUNT + NODECOUNT, float.class, null);
+		countsSchema.addColumn(LEAFCOUNT, float.class, null);
+		countsSchema.addColumn(CONDENTROPY, float.class, null);
 		// if true, the nodes belongs to the tree cut
 		countsSchema.addColumn(CUT, boolean.class, false);
 		
@@ -596,6 +609,7 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 		Tree t = graph.getSpanningTree();
 		addCounts(t.getRoot());
 		cacheTotals(graph);
+		addCondEntropy(t.getRoot());
 	}
 
 	/**
@@ -726,13 +740,16 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 					} else {
 						c.set("nodeCount", (float[]) wordMap.get(key));
 						c.set("childCount", (float[]) wordMap.get(key));
+						c.set(LEAFCOUNT, 0);
 					}
 					// words propagate nodeCount and childCount to their parent
+					n.set(LEAFCOUNT, (Float)n.get(LEAFCOUNT) + 1);
 					n.set("nodeCount", sumCounts((float[]) n.get("nodeCount"), (float[]) c.get("nodeCount")));
 					n.set("childCount", sumCounts((float[]) n.get("childCount"), (float[]) c.get("childCount")));
 				} else {
 					addCounts(c);
 					// lemmas and senses only propagate childCount to parent
+					n.set(LEAFCOUNT, (Float)n.get(LEAFCOUNT) + (Float)c.get(LEAFCOUNT));
 					if (DIVIDE_BY_CHILDREN) {
 						n.set("childCount", sumCounts((float[]) n.get("childCount"), divide((float[]) c.get("childCount"), (float) n.getChildCount())));
 					} else {
@@ -742,6 +759,59 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 			}
 		}
 	}
+	
+	/**
+	 * Compute conditional entropy all nodes within the subtree rooted by this node.
+	 * @param node root
+	 */
+	private List<Node> addCondEntropy(Node node){
+		if (node.getString("label").equals("present"))
+			System.out.println("stop");
+		
+		List<Node> leaves = new ArrayList<Node>();
+		
+		if (node.getChildCount() < 1){
+			leaves.add(node);
+		}
+		
+		for (Iterator it = node.children(); it.hasNext();) {
+			Node child = (Node) it.next();
+			leaves.addAll(addCondEntropy(child));
+		}
+		
+		float condEntropy = 0; // specific conditional entropy
+		float nodeFreq = node.getFloat(CACHECOUNT + CHILDCOUNT);
+		
+		// $ H(Y|X=x) = p(x) \sum{y \in Y} p(y|x) log_2 p(y|x) $ latex formula
+		
+		float total = 0; // debug
+		
+		for (Node leaf : leaves) {
+			float leafFreq = leaf.getFloat(CACHECOUNT + CHILDCOUNT);
+			float leafProb = leafFreq / nodeFreq;
+			total += leafFreq;
+			condEntropy -= leafProb > 0 ? leafProb * Math.log(leafProb)/Math.log(2) : 0;
+			// include CONDENTROPYVALUE as a type of value
+			// update coloring to respond to the above change
+			// use childMaxTotal for conditional entropy
+			// for the probabilities, use float total = (float) (item.getFloat(DocuBurstActionList.CACHECOUNT + NodeColorAction.this.docuBurstActionList.countType))
+		}
+		
+		if (Math.abs(total - nodeFreq) > 0.001f)
+			System.err.println("Sum of child counts doesn't total node's childCount.");
+		
+		condEntropy *= nodeFreq/childMaxTotal;
+		
+		if (condEntropy > 0 && condEntropy < condEntropyMinTotal)
+			condEntropyMinTotal = condEntropy;
+		
+		node.set(CONDENTROPY, condEntropy);
+		
+		condEntropyMaxTotal = condEntropy;
+		
+		return leaves;
+	}
+	
 
 	/**
 	 * For the currently selected tile range, sum all the counts of those tiles
@@ -855,7 +925,13 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 			return childMaxTotal;
 		if (type.equals(NODECOUNT))
 			return nodeMaxTotal;
+		if (type.equals(CONDENTROPY))
+			return condEntropyMaxTotal;
 		return 0;
+	}
+	
+	public float getCondEntropyMinTotal() {
+		return condEntropyMinTotal;
 	}
 
 	private String makeLabel(int startTile, int endTile) {
