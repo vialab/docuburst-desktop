@@ -135,6 +135,8 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 
 	public static final boolean FONTFROMDIAGONAL = false;
 	
+	public static final boolean TREECUT = true;
+	
 	public static final double MAXFONTHEIGHT = 40.0;
 
 	private static final double MINFONTHEIGHT = 6.0;
@@ -159,6 +161,8 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 	HashMap<String, float[]> wordMap;
 	HashMap<String, float[]> wordMap2;
 
+	
+	
 	// prefuse controls and actions 
 
 	private FisheyeTreeFilter fisheyeTreeFilter; // TODO: Get rid of
@@ -396,7 +400,11 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 //		fisheyeTreeFilter = new FisheyeTreeFilter("graph", "searchAndFocus", 6);
 //		treeCutFilterWagner = new TreeCutFilterWagner("graph", "searchAndFocus");
 //		treeCutFilterInc = new TreeCutFilterIncremental("graph", "searchAndFocus");
-		cachedTreeCutFilter = new CachedTreeCutFilter("graph", null);
+		if (TREECUT)
+		    cachedTreeCutFilter = new CachedTreeCutFilter("graph", null);
+		else
+		    fisheyeTreeFilter = new FisheyeTreeFilter("graph", "searchAndFocus", 6);
+		
 
 		// recentre and rezoom on reload
 		Action resizeAction = new Action() {
@@ -412,7 +420,8 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 		m_vis.putAction("resize", resizeAction);
 
 		// create the filtering and layout
-		this.add(cachedTreeCutFilter);
+		
+		this.add(TREECUT ? cachedTreeCutFilter : fisheyeTreeFilter);
 		this.add(vF);
 		this.add(treeLayout);
 		this.add(new LabelLayout(LABELS));
@@ -448,30 +457,35 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 			highlightTextHAC.setCountField(CACHECOUNT + NODECOUNT);
 			display.addControlListener(panControl = new PanControl(true));
 			display.addControlListener(zoomControl = new ZoomControl());
-//			display.addControlListener(mouseWheelControl = new ControlAdapter() {
-//				public void itemWheelMoved(VisualItem item, MouseWheelEvent e) {
-//					if (e.getWheelRotation() < 0)
-//						item.setDouble("angleFactor", item.getDouble("angleFactor") + 0.1);
-//					else
-//						item.setDouble("angleFactor", (item.getDouble("angleFactor") > 0.2 ? item.getDouble("angleFactor") - 0.1 : 0.1));
-//					m_vis.cancel("layout");
-//					m_vis.cancel("animate");
-//					m_vis.run("layout");
-//				}
-//			});
-			display.addControlListener(mouseWheelControl = new ControlAdapter() {
+			
+			if (TREECUT){
+    	         display.addControlListener(mouseWheelControl = new ControlAdapter() {
+    	              public void itemWheelMoved(VisualItem item, MouseWheelEvent e) {
+    	                  int deltaWeightIndex = -e.getWheelRotation();
+    	                  double currWeight    = cachedTreeCutFilter.getWeight();
+    	                  List<Double> weights = cachedTreeCutFilter.getSortedWeights();
+    	                  int currWeightIndex  = weights.indexOf(currWeight);
+    	                  int newWeightIndex   = currWeightIndex + deltaWeightIndex;
+    	                  double newWeight     = weights.get(newWeightIndex);
+    //		                  treeCutFilterWagner.updateDistance(- e.getWheelRotation());
+    //		                  treeCutFilterInc.updateDistance(- e.getWheelRotation());
+    	                  setTreeCutWeight(newWeight);
+    	              }
+    	            });
+			} else {
+	          display.addControlListener(mouseWheelControl = new ControlAdapter() {
               public void itemWheelMoved(VisualItem item, MouseWheelEvent e) {
-                  int deltaWeightIndex = -e.getWheelRotation();
-                  double currWeight    = cachedTreeCutFilter.getWeight();
-                  List<Double> weights = cachedTreeCutFilter.getSortedWeights();
-                  int currWeightIndex  = weights.indexOf(currWeight);
-                  int newWeightIndex   = currWeightIndex + deltaWeightIndex;
-                  double newWeight     = weights.get(newWeightIndex);
-//                  treeCutFilterWagner.updateDistance(- e.getWheelRotation());
-//                  treeCutFilterInc.updateDistance(- e.getWheelRotation());
-                  setTreeCutWeight(newWeight);
-              }
-            });
+                  if (e.getWheelRotation() < 0)
+                      item.setDouble("angleFactor", item.getDouble("angleFactor") + 0.1);
+                  else
+                      item.setDouble("angleFactor", (item.getDouble("angleFactor") > 0.2 ? item.getDouble("angleFactor") - 0.1 : 0.1));
+                      m_vis.cancel("layout");
+                      m_vis.cancel("animate");
+                      m_vis.run("layout");
+                  }
+	          });			    
+			} 
+
 			display.addControlListener(displaySenseMouseOverControl = new DisplaySenseMouseOverControl(DocuBurst.filterPane));
 		}
 		
@@ -765,8 +779,6 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 	 * @param node root
 	 */
 	private List<Node> addCondEntropy(Node node){
-		if (node.getString("label").equals("present"))
-			System.out.println("stop");
 		
 		List<Node> leaves = new ArrayList<Node>();
 		

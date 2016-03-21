@@ -464,7 +464,8 @@ public class DocuBurst extends JPanel implements LoadData {
 		}
 
 		docuburstLayout = new DocuBurstActionList(docuburstVisualization, fishEyeDocument, documentFile);
-		docuburstLayout.addActivityListener(getDocuBurstActivityListener());
+		if (docuburstLayout.TREECUT)
+		    docuburstLayout.addActivityListener(getDocuBurstActivityListener());
 		/**
 		 * Setup Swing layout and content pane
 		 */
@@ -817,6 +818,7 @@ public class DocuBurst extends JPanel implements LoadData {
 	}
 	
 	private JPanel createTreeCutPanel(){
+	    
 	    JPanel panel = new JPanel(new BorderLayout());
 	    TreeCutCache cache = docuburstLayout.getTreeCutFilter().getTreeCutCache();
 	    List<Double> weights = cache.getSortedWeights();
