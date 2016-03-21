@@ -30,6 +30,8 @@ public class ExportDisplayAction extends AbstractAction {
     private Display display;
     private JFileChooser chooser;
     private ScaleSelector scaler;
+    private static File lastChosenDirectory = null;
+    
     
     /**
      * Create a new ExportDisplayAction for the given Display.
@@ -45,6 +47,7 @@ public class ExportDisplayAction extends AbstractAction {
         chooser.setDialogType(JFileChooser.SAVE_DIALOG);
         chooser.setDialogTitle("Export Prefuse Display...");
         chooser.setAcceptAllFileFilterUsed(false);
+        
         
         HashSet seen = new HashSet();
         String[] fmts = ImageIO.getWriterFormatNames();
@@ -73,12 +76,17 @@ public class ExportDisplayAction extends AbstractAction {
         if ( chooser == null )
             init();
         
+        if (lastChosenDirectory != null)
+            chooser.setCurrentDirectory(lastChosenDirectory);
+        
         // open image save dialog
         File f = null;
         scaler.setImage(display.getOffscreenBuffer());
         int returnVal = chooser.showSaveDialog((JComponent)display);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
            f = chooser.getSelectedFile();
+           lastChosenDirectory = new File(f.getParent());
+           System.out.println();
         } else {
             return;
         }
