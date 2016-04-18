@@ -34,12 +34,15 @@ import prefuse.action.ActionList;
 import prefuse.action.ItemAction;
 import prefuse.action.RepaintAction;
 import prefuse.action.animate.ColorAnimator;
+import prefuse.action.animate.QualityControlAnimator;
+import prefuse.action.animate.VisibilityAnimator;
 import prefuse.action.assignment.ColorAction;
 import prefuse.action.assignment.FontAction;
 import prefuse.action.filter.FisheyeTreeFilter;
 import prefuse.action.filter.VisibilityFilter;
 import prefuse.action.layout.CollapsedSubtreeLayout;
 import prefuse.action.layout.Layout;
+import prefuse.activity.SlowInSlowOutPacer;
 import prefuse.controls.ControlAdapter;
 import prefuse.controls.HoverActionControl;
 import prefuse.controls.PanControl;
@@ -71,6 +74,7 @@ import prefuse.util.GraphicsLib;
 import prefuse.util.PrefuseLib;
 import prefuse.util.display.DisplayLib;
 import prefuse.visual.DecoratorItem;
+import prefuse.visual.NodeItem;
 import prefuse.visual.VisualItem;
 import prefuse.visual.expression.HoverPredicate;
 import prefuse.visual.expression.StartVisiblePredicate;
@@ -160,12 +164,9 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 	 */
 	HashMap<String, float[]> wordMap;
 	HashMap<String, float[]> wordMap2;
-
-	
 	
 	// prefuse controls and actions 
-
-	private FisheyeTreeFilter fisheyeTreeFilter; // TODO: Get rid of
+	private FisheyeTreeFilter fisheyeTreeFilter; 
 	private TreeCutFilterWagner treeCutFilterWagner;
 	private TreeCutFilterIncremental treeCutFilterInc;
 	public CachedTreeCutFilter cachedTreeCutFilter;
@@ -433,15 +434,15 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 
 		
 		// animated transition
-//		ActionList animate = new ActionList(500);
-//		animate.setPacingFunction(new SlowInSlowOutPacer());
-//		animate.add(new QualityControlAnimator());
-//		animate.add(new VisibilityAnimator(LABELS));
-//		animate.add(new VisibilityAnimator("graph"));
-//		animate.add(new ColorAnimator("graph"));
-//		animate.add(new RepaintAction());
-//		m_vis.putAction("animate", animate);
-//		m_vis.alwaysRunAfter("layout", "animate");
+		ActionList animate = new ActionList(500);
+		animate.setPacingFunction(new SlowInSlowOutPacer());
+		animate.add(new QualityControlAnimator());
+		animate.add(new VisibilityAnimator(LABELS));
+		animate.add(new VisibilityAnimator("graph"));
+		animate.add(new ColorAnimator("graph"));
+		animate.add(new RepaintAction());
+		m_vis.putAction("animate", animate);
+		m_vis.alwaysRunAfter("layout", "animate");
 
 		// add listeners to displays, for "click" and "hover"
 		for (int i = 0; i < m_vis.getDisplayCount(); i++) {
@@ -483,7 +484,14 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
                       m_vis.cancel("animate");
                       m_vis.run("layout");
                   }
-	          });			    
+	          });
+//	          public void itemWheelMoved(VisualItem item, MouseWheelEvent e) {
+////                fisheyeTreeFilter.setDistance(fisheyeTreeFilter.getDistance() - e.getWheelRotation());
+//                depthTreeFilter.setDistance(depthTreeFilter.getDistance() - e.getWheelRotation());
+//                m_vis.cancel("layout");
+//                m_vis.cancel("animate");
+//                m_vis.run("layout");
+//            }
 			} 
 
 			display.addControlListener(displaySenseMouseOverControl = new DisplaySenseMouseOverControl(DocuBurst.filterPane));
@@ -901,6 +909,7 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 				// only check visible items: fisheye filter already set
 				// everything visible
 				Iterator items = m_vis.visibleItems(m_group);
+				int visibleCount = 0;
 				while (items.hasNext()) {
 					VisualItem item = (VisualItem) items.next();
 					// fisheye filter already moved current visibility to
@@ -926,7 +935,10 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 							item.setEndVisible(false);
 						}
 					}
+					if (item instanceof NodeItem && item.isVisible())
+						visibleCount++;
 				}
+				System.out.println(visibleCount + " nodes are visible.");
 			}
 		};
 		return vF;
