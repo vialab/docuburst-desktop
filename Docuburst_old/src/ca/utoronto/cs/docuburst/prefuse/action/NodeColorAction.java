@@ -15,7 +15,7 @@ public class NodeColorAction extends ColorAction {
 
     private final DocuBurstActionList docuBurstActionList;
 
-    private final boolean ENTROPY_COLOR = true;
+    private final boolean ENTROPY_COLOR = false;
     
     public NodeColorAction(DocuBurstActionList docuBurstActionList, String group, boolean trackSenseIndex) {
 		super(group, VisualItem.FILLCOLOR, ColorLib.rgba(100, 100, 100, 0));
@@ -51,9 +51,6 @@ public class NodeColorAction extends ColorAction {
 		public int entropyColor(VisualItem item){
 			// color is fixed, what changes as a function of the value is the transparency (alpha)
 			int color = sca.getColor(item);
-			
-			if (item.getString("label").equals("now"))
-				System.out.println("stop");
 			
 			// lemmas and senses in the pathToRoot
 			if (item.isInGroup("pathToRoot") && ((item.getInt("type") == 1) || (item.getInt("type") == 4)))
@@ -105,6 +102,8 @@ public class NodeColorAction extends ColorAction {
 //			if (item.getBoolean("cut")){
 //				return new Color(222,13,107).getRGB();
 //			}
+			
+			
 			
 			// color is fixed, what changes as a function of the value is the transparency (alpha)
 			int color = sca.getColor(item);
