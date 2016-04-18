@@ -67,6 +67,7 @@ import net.didion.jwnl.dictionary.Dictionary;
 import prefuse.Display;
 import prefuse.DisplayComponent;
 import prefuse.Visualization;
+import prefuse.action.filter.FisheyeTreeFilter;
 import prefuse.activity.Activity;
 import prefuse.activity.ActivityListener;
 import prefuse.data.Graph;
@@ -883,8 +884,10 @@ public class DocuBurst extends JPanel implements LoadData {
         depthFilterPanel.setBorder(new TitledBorder("Depth Filter"));
 
         JLabel depthLabel = new JLabel("Maximum tree depth:");
-//      depthSpinner = new JSpinner(new SpinnerNumberModel(docuburstLayout.getFisheyeTreeFilter().getDistance(), 1, 20, 1));
-        depthSpinner = new JSpinner(new SpinnerNumberModel(3, 1, 20, 1));
+        FisheyeTreeFilter treeFilter = docuburstLayout.getFisheyeTreeFilter();
+        depthSpinner = new JSpinner(new SpinnerNumberModel(
+        		treeFilter != null? treeFilter.getDistance() : 3, 1, 20, 1));
+//        depthSpinner = new JSpinner(new SpinnerNumberModel(3, 1, 20, 1));
         depthLabel.setDisplayedMnemonic('d');
         depthFilterPanel.add(depthLabel);
         depthFilterPanel.add(depthSpinner);
