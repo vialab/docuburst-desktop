@@ -131,6 +131,7 @@ public class FisheyeTreeFilter extends GroupAction {
     public void run(double frac) {
         Tree tree = ((Graph)m_vis.getGroup(m_group)).getSpanningTree();
         m_divisor = tree.getNodeCount();
+        //System.out.println("Tree node count: " + m_divisor); // debug
         m_root = (NodeItem)tree.getRoot();
         
         // mark visible items as non-expanded and minimum interest
@@ -147,13 +148,14 @@ public class FisheyeTreeFilter extends GroupAction {
             visitFocus((NodeItem)iter.next(), null);
         visitFocus(m_root, null);
 
-        // mark unreached items
+        // mark unreached items (might include edge or node items)
         items = m_vis.visibleItems(m_group);
         while ( items.hasNext() ) {
             VisualItem item = (VisualItem)items.next();
             if ( item.getDOI() == Constants.MINIMUM_DOI )
                 PrefuseLib.updateVisible(item, false);
         }
+        
     }
 
     /**
