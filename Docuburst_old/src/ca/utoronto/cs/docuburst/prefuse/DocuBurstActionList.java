@@ -80,6 +80,7 @@ import prefuse.visual.expression.HoverPredicate;
 import prefuse.visual.expression.StartVisiblePredicate;
 import prefuse.visual.expression.VisiblePredicate;
 import ca.utoronto.cs.docuburst.DocuBurst;
+import ca.utoronto.cs.docuburst.Param;
 import ca.utoronto.cs.docuburst.prefuse.action.HighlightTextHoverActionControl;
 import ca.utoronto.cs.docuburst.prefuse.action.NodeColorAction;
 import ca.utoronto.cs.docuburst.prefuse.action.NodeStrokeColorAction;
@@ -133,17 +134,20 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 	// create data description of labels, setting colors, fonts ahead of time
 	private static final Schema LABEL_SCHEMA = PrefuseLib.getVisualItemSchema();
 
-	// predicate filtering which nodes should be labelled 
+	// predicate filtering which nodes should be labeled 
 	private static Predicate labelPredicate = new AndPredicate(ExpressionParser.predicate("(type = 1 or type = 0)"), 
 			new OrPredicate(new VisiblePredicate(), new StartVisiblePredicate()));
 
 	public static final boolean FONTFROMDIAGONAL = false;
 	
-	public static final boolean TREECUT = true;
+	private Param.DepthFilter depthFilter = Param.DepthFilter.TREECUT;
+	private int depthFilterDistance = 2;
 	
 	public static final double MAXFONTHEIGHT = 40.0;
 
 	private static final double MINFONTHEIGHT = 6.0;
+	
+	public String depthFilterScope = Param.DepthFilterScope.SEARCH_AND_FOCUS;
 	
 	// sum of all values childCount and nodeCount, respectively, over the active document region
 	private float childMaxTotal;
@@ -401,10 +405,8 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 //		fisheyeTreeFilter = new FisheyeTreeFilter("graph", "searchAndFocus", 6);
 //		treeCutFilterWagner = new TreeCutFilterWagner("graph", "searchAndFocus");
 //		treeCutFilterInc = new TreeCutFilterIncremental("graph", "searchAndFocus");
-		if (TREECUT)
-		    cachedTreeCutFilter = new CachedTreeCutFilter("graph", null);
-		else
-		    fisheyeTreeFilter = new FisheyeTreeFilter("graph", "searchAndFocus", 6);
+		fisheyeTreeFilter = depthFilter.equals(Param.DepthFilter.TREECUT) ? new CachedTreeCutFilter("graph", depthFilterScope, null) :
+			new FisheyeTreeFilter("graph", depthFilterScope, 6);
 		
 
 		// recentre and rezoom on reload
@@ -422,7 +424,7 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 
 		// create the filtering and layout
 		
-		this.add(TREECUT ? cachedTreeCutFilter : fisheyeTreeFilter);
+		this.add(fisheyeTreeFilter);
 		this.add(vF);
 		this.add(treeLayout);
 		this.add(new LabelLayout(LABELS));
@@ -459,40 +461,40 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 			display.addControlListener(panControl = new PanControl(true));
 			display.addControlListener(zoomControl = new ZoomControl());
 			
-			if (TREECUT){
-    	         display.addControlListener(mouseWheelControl = new ControlAdapter() {
-    	              public void itemWheelMoved(VisualItem item, MouseWheelEvent e) {
-    	                  int deltaWeightIndex = -e.getWheelRotation();
-    	                  double currWeight    = cachedTreeCutFilter.getWeight();
-    	                  List<Double> weights = cachedTreeCutFilter.getSortedWeights();
-    	                  int currWeightIndex  = weights.indexOf(currWeight);
-    	                  int newWeightIndex   = currWeightIndex + deltaWeightIndex;
-    	                  double newWeight     = weights.get(newWeightIndex);
-    //		                  treeCutFilterWagner.updateDistance(- e.getWheelRotation());
-    //		                  treeCutFilterInc.updateDistance(- e.getWheelRotation());
-    	                  setTreeCutWeight(newWeight);
-    	              }
-    	            });
-			} else {
-	          display.addControlListener(mouseWheelControl = new ControlAdapter() {
-              public void itemWheelMoved(VisualItem item, MouseWheelEvent e) {
-                  if (e.getWheelRotation() < 0)
-                      item.setDouble("angleFactor", item.getDouble("angleFactor") + 0.1);
-                  else
-                      item.setDouble("angleFactor", (item.getDouble("angleFactor") > 0.2 ? item.getDouble("angleFactor") - 0.1 : 0.1));
-                      m_vis.cancel("layout");
-                      m_vis.cancel("animate");
-                      m_vis.run("layout");
-                  }
-	          });
-//	          public void itemWheelMoved(VisualItem item, MouseWheelEvent e) {
-////                fisheyeTreeFilter.setDistance(fisheyeTreeFilter.getDistance() - e.getWheelRotation());
-//                depthTreeFilter.setDistance(depthTreeFilter.getDistance() - e.getWheelRotation());
-//                m_vis.cancel("layout");
-//                m_vis.cancel("animate");
-//                m_vis.run("layout");
-//            }
-			} 
+//			if (TREECUT){
+//    	         display.addControlListener(mouseWheelControl = new ControlAdapter() {
+//    	              public void itemWheelMoved(VisualItem item, MouseWheelEvent e) {
+//    	                  int deltaWeightIndex = -e.getWheelRotation();
+//    	                  double currWeight    = cachedTreeCutFilter.getWeight();
+//    	                  List<Double> weights = cachedTreeCutFilter.getSortedWeights();
+//    	                  int currWeightIndex  = weights.indexOf(currWeight);
+//    	                  int newWeightIndex   = currWeightIndex + deltaWeightIndex;
+//    	                  double newWeight     = weights.get(newWeightIndex);
+//    //		                  treeCutFilterWagner.updateDistance(- e.getWheelRotation());
+//    //		                  treeCutFilterInc.updateDistance(- e.getWheelRotation());
+//    	                  setTreeCutWeight(newWeight);
+//    	              }
+//    	            });
+//			} else {
+//	          display.addControlListener(mouseWheelControl = new ControlAdapter() {
+//              public void itemWheelMoved(VisualItem item, MouseWheelEvent e) {
+//                  if (e.getWheelRotation() < 0)
+//                      item.setDouble("angleFactor", item.getDouble("angleFactor") + 0.1);
+//                  else
+//                      item.setDouble("angleFactor", (item.getDouble("angleFactor") > 0.2 ? item.getDouble("angleFactor") - 0.1 : 0.1));
+//                      m_vis.cancel("layout");
+//                      m_vis.cancel("animate");
+//                      m_vis.run("layout");
+//                  }
+//	          });
+			display.addControlListener(mouseWheelControl = new ControlAdapter() {
+			    public void itemWheelMoved(VisualItem item, MouseWheelEvent e) {
+			        setDepthFilterDistance(getDepthFilterDistance() - e.getWheelRotation());
+                    m_vis.cancel("layout");
+                    m_vis.cancel("animate");
+                    m_vis.run("layout");
+			    }
+			});
 
 			display.addControlListener(displaySenseMouseOverControl = new DisplaySenseMouseOverControl(DocuBurst.filterPane));
 		}
@@ -500,8 +502,42 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 //		this.treeCutCache = buildTreeCutCache();
 	}
 	
-	public void setTreeCutWeight(double w){
-	    cachedTreeCutFilter.setWeight(w);
+	public void setDepthFilterApproach(Param.DepthFilter a){
+	    if (a.equals(depthFilter)) return;
+	    
+	    this.remove(fisheyeTreeFilter);
+	    
+	    depthFilter = a;
+	    if (depthFilter.equals(Param.DepthFilter.TREECUT))
+	        fisheyeTreeFilter = new CachedTreeCutFilter("graph", depthFilterScope, null);
+	    else
+	        fisheyeTreeFilter = new FisheyeTreeFilter("graph", depthFilterScope, getDepthFilterDistance());
+	    
+	    fisheyeTreeFilter.setDistance(getDepthFilterDistance());
+	    this.add(0, fisheyeTreeFilter);
+	    m_vis.putAction("layout", this);
+        m_vis.cancel("layout");
+        m_vis.cancel("animate");
+        m_vis.run("layout");
+        m_vis.run("resize");
+	}
+	
+	public Param.DepthFilter getDepthFilterApproach(){
+        return depthFilter;
+    }
+	
+	public int getDepthFilterDistance() {
+        return depthFilterDistance;
+    }
+	
+    public void setDepthFilterDistance(int d) {
+        this.depthFilterDistance = d;
+        fisheyeTreeFilter.setDistance(d);
+        
+    }
+    
+    public void setTreeCutWeight(double w){
+	    ((CachedTreeCutFilter)fisheyeTreeFilter).setWeight(w);
         m_vis.cancel("layout");
         m_vis.cancel("animate");
         m_vis.run("layout");

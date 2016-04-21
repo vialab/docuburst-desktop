@@ -1,18 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="src" path="lib"/>
 	<classpathentry kind="src" path="texts"/>
 	<classpathentry kind="src" path="data"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/WordNetExplorerLibraries"/>
 	<classpathentry kind="lib" path="montytagger.jar"/>
-	<classpathentry kind="lib" path="lib/stanford-postagger-2008-09-28.jar"/>
 	<classpathentry kind="lib" path="lib/itextpdf-5.5.0.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/prefuse-3D"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jwnl"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/PrefuseExtensions"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/treecut"/>
+	<classpathentry kind="lib" path="lib/stanford-postagger-2008-09-28.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

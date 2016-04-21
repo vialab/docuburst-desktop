@@ -52,6 +52,7 @@ import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
@@ -71,7 +72,6 @@ import prefuse.action.filter.FisheyeTreeFilter;
 import prefuse.activity.Activity;
 import prefuse.activity.ActivityListener;
 import prefuse.data.Graph;
-import prefuse.data.Node;
 import prefuse.data.Table;
 import prefuse.data.Tree;
 import prefuse.data.expression.Predicate;
@@ -85,18 +85,15 @@ import prefuse.util.io.IOLib;
 import prefuse.util.ui.JSearchPanel;
 import prefuse.util.ui.UILib;
 import prefuse.visual.VisualGraph;
-import ca.uoit.science.vialab.treecut.Wagner;
 import ca.utoronto.cs.docuburst.data.WordNetTree;
-import ca.utoronto.cs.docuburst.data.treecut.DocuburstTreeCut;
 import ca.utoronto.cs.docuburst.data.treecut.TreeCutCache;
+import ca.utoronto.cs.docuburst.prefuse.CachedTreeCutFilter;
 import ca.utoronto.cs.docuburst.prefuse.DocuBurstActionList;
 import ca.utoronto.cs.docuburst.swing.ConcordancePanel;
 import ca.utoronto.cs.docuburst.swing.TilesPanel;
-import ca.utoronto.cs.docuburst.swing.widget.BasicScentedSliderUI;
 import ca.utoronto.cs.docuburst.swing.widget.ScentedSlider;
 import ca.utoronto.cs.docuburst.swing.widget.ScentedSliderModel;
 import ca.utoronto.cs.docuburst.swing.widget.ScentedSliderModel.Point;
-import ca.utoronto.cs.docuburst.util.Util;
 import ca.utoronto.cs.prefuseextensions.layout.StarburstLayout;
 import ca.utoronto.cs.prefuseextensions.render.SectorRenderer;
 import ca.utoronto.cs.prefuseextensions.swing.Utilities;
@@ -176,10 +173,10 @@ public class DocuBurst extends JPanel implements LoadData {
             String actionCommand = event.getActionCommand();
 
             if (actionCommand.equals("Search and Focus")) {
-                if (!docuburstLayout.getFisheyeTreeFilter().getSources().equals("searchAndFocus")) {
+                if (!docuburstLayout.depthFilterScope.equals(Param.DepthFilterScope.SEARCH_AND_FOCUS)) {
+                	docuburstLayout.depthFilterScope = Param.DepthFilterScope.SEARCH_AND_FOCUS;
                     // update filter sources to search and focus
-
-                    docuburstLayout.getFisheyeTreeFilter().setSources("searchAndFocus");
+                    docuburstLayout.getFisheyeTreeFilter().setSources(Param.DepthFilterScope.SEARCH_AND_FOCUS);
                     if (docuburstVisualization.getGroup("graph").getTupleCount() > 0) {
                         docuburstVisualization.run("layout");
                         docuburstVisualization.run("resize");
@@ -187,16 +184,27 @@ public class DocuBurst extends JPanel implements LoadData {
                 }
             }
             if (actionCommand.equals("Focus")) {
-                if (!docuburstLayout.getFisheyeTreeFilter().getSources().equals(Visualization.FOCUS_ITEMS)) {
+                if (!docuburstLayout.depthFilterScope.equals(Param.DepthFilterScope.FOCUS)) {
+                	docuburstLayout.depthFilterScope = Param.DepthFilterScope.FOCUS;
                     // update filter sources to only focus
-
-                    docuburstLayout.getFisheyeTreeFilter().setSources(Visualization.FOCUS_ITEMS);
+                    docuburstLayout.getFisheyeTreeFilter().setSources(Param.DepthFilterScope.FOCUS);
                     if (docuburstVisualization.getGroup("graph").getTupleCount() > 0) {
                         docuburstVisualization.run("layout");
                         docuburstVisualization.run("resize");
                     }
                 }
             }
+        }
+    };
+    
+    private ActionListener unevenAction = new ActionListener() {
+        
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (((JCheckBox)e.getSource()).isSelected())
+                docuburstLayout.setDepthFilterApproach(Param.DepthFilter.TREECUT);
+            else
+                docuburstLayout.setDepthFilterApproach(Param.DepthFilter.FISHEYE);
         }
     };
 
@@ -494,8 +502,8 @@ public class DocuBurst extends JPanel implements LoadData {
         }
 
         docuburstLayout = new DocuBurstActionList(docuburstVisualization, fishEyeDocument, documentFile);
-        if (docuburstLayout.TREECUT)
-            docuburstLayout.addActivityListener(getDocuBurstActivityListener());
+//        if (docuburstLayout.TREECUT)
+//            docuburstLayout.addActivityListener(getDocuBurstActivityListener());
         /**
          * Setup Swing layout and content pane
          */
@@ -510,6 +518,8 @@ public class DocuBurst extends JPanel implements LoadData {
 
         this.setLayout(new BorderLayout());
         this.add(contentPane);
+        
+        
     }
     
     public ActivityListener getDocuBurstActivityListener(){
@@ -527,9 +537,9 @@ public class DocuBurst extends JPanel implements LoadData {
             
             @Override
             public void activityFinished(Activity a) {
-                if (scentedSlider == null){
-                    interfacePane.addTab("Tree Cut", createTreeCutPanel());
-                }
+//                if (scentedSlider == null){
+//                    interfacePane.addTab("Tree Cut", createTreeCutPanel());
+//                }
             }
             
             @Override
@@ -635,92 +645,93 @@ public class DocuBurst extends JPanel implements LoadData {
      * @param graph
      *            the graph to visualize
      */
-    public void visualize(Graph graph) {
-        long t1 = System.currentTimeMillis();
-        
-        docuburstVisualization.reset();
+    public void visualize(final Graph graph) {
+    	
 
-        // clean up after clearing data structures
-//      System.gc();
-    
-        LOGGER.info("Nodes: " + graph.getNodeCount() + " Edges: " + graph.getEdgeCount());
-    
         // DOCUBURST
-    
-        fishEyeDocument.getVisualization().getFocusGroup(Visualization.FOCUS_ITEMS).clear();
-        docuburstLayout.getHighlightTextHoverActionControl().updateTextArea(true);
-        VisualGraph docuburstVG = docuburstVisualization.addGraph("graph", graph);
-    
-        try {
-            docuburstVG.addColumns(SectorRenderer.SECTOR_SCHEMA);
-        } catch (IllegalArgumentException e) {
-            // duplicate columns exception
-        }
-        docuburstLayout.addLabels();
-        docuburstLayout.processCounts(graph);
-    
-        // Moving down the block below is all it takes to solve issue #2 (see github repo)
-        // I guess the code below (search sets) triggers some update in the underlying table
-        // structure, solving the cause of issue #2 (outdated data).
+        // this processing takes long, so do it in a separate thread
+        new SwingWorker<Graph, Void>() {
+			@Override
+			protected Graph doInBackground() throws Exception {
+				docuburstVisualization.reset();
+				LOGGER.info("Nodes: " + graph.getNodeCount() + " Edges: " + graph.getEdgeCount());
+				fishEyeDocument.getVisualization().getFocusGroup(Visualization.FOCUS_ITEMS).clear();
+		        docuburstLayout.getHighlightTextHoverActionControl().updateTextArea(true);
+		        VisualGraph docuburstVG = docuburstVisualization.addGraph("graph", graph);
+		    
+		        try {
+		            docuburstVG.addColumns(SectorRenderer.SECTOR_SCHEMA);
+		        } catch (IllegalArgumentException e) {
+		        	// duplicate columns exception
+		        	e.printStackTrace();
+		        }       
+		        docuburstLayout.processCounts(graph);
+		        
+		        // clear search sets
+		        docuburstVisualization.getFocusGroup(Visualization.SEARCH_ITEMS).clear();
+		        docuburstLayout.addLabels();
+		        
+		        //Search depth tracks search results: 0 -- no result; 1 -- result; d >
+                // 1 -- a descendant at depth d is a result
+                graph.addColumn("searchDepth", int.class, 0);
+                // create a column with _ instead of " " for searching multi-word entries
+                graph.addColumn("multiWordSearchKey", "REPLACE(label,\" \", \"_\")");
+                // create a column for limiting search to a word, instead of a prefix
+                graph.addColumn("limitedSearchKey", "CONCAT(label, \"|\", \" \", \"|\", label, \"|\")");
+                // create a column for limiting multi-word searches to exact match, not prefix
+                graph.addColumn("multiWordLimitedSearchKey", "CONCAT(multiWordSearchKey, \"|\", \" \", \"|\", multiWordSearchKey, \"|\")");
+                 
+                // create a search panel and index radial search set 		        
+ 		        ((SearchTupleSet) docuburstVisualization.getFocusGroup(Visualization.SEARCH_ITEMS)).index(docuburstVG.getNodeTable().tuples(), "multiWordSearchKey");
+ 		        ((SearchTupleSet) docuburstVisualization.getFocusGroup(Visualization.SEARCH_ITEMS)).index(docuburstVG.getNodeTable().tuples(), "limitedSearchKey");
+ 		        ((SearchTupleSet) docuburstVisualization.getFocusGroup(Visualization.SEARCH_ITEMS)).index(docuburstVG.getNodeTable().tuples(),
+ 		                "multiWordLimitedSearchKey");
+                 
+                 
+                 
+				return graph;
+			}
+			
+			@Override
+			protected void done() {		        
+		        // RUNS LAYOUT
+		        docuburstVisualization.setInteractive("graph.edges", null, false);
+		        docuburstVisualization.run("layout");
+		        docuburstVisualization.run("resize");
+		        long t1 = System.currentTimeMillis();
+		        SearchQueryBinding sq = new SearchQueryBinding((Table) docuburstVisualization.getGroup("graph.nodes"), "label", (SearchTupleSet) docuburstVisualization
+ 		                .getFocusGroup(Visualization.SEARCH_ITEMS));
+//		        JSearchPanel search = new JSearchPanel(sq.getSearchSet(), "label", true) {
+//		            public String getQuery() {
+//		                String query = super.getQuery();
+//		                if (query.equals("|"))
+//		                    return new String();
+//		                else
+//		                    return query;
+//		            }
+//		        };
+		        JSearchPanel search = sq.createSearchPanel();
+		        long t2 = System.currentTimeMillis();
+                System.out.println("Is EDT: " + SwingUtilities.isEventDispatchThread());
+                System.out.println(String.format("visualize() took %d seconds.", (t2-t1)/1000));
+		    
+		        search.setShowBorder(false);
+		        search.setShowResultCount(true);
+		        search.setLabelText("Focus:");
+		        search.setFont(FontLib.getFont(Param.interfaceFont, Font.PLAIN, 11));
+		        search.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
+		        
+		        filterPanel.remove(0);
+		        filterPanel.add(search, 0);
+		        filterPanel.validate();
+		        search.requestFocusInWindow();
+			}
         
-//      docuburstVisualization.setInteractive("graph.edges", null, false);
-//      docuburstVisualization.run("layout");
-//      docuburstVisualization.run("resize");
-    
-        // SEARCH SETS
-    
-        // clear search sets
-        docuburstVisualization.getFocusGroup(Visualization.SEARCH_ITEMS).clear();
-    
-        // Search depth tracks search results: 0 -- no result; 1 -- result; d >
-        // 1 -- a descendent at depth d is a result
-        graph.addColumn("searchDepth", int.class, 0);
-        // create a column with _ instead of " " for searching multi-word
-        // entries
-        graph.addColumn("multiWordSearchKey", "REPLACE(label,\" \", \"_\")");
-        // create a column for limiting search to a word, instead of a prefix
-        graph.addColumn("limitedSearchKey", "CONCAT(label, \"|\", \" \", \"|\", label, \"|\")");
-        // create a column for limiting multi-word searches to exact match, not
-        // prefix
-        graph.addColumn("multiWordLimitedSearchKey", "CONCAT(multiWordSearchKey, \"|\", \" \", \"|\", multiWordSearchKey, \"|\")");
-    
-        // create a search panel and index radial search set
-        SearchQueryBinding sq = new SearchQueryBinding((Table) docuburstVisualization.getGroup("graph.nodes"), "label", (SearchTupleSet) docuburstVisualization
-                .getFocusGroup(Visualization.SEARCH_ITEMS));
-        ((SearchTupleSet) docuburstVisualization.getFocusGroup(Visualization.SEARCH_ITEMS)).index(docuburstVG.getNodeTable().tuples(), "multiWordSearchKey");
-        ((SearchTupleSet) docuburstVisualization.getFocusGroup(Visualization.SEARCH_ITEMS)).index(docuburstVG.getNodeTable().tuples(), "limitedSearchKey");
-        ((SearchTupleSet) docuburstVisualization.getFocusGroup(Visualization.SEARCH_ITEMS)).index(docuburstVG.getNodeTable().tuples(),
-                "multiWordLimitedSearchKey");
-    
-        // RUNS LAYOUT
-        docuburstVisualization.setInteractive("graph.edges", null, false);
-        docuburstVisualization.run("layout");
-        docuburstVisualization.run("resize");
-        
-        JSearchPanel search = new JSearchPanel(sq.getSearchSet(), "label", true) {
-            public String getQuery() {
-                String query = super.getQuery();
-                if (query.equals("|"))
-                    return new String();
-                else
-                    return query;
-            }
-        };
-    
-        search.setShowBorder(false);
-        search.setShowResultCount(true);
-        search.setLabelText("Focus:");
-        search.setFont(FontLib.getFont(Parameters.interfaceFont, Font.PLAIN, 11));
-        search.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
-        
-        filterPanel.remove(0);
-        filterPanel.add(search, 0);
-        filterPanel.validate();
-        search.requestFocusInWindow();
+        }.run();
+ 
         
         
-        long t2 = System.currentTimeMillis();
-        System.out.println(String.format("visualize() took %d seconds.", (t2-t1)/1000));
+
     }
 
 
@@ -772,7 +783,6 @@ public class DocuBurst extends JPanel implements LoadData {
         final SwingWorker<Graph, Void> worker = new SwingWorker<Graph, Void>() {
             protected Graph doInBackground() throws InterruptedException, ExecutionException, JWNLException {
                 Graph tempgraph = WordNetTree.fillGraph(indexWord, relationshipTypes, countPolysemy, mergeWords);
-                
                 return tempgraph;
             }
 
@@ -828,7 +838,7 @@ public class DocuBurst extends JPanel implements LoadData {
         search.setShowBorder(false);
         search.setShowResultCount(true);
         search.setLabelText("Focus:");
-        search.setFont(FontLib.getFont(Parameters.interfaceFont, Font.PLAIN, 11));
+        search.setFont(FontLib.getFont(Param.interfaceFont, Font.PLAIN, 11));
         search.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
         
         Utilities.setGBC(c, 0, 0, 1, 0, 1, 1, GridBagConstraints.BOTH);
@@ -850,7 +860,7 @@ public class DocuBurst extends JPanel implements LoadData {
     private JPanel createTreeCutPanel(){
         
         JPanel panel = new JPanel(new BorderLayout());
-        TreeCutCache cache = docuburstLayout.getTreeCutFilter().getTreeCutCache();
+        TreeCutCache cache = ((CachedTreeCutFilter)docuburstLayout.getFisheyeTreeFilter()).getTreeCutCache();
         List<Double> weights = cache.getSortedWeights();
         ArrayList<Point> points = new ArrayList<ScentedSliderModel.Point>();
         for (Double w : weights) {
@@ -885,8 +895,7 @@ public class DocuBurst extends JPanel implements LoadData {
 
         JLabel depthLabel = new JLabel("Maximum tree depth:");
         FisheyeTreeFilter treeFilter = docuburstLayout.getFisheyeTreeFilter();
-        depthSpinner = new JSpinner(new SpinnerNumberModel(
-        		treeFilter != null? treeFilter.getDistance() : 3, 1, 20, 1));
+        depthSpinner = new JSpinner(new SpinnerNumberModel(docuburstLayout.getDepthFilterDistance(), 1, 20, 1));
 //        depthSpinner = new JSpinner(new SpinnerNumberModel(3, 1, 20, 1));
         depthLabel.setDisplayedMnemonic('d');
         depthFilterPanel.add(depthLabel);
@@ -896,7 +905,7 @@ public class DocuBurst extends JPanel implements LoadData {
             public void stateChanged(ChangeEvent e) {
                 JSpinner spinner = (JSpinner) e.getSource();
                 SpinnerNumberModel model = (SpinnerNumberModel) spinner.getModel();
-                docuburstLayout.getFisheyeTreeFilter().setDistance(model.getNumber().intValue());
+                docuburstLayout.setDepthFilterDistance(model.getNumber().intValue());
                 run();
                 docuburstVisualization.run("resize"); // zoom to fit because
                                                         // layout doesn't
@@ -944,10 +953,16 @@ public class DocuBurst extends JPanel implements LoadData {
         JRadioButton focusButton = new JRadioButton("Focus");
         focusButton.addActionListener(depthFilterAction);
         focusButton.setActionCommand("Focus");
+        
+        JCheckBox unevenCheckBox = new JCheckBox("Uneven");
+        unevenCheckBox.setSelected(docuburstLayout.getDepthFilterApproach().equals(Param.DepthFilter.TREECUT));
+        unevenCheckBox.addActionListener(unevenAction);
+        
         depthFilterBG.add(searchAndFocusButton);
         depthFilterBG.add(focusButton);
         depthFilterPanel.add(searchAndFocusButton);
         depthFilterPanel.add(focusButton);
+        depthFilterPanel.add(unevenCheckBox);
         searchAndFocusButton.setSelected(true);
 
         Utilities.setGBC(c, 0, 0, 2, 0, 2, 1, GridBagConstraints.HORIZONTAL);

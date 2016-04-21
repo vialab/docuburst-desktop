@@ -34,7 +34,7 @@ import prefuse.data.tuple.TupleSet;
 import prefuse.util.ColorLib;
 import prefuse.visual.NodeItem;
 import prefuse.visual.VisualItem;
-import ca.utoronto.cs.docuburst.Parameters;
+import ca.utoronto.cs.docuburst.Param;
 import ca.utoronto.cs.docuburst.prefuse.ColorScheme;
 import ca.utoronto.cs.docuburst.prefuse.DocuBurstActionList;
 import ca.utoronto.cs.docuburst.swing.ConcordancePanel;
@@ -61,9 +61,9 @@ public class HighlightTextHoverActionControl extends ControlAdapter {
 	static {
 		StyleConstants.setBackground(HIGHLIGHT_WORD, ColorLib
 				.getColor(hoverColorForText));
-		StyleConstants.setFontFamily(HIGHLIGHT_WORD, Parameters.interfaceFont);
+		StyleConstants.setFontFamily(HIGHLIGHT_WORD, Param.interfaceFont);
 		StyleConstants.setFontSize(NORMAL, 16);
-		StyleConstants.setFontFamily(NORMAL, Parameters.interfaceFont);
+		StyleConstants.setFontFamily(NORMAL, Param.interfaceFont);
 		StyleConstants.setFontSize(HIGHLIGHT_WORD, 16);
 		StyleConstants.setFontFamily(MONOSPACED, "Courier");
 		StyleConstants.setFontSize(MONOSPACED, 16);

@@ -13,7 +13,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 
-import ca.utoronto.cs.docuburst.Parameters;
+import ca.utoronto.cs.docuburst.Param;
 import ca.utoronto.cs.docuburst.prefuse.DocuBurstActionList;
 import ca.utoronto.cs.docuburst.prefuse.action.HighlightTextHoverActionControl;
 import ca.utoronto.cs.prefuseextensions.swing.ValueChangedEvent;
@@ -32,7 +32,7 @@ public class TilesPanel extends JPanel implements ValueListener<Integer> {
 		this.hac = hac;
 		tileNumber = new JTextField();
 		tileNumber.setAlignmentX(CENTER_ALIGNMENT);
-		tileNumber.setFont(new Font(Parameters.interfaceFont, Font.PLAIN, 20));
+		tileNumber.setFont(new Font(Param.interfaceFont, Font.PLAIN, 20));
 		
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new GridLayout(3,1));//BoxLayout(buttonPanel, BoxLayout.PAGE_AXIS));

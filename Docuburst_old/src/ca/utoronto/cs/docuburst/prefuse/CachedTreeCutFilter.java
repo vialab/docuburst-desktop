@@ -4,13 +4,18 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
+
 import prefuse.Constants;
 import prefuse.action.GroupAction;
+import prefuse.action.filter.FisheyeTreeFilter;
 import prefuse.data.Graph;
 import prefuse.data.Node;
 import prefuse.data.Tree;
 import prefuse.data.expression.Predicate;
 import prefuse.util.PrefuseLib;
+import prefuse.visual.EdgeItem;
 import prefuse.visual.NodeItem;
 import prefuse.visual.VisualItem;
 import prefuse.visual.expression.InGroupPredicate;
@@ -19,62 +24,109 @@ import ca.utoronto.cs.docuburst.data.treecut.DocuburstTreeCut;
 import ca.utoronto.cs.docuburst.data.treecut.TreeCutCache;
 import ca.utoronto.cs.docuburst.util.Util;
 
-public class CachedTreeCutFilter extends GroupAction {
+public class CachedTreeCutFilter extends FisheyeTreeFilter {
 
     private TreeCutCache cache; 
     
-    private double weight = Double.NaN;
+    private double weightDelta = 250;
+    
+    private double weight = weightDelta;
     
     List<Node> lastCut = new ArrayList<Node>();
+    
+    Node currentRoot;
     
     /**
     * @param group the data group to process. This should resolve to
     * a Graph instance, otherwise exceptions will result when this
     * Action is run.
     **/
-    public CachedTreeCutFilter(String group, TreeCutCache cache) {
-        super(group);
+    public CachedTreeCutFilter(String group, String sources, TreeCutCache cache) {
+        super(group, sources, 1);
     }
     
     @Override
+    public void setDistance(int distance) {
+    	super.setDistance(distance);
+    	setWeight(getDistance()*weightDelta);
+    }
+    
+    public void setSources(String sources) {
+    	super.setSources(sources);
+    	buildTreeCutCache((Graph)m_vis.getGroup(m_group));
+    };
+    
+    @Override
     public void run(double frac) {
-        Tree tree = ((Graph)m_vis.getGroup(m_group)).getSpanningTree();
+    	long t1 = System.currentTimeMillis();
+    	
+    	final Graph graph = (Graph)m_vis.getGroup(m_group);
+        Tree tree = graph.getSpanningTree();
         Node root = tree.getRoot();
-        
+                
         // mark current visible items as invisible and non-expanded
-        Iterator items = m_vis.visibleItems(m_group);
+        Iterator<?> items = m_vis.visibleItems(m_group);
         while ( items.hasNext() ) {
             VisualItem item = (VisualItem)items.next();
-            PrefuseLib.updateVisible(item, false);
-//            item.setVisible(false);
+//            PrefuseLib.updateVisible(item, false);
             item.setExpanded(false);
         }
         
-        // Finds tree cut
-        TreeCutCache cache = getTreeCutCache();
-        if (Double.isNaN(weight))
-            weight = cache.getSortedWeights().get(0);
-        List<Node> cut = cache.get(weight);
+        // try to find tree cut in cache
+        float sampleSize = Util.sum((float[]) root.get("childCount"));
+        Wagner measure = new Wagner(weight, sampleSize);
+        List<Node> cut = new DocuburstTreeCut(measure).findcut(root);        
+                
+        // Marks all descendants of cut members as invisible and
+        // all ancestors as visible.       
         
-        /*
-         * Marks all descendants of cut members as invisible and
-         * all ancestors as visible.
-         */
-
         // unmark all items belonging to the last cut
-        for (Node n : lastCut) {
-            n.setBoolean("cut", false);
-        }
-        
+        for (Node n : lastCut) 
+        	n.setBoolean("cut", false);
+                
         // mark all items belonging to the new cut
-        for (Node n : cut) {
-            n.setBoolean("cut", true);
-        }
-        
+        for (Node n : cut) 
+        	n.setBoolean("cut", true);        
+            
         markNode((NodeItem)root, true);
-
+        
+        
+        int iterSize = 0;
+        Iterator iter = m_vis.items(m_sources, m_groupP);
+        while ( iter.hasNext() ){
+        	NodeItem n = (NodeItem)iter.next();
+        	iterSize++;
+        	markExceptional(n);     	
+        }
+        System.out.println("iterItems: " + iterSize);
+        
         lastCut = cut;
-        System.out.println(String.format("Tree cut has %s nodes with weight = %s", cut.size(), weight));
+        long t2 = System.currentTimeMillis();
+        System.out.println(String.format("Tree cut has %s nodes with weight = %s", cut.size(), weight));        
+        System.out.println(String.format("Tree cut filtering took %d seconds.", (t2-t1)/1000));
+    }
+    
+    public void markExceptional(NodeItem n){
+    	PrefuseLib.updateVisible(n, true);
+        n.setExpanded(n.children().hasNext());
+        
+    	NodeItem parent = (NodeItem)n.getParent();
+    	boolean alreadyVisible = false;
+    	while (parent != null){
+    		alreadyVisible = parent.isVisible();
+    		PrefuseLib.updateVisible(parent, true);
+    		parent.setExpanded(true);
+    		
+    		for (Iterator<Node> it = parent.children(); it.hasNext();) {
+				NodeItem c = (NodeItem)it.next();
+				PrefuseLib.updateVisible(c, true);
+				if (c.children().hasNext())
+					c.setExpanded(true);
+			}
+    		
+    		parent = (NodeItem)parent.getParent();
+    		
+    	}
     }
     
     /**
@@ -91,12 +143,17 @@ public class CachedTreeCutFilter extends GroupAction {
         // if n is visible and not member of the cut, its children will be visible too
         boolean isChildrenVisible = isVisible && !n.getBoolean("cut");
         
-        n.setExpanded(isChildrenVisible);
+//        n.setExpanded(isChildrenVisible);
+        n.setExpanded(isVisible);
         
         for (Iterator iterator = n.children(); iterator.hasNext();) {
             markNode((NodeItem) iterator.next(), isChildrenVisible);
             
         }
+    }
+    
+    public TreeCutCache getTreeCutCache(){
+    	return null;
     }
     
     private TreeCutCache buildTreeCutCache(Graph graph){
@@ -118,13 +175,6 @@ public class CachedTreeCutFilter extends GroupAction {
         }        
         
         return treeCutCache;
-    }
-    
-    public TreeCutCache getTreeCutCache(){
-        if (this.cache == null){
-            this.cache = buildTreeCutCache((Graph)m_vis.getGroup(m_group));
-        }
-        return this.cache;
     }
     
     public void setWeight(double weight) {

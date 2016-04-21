@@ -1,6 +1,8 @@
 package prefuse.action.filter;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import prefuse.Constants;
 import prefuse.Visualization;
@@ -36,8 +38,8 @@ import prefuse.visual.expression.InGroupPredicate;
  */
 public class FisheyeTreeFilter extends GroupAction {
 
-    private String m_sources;
-    private Predicate m_groupP;
+    protected String m_sources;
+    protected Predicate m_groupP;
     
     private int m_threshold;
     
@@ -144,8 +146,10 @@ public class FisheyeTreeFilter extends GroupAction {
         
         // compute the fisheye over nodes
         Iterator iter = m_vis.items(m_sources, m_groupP);
-        while ( iter.hasNext() )
-            visitFocus((NodeItem)iter.next(), null);
+        while ( iter.hasNext() ){
+        	NodeItem n = (NodeItem)iter.next();
+            visitFocus(n, null);
+        }
         visitFocus(m_root, null);
 
         // mark unreached items (might include edge or node items)
@@ -161,9 +165,12 @@ public class FisheyeTreeFilter extends GroupAction {
     /**
      * Visit a focus node.
      */
-    private void visitFocus(NodeItem n, NodeItem c) {
+    protected void visitFocus(NodeItem n, NodeItem c) {
+    	if (n == null)
+    		return;
+    	// R: root has minimum DOI in the beginning
         if ( n.getDOI() <= -1 ) {
-            visit(n, c, 0, 0);
+            visit(n, c, 0, 0); // set root DOI to 0
             if ( m_threshold < 0 )                 
                 visitDescendants(n, c);
             visitAncestors(n);
@@ -180,8 +187,8 @@ public class FisheyeTreeFilter extends GroupAction {
         
         if ( c != null ) {
             EdgeItem e = (EdgeItem)c.getParentEdge();
-            e.setDOI(c.getDOI());
-            PrefuseLib.updateVisible(e, true);
+        	e.setDOI(c.getDOI());
+        	PrefuseLib.updateVisible(e, true);
         }
     }
     
@@ -190,26 +197,28 @@ public class FisheyeTreeFilter extends GroupAction {
      */
     private void visitAncestors(NodeItem n) {
         if ( n == m_root ) return;
+        // this is the reason why Fisheye shows so many more items than tree cut when there's a search
         visitFocus((NodeItem)n.getParent(), n);
     }
     
     /**
-     * Traverse tree descendents.
+     * Traverse tree descendants.
      */
     private void visitDescendants(NodeItem p, NodeItem skip) {
         int lidx = ( skip == null ? 0 : p.getChildIndex(skip) );
         
         Iterator children = p.children();
         
-        p.setExpanded(children.hasNext());
+        p.setExpanded(children.hasNext()); // if a node has children, set it as expanded
         
+        // then visit every children setting doi to current DOI - 1
         for ( int i=0; children.hasNext(); ++i ) {
             NodeItem c = (NodeItem)children.next();
-            if ( c == skip ) { continue; }             
+            if ( c == skip ) { continue; }
             
             int doi = (int)(p.getDOI()-1);            
             visit(c, c, doi, Math.abs(lidx-i));      
-            if ( doi > m_threshold )
+            if ( doi > m_threshold ) // stopping condition
                 visitDescendants(c, null);   
         }
     }
