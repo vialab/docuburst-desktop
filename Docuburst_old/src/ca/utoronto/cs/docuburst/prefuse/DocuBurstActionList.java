@@ -658,7 +658,7 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 		countsSchema.addColumn(CACHECOUNT + CHILDCOUNT, float.class, null);
 		countsSchema.addColumn(CACHECOUNT + NODECOUNT, float.class, null);
 		countsSchema.addColumn(LEAFCOUNT, float.class, null);
-		countsSchema.addColumn(CONDENTROPY, float.class, null);
+//		countsSchema.addColumn(CONDENTROPY, float.class, null);
 		// if true, the nodes belongs to the tree cut
 		countsSchema.addColumn(CUT, boolean.class, false);
 		
@@ -667,7 +667,7 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 		Tree t = graph.getSpanningTree();
 		addCounts(t.getRoot());
 		cacheTotals(graph);
-		addCondEntropy(t.getRoot());
+//		addCondEntropy(t.getRoot());
 	}
 
 	/**
