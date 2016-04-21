@@ -226,7 +226,7 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 		// do this on Event processing thread because need this to continue setup
 		if (dictionary == null)
 			System.err.println("WordNet dictionary not initialized.");
-		fullText = LanguageLib.fillWordCountsMap(wordMap = new HashMap<String, float[]>(), wordsFile, fullTextFile, CountMethod.RANK);
+		fullText = LanguageLib.fillWordCountsMap(wordMap = new HashMap<String, float[]>(), wordsFile, fullTextFile, CountMethod.FIRST);
 		
 		fisheyeDocument.initializeText(fullText);
 		fisheyeDocument.getVisualization().run("init");
