@@ -86,6 +86,9 @@ import ca.utoronto.cs.docuburst.prefuse.action.NodeColorAction;
 import ca.utoronto.cs.docuburst.prefuse.action.NodeStrokeColorAction;
 import ca.utoronto.cs.docuburst.prefuse.action.PathTraceHoverActionControl;
 import ca.utoronto.cs.docuburst.prefuse.action.StarburstScaleFontAction;
+import ca.utoronto.cs.docuburst.preprocess.POSTagger;
+import ca.utoronto.cs.docuburst.preprocess.Tiling;
+import ca.utoronto.cs.docuburst.preprocess.WordMap;
 import ca.utoronto.cs.docuburst.util.Util;
 import ca.utoronto.cs.prefuseextensions.layout.StarburstLayout;
 import ca.utoronto.cs.prefuseextensions.layout.StarburstLayout.WidthType;
@@ -99,6 +102,7 @@ import ca.utoronto.cs.wordnetexplorer.prefuse.action.WordNetExplorerActionList;
 import ca.utoronto.cs.wordnetexplorer.prefuse.controls.DisplaySenseMouseOverControl;
 import ca.utoronto.cs.wordnetexplorer.utilities.LanguageLib;
 import ca.utoronto.cs.wordnetexplorer.utilities.LanguageLib.CountMethod;
+import edu.stanford.nlp.ling.TaggedWord;
 
 public class DocuBurstActionList extends WordNetExplorerActionList {
 
@@ -141,7 +145,7 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 	public static final boolean FONTFROMDIAGONAL = false;
 	
 	private Param.DepthFilter depthFilter = Param.DepthFilter.TREECUT;
-	private int depthFilterDistance = 2;
+	private int depthFilterDistance = 1;
 	
 	public static final double MAXFONTHEIGHT = 40.0;
 
@@ -159,8 +163,7 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 	public String countType = NODECOUNT;
 
 	// text document
-	private String[] fullText;
-	private String[] fullText2;
+	private List<String> tiledText;
 	int startTile, endTile, maxTiles;
 
 	/** 
@@ -220,15 +223,28 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 	public DocuBurstActionList(Visualization visualization, FisheyeDocument fisheyeDocument, String filename) {
 		super(visualization);
 		
-		String fullTextFile = "texts/" + filename + ".tiled.txt";
-		String wordsFile = "texts/" + filename + ".tiled.tagged.cleaned.txt";
+//		String fullTextFile = "texts/" + filename + ".tiled.txt";
+//		String wordsFile = "texts/" + filename + ".tiled.tagged.cleaned.txt";
+		String fullTextFile = "texts/" + filename + ".txt";
 		
 		// do this on Event processing thread because need this to continue setup
 		if (dictionary == null)
 			System.err.println("WordNet dictionary not initialized.");
-		fullText = LanguageLib.fillWordCountsMap(wordMap = new HashMap<String, float[]>(), wordsFile, fullTextFile, CountMethod.FIRST);
+//		String[] fullText = LanguageLib.fillWordCountsMap(wordMap = new HashMap<String, float[]>(), wordsFile, fullTextFile, CountMethod.FIRST);
+//		List<String> tiledText = new ArrayList<String>();
+//		for (int i = 0; i < fullText.length; i++) {
+//			tiledText.add(fullText[i]);
+//		}
 		
-		fisheyeDocument.initializeText(fullText);
+		tiledText = Tiling.tile(fullTextFile);
+		List<List<TaggedWord>> tiledTaggedFile = null;
+		try {
+			tiledTaggedFile = POSTagger.tagTiles(tiledText);
+		} catch (Exception e1) { e1.printStackTrace();}
+		WordMap.fillWordCountsMap(wordMap = new HashMap<String, float[]>(), tiledTaggedFile, CountMethod.FIRST);
+		
+		
+		fisheyeDocument.initializeText(tiledText);
 		fisheyeDocument.getVisualization().run("init");
 
 		// -- set up renderers --
@@ -405,8 +421,8 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 //		fisheyeTreeFilter = new FisheyeTreeFilter("graph", "searchAndFocus", 6);
 //		treeCutFilterWagner = new TreeCutFilterWagner("graph", "searchAndFocus");
 //		treeCutFilterInc = new TreeCutFilterIncremental("graph", "searchAndFocus");
-		fisheyeTreeFilter = depthFilter.equals(Param.DepthFilter.TREECUT) ? new CachedTreeCutFilter("graph", depthFilterScope, null) :
-			new FisheyeTreeFilter("graph", depthFilterScope, 6);
+		fisheyeTreeFilter = depthFilter.equals(Param.DepthFilter.TREECUT) ? new CachedTreeCutFilter("graph", depthFilterScope, getDepthFilterDistance()) :
+			new FisheyeTreeFilter("graph", depthFilterScope, getDepthFilterDistance());
 		
 
 		// recentre and rezoom on reload
@@ -456,7 +472,7 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 			zoomToFitControl.setZoomOverItem(false);
 
 			display.addControlListener(hoverActionControl = new PathTraceHoverActionControl("repaint"));
-			display.addControlListener(highlightTextHAC = new HighlightTextHoverActionControl(null, null, fullText, m_vis, fisheyeDocument.getVisualization()));
+			display.addControlListener(highlightTextHAC = new HighlightTextHoverActionControl(null, null, tiledText, m_vis, fisheyeDocument.getVisualization()));
 			highlightTextHAC.setCountField(CACHECOUNT + NODECOUNT);
 			display.addControlListener(panControl = new PanControl(true));
 			display.addControlListener(zoomControl = new ZoomControl());
@@ -746,9 +762,9 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 		if (toAdd == null)
 			return start;
 		if (start == null)
-			start = new float[fullText.length];
+			start = new float[tiledText.size()];
 		// cycle through tiles, adding to counts for each
-		for (int i = 0; i < fullText.length; i++) {
+		for (int i = 0; i < tiledText.size(); i++) {
 			start[i] += toAdd[i];
 		}
 		return start;
@@ -757,10 +773,10 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 	public float[] divide(float[] start, float divisor) {
 		// cycle through tiles, adding to counts for each
 		if (start == null)
-			start = new float[fullText.length];
+			start = new float[tiledText.size()];
 		if (divisor == 1)
 			return start;
-		for (int i = 0; i < fullText.length; i++) {
+		for (int i = 0; i < tiledText.size(); i++) {
 			start[i] /= divisor;
 		}
 		return start;

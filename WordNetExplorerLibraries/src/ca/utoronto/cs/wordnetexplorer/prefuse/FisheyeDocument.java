@@ -11,6 +11,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import javax.swing.JSpinner;
@@ -187,6 +188,21 @@ public class FisheyeDocument extends DisplayComponent {
         });
     }
 
+    public void initializeText(List<String> fullText) {
+    	// label sections with the row number
+    	if (sectionMarker == SectionMarker.ROW_NUMBER) {
+    		for (int i = 0; i < fullText.size(); i++) {
+        		this.addWord("" + (i + 1), i + 1, 0);
+    		}
+    	}
+    	if (sectionMarker == SectionMarker.FIRST_WORD) {
+    		for (int i = 0; i < fullText.size(); i++) {
+        		StringTokenizer st = new StringTokenizer(fullText.get(i));
+    			this.addWord(st.nextToken(), i + 1, 0);
+    		}
+    	}
+    }
+    
     public void initializeText(String [] fullText) {
     	// label sections with the row number
     	if (sectionMarker == SectionMarker.ROW_NUMBER) {

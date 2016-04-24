@@ -45,6 +45,10 @@ public class CachedTreeCutFilter extends FisheyeTreeFilter {
         super(group, sources, 1);
     }
     
+    public CachedTreeCutFilter(String group, String sources, int distance) {
+        super(group, sources, distance);
+    }
+    
     @Override
     public void setDistance(int distance) {
     	super.setDistance(distance);

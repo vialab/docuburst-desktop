@@ -1,6 +1,7 @@
 package ca.utoronto.cs.docuburst.swing;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -84,7 +85,10 @@ public class TilesPanel extends JPanel implements ValueListener<Integer> {
 		buttonPanel.add(nextTileButton);
 		
 		JTextPane textPane = new JTextPane();
+		
 		JScrollPane textScrollPanel = new JScrollPane(textPane, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		textScrollPanel.setMaximumSize(new Dimension(3000, 300));
+		textScrollPanel.setPreferredSize(new Dimension(3000, 100));
 		textPane.setEditable(false);
 		hac.setTextPane(textPane);
 		nextTileButton.doClick();

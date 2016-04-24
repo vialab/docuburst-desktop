@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -42,7 +43,7 @@ import ca.utoronto.cs.wordnetexplorer.prefuse.FisheyeDocument;
 
 public class HighlightTextHoverActionControl extends ControlAdapter {
 	Pattern p;
-	String [] fullText;
+	List<String> fullText;
 	
 	int deepest = 0;
 	int count = 0;
@@ -76,7 +77,7 @@ public class HighlightTextHoverActionControl extends ControlAdapter {
 	private Visualization documentVisualization;
 	
 	public HighlightTextHoverActionControl(JTextPane textPane, JTextPane concordancePane,
-			String[] fullText, Visualization docuburstVisualization, Visualization documentVisualization) {
+			List<String> fullText, Visualization docuburstVisualization, Visualization documentVisualization) {
 		super();
 		this.fullTextPane = textPane;
 		this.concordancePane = concordancePane;
@@ -86,7 +87,7 @@ public class HighlightTextHoverActionControl extends ControlAdapter {
 	}
 
 	public HighlightTextHoverActionControl(JTextPane textPane,
-			String[] fullText, Visualization docuburstVisualization, 
+			List<String> fullText, Visualization docuburstVisualization, 
 			Visualization documentVisualization) {
 		super();
 		this.fullTextPane = textPane;
@@ -96,7 +97,7 @@ public class HighlightTextHoverActionControl extends ControlAdapter {
 		this.documentVisualization = documentVisualization;
 	}
 	
-	public HighlightTextHoverActionControl(String[] fullText) {
+	public HighlightTextHoverActionControl(List<String> fullText) {
 		super();
 		this.fullTextPane = null;
 		this.concordancePane = null;
@@ -119,7 +120,7 @@ public class HighlightTextHoverActionControl extends ControlAdapter {
 	}
 	
 	public void fillTextArea(int tile) {
-		fullTextPane.setText(fullText[tile - 1]);
+		fullTextPane.setText(fullText.get(tile - 1));
 		fullTextPane.setCaretPosition(0);
 		updateTextArea(false);
 	}
@@ -188,9 +189,9 @@ public class HighlightTextHoverActionControl extends ControlAdapter {
 		if ((concordancePane != null) && updateConcordances) { 
 			// 	get matches in all texttiles, word + up to 5 words on each side
 			p = Pattern.compile("((\\S+\\s){0,5})(" + itemsRegEx + ")((\\s*\\S+\\s){0,5})", Pattern.CASE_INSENSITIVE); 
-			for (int i = 0; i < fullText.length; i++) { 
-				if (fullText[i] != null) { 
-					m = p.matcher(fullText[i]); 
+			for (int i = 0; i < fullText.size(); i++) { 
+				if (fullText.get(i) != null) { 
+					m = p.matcher(fullText.get(i)); 
 					while (m.find()) {
 						concordances.append(String.format(ConcordancePanel.CONCORDANCE_FORMAT, i+1, m.group(1), m.group(3), m.group(m.groupCount()-1)));
 						Iterator documentIterator = allDocuments.tuples(new ComparisonPredicate(ComparisonPredicate.EQ, new NumericLiteral(i+1), new ColumnExpression("row")));
@@ -406,7 +407,7 @@ public class HighlightTextHoverActionControl extends ControlAdapter {
 	}
 
 	public int getTotalTiles() {
-		return fullText.length;
+		return fullText.size();
 	}
 
 	

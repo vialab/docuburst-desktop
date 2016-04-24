@@ -100,6 +100,7 @@ public abstract class LanguageLib {
                         		while(formIterator.hasNext()) {
                         			newWord = (String)formIterator.next();
                         			key = new String(newWord.concat(posLabel));
+
                         			
                         			logger.info("form: "+ newWord + " ");
                         			// for each base for and POS, count numSenses
@@ -329,6 +330,16 @@ public abstract class LanguageLib {
         }
     }
 
+    class TaggedWord {
+    	public String word;
+    	public String tag;
+    }
+    
+    public static String [] fillWordCountsMap(HashMap<String, float[]> wordMap, List<String> tiledFile, CountMethod countMethod) {
+    	
+    	return null;
+    }
+    
     /**
      * @param args
      * @throws IOException 

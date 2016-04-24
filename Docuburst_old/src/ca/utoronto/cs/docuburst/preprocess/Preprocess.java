@@ -88,66 +88,68 @@ public class Preprocess {
 	 *  
 	 * @param s the plain text string to process
 	 * @return an array of tagged words along with their stems
+	 * @deprecated based on a old version of Stanford POS tagger
 	 * @throws JWNLException 
 	 */
 	public Section processText(String s) throws JWNLException {
-		POS pos;
-		Section section = new Section(0);
-		
-		List<Sentence<? extends HasWord>> sentences = MaxentTagger.tokenizeText(new StringReader(s));
-		
-		for (Sentence<? extends HasWord> sentence : sentences) {
-			Sentence<TaggedWord> tSentence = MaxentTagger.tagSentence(sentence);
-			for (TaggedWord word : tSentence) {
-			pos = null;
-				String tag;
-				// 	skip non-word characters 
-				if (word.word().matches("\\W*(^\\W+)\\W*"))
-					continue;
-				
-				// deal with the case when multiple words tagged together
-				if (word.tag().length() != 0) {
-					tag = word.tag();
-					if (tag.charAt(0) == 'V') {
-						pos = POS.VERB;
-					}
-					if (tag.charAt(0) == 'N') {
-						pos = POS.NOUN;
-					} 
-					if ("JJ".equals(tag)) {
-						pos = POS.ADJECTIVE;
-					}
-					if ("ADV".equals(tag)) {
-						pos = POS.ADVERB;
-					}
-					
-					// if we have a POS of interest, look it up
-					if (pos != null) {
-						// test lemmatization
-						IndexWord indexWord = dictionary.lookupIndexWord(pos, word.word());
-						if (indexWord != null) {
-							DocuBurstTaggedWord dt = wordQueue.addWord(new DocuBurstTaggedWord(word.word(), indexWord.getLemma(), pos));
-							// if a word was popped when we added the most recent, record it
-							if (dt != null) {
-								section.addWord(dt);
-							}
-							continue;
-						}
-					}
-					// 	not found in dictionary, so we can't find a lemma
-					DocuBurstTaggedWord dt = wordQueue.addWord(new DocuBurstTaggedWord(word.word(), word.word(), pos));
-					if (dt != null) { 
-						section.addWord(dt);
-					}
-				}
-			}
-			// add remaining words
-			List<DocuBurstTaggedWord> dtList = wordQueue.clear();
-			for (DocuBurstTaggedWord w : dtList) {
-				section.addWord(w);
-			}
-		}
-		return section;
+//		POS pos;
+//		Section section = new Section(0);
+//		
+//		List<Sentence<? extends HasWord>> sentences = MaxentTagger.tokenizeText(new StringReader(s));
+//		
+//		for (Sentence<? extends HasWord> sentence : sentences) {
+//			Sentence<TaggedWord> tSentence = MaxentTagger.tagSentence(sentence);
+//			for (TaggedWord word : tSentence) {
+//			pos = null;
+//				String tag;
+//				// 	skip non-word characters 
+//				if (word.word().matches("\\W*(^\\W+)\\W*"))
+//					continue;
+//				
+//				// deal with the case when multiple words tagged together
+//				if (word.tag().length() != 0) {
+//					tag = word.tag();
+//					if (tag.charAt(0) == 'V') {
+//						pos = POS.VERB;
+//					}
+//					if (tag.charAt(0) == 'N') {
+//						pos = POS.NOUN;
+//					} 
+//					if ("JJ".equals(tag)) {
+//						pos = POS.ADJECTIVE;
+//					}
+//					if ("ADV".equals(tag)) {
+//						pos = POS.ADVERB;
+//					}
+//					
+//					// if we have a POS of interest, look it up
+//					if (pos != null) {
+//						// test lemmatization
+//						IndexWord indexWord = dictionary.lookupIndexWord(pos, word.word());
+//						if (indexWord != null) {
+//							DocuBurstTaggedWord dt = wordQueue.addWord(new DocuBurstTaggedWord(word.word(), indexWord.getLemma(), pos));
+//							// if a word was popped when we added the most recent, record it
+//							if (dt != null) {
+//								section.addWord(dt);
+//							}
+//							continue;
+//						}
+//					}
+//					// 	not found in dictionary, so we can't find a lemma
+//					DocuBurstTaggedWord dt = wordQueue.addWord(new DocuBurstTaggedWord(word.word(), word.word(), pos));
+//					if (dt != null) { 
+//						section.addWord(dt);
+//					}
+//				}
+//			}
+//			// add remaining words
+//			List<DocuBurstTaggedWord> dtList = wordQueue.clear();
+//			for (DocuBurstTaggedWord w : dtList) {
+//				section.addWord(w);
+//			}
+//		}
+//		return section;
+		return null;
 	}
 
 	public boolean preprocess(String text, String title, File outFile) {
