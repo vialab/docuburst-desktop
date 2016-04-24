@@ -9760,7 +9760,7 @@ run verb
 hardware noun
 store noun
 mom noun
-wood-­‐worker noun
+woodworker noun
 built verb
 rocking verb
 chair noun
@@ -10533,6 +10533,7 @@ family noun
 run verb
 bank noun
 aunt noun
+==========
 uncle noun
 Awesome noun
 person noun
@@ -10542,7 +10543,6 @@ bank noun
 Time noun
 visit verb
 shop noun
-==========
 Sorry noun
 missed verb
 family noun
@@ -10563,6 +10563,7 @@ members noun
 shop noun
 keep verb
 going verb
+==========
 think verb
 's verb
 shops noun
@@ -10577,7 +10578,6 @@ playing noun
 keep verb
 going verb
 shops noun
-==========
 Did noun
 miss verb
 anyone noun
@@ -10944,6 +10944,7 @@ time noun
 anyone noun
 rhyme verb
 Haha noun
+==========
 Ooh noun
 jazz noun
 fan noun
@@ -11663,9 +11664,7 @@ Tawny noun
 saw verb
 said verb
 neighhhh noun
-==========
-hope noun
-meant verb
+hope verb
 yayyy noun
 Hehe noun
 Drawing noun
@@ -11675,6 +11674,7 @@ things noun
 ask verb
 students noun
 draw verb
+==========
 've verb
 trying verb
 get verb
@@ -12221,6 +12221,8 @@ fave noun
 songs noun
 rotation noun
 play verb
+==========
+-­‐ noun
 Hey noun
 's verb
 kind noun
@@ -12247,8 +12249,7 @@ greats noun
 written verb
 's verb
 piece noun
-==========
-play noun
+play verb
 yeah noun
 's verb
 know verb
@@ -12259,6 +12260,7 @@ City noun
 woman noun
 playing verb
 baby noun
+==========
 piano noun
 subway noun
 Is verb
@@ -12983,6 +12985,7 @@ lot noun
 time noun
 practicing verb
 slopes noun
+==========
 practice noun
 tennis noun
 courts noun
@@ -13160,6 +13163,7 @@ Do verb
 sing verb
 songs noun
 cheers noun
+==========
 LAUGHS noun
 'm verb
 gon verb
@@ -13179,7 +13183,6 @@ team noun
 're verb
 Captain noun
 's verb
-==========
 game noun
 team noun
 winning verb
@@ -13341,8 +13344,6 @@ weather noun
 live verb
 's verb
 thing noun
-sunny noun
-==========
 day noun
 love verb
 rain noun
@@ -13360,6 +13361,7 @@ cold noun
 weather noun
 Malibu noun
 tell verb
+==========
 chunks noun
 ice noun
 falling verb
@@ -13370,7 +13372,6 @@ love verb
 messes verb
 hair noun
 wind noun
-==========
 Wow noun
 extreme noun
 weather noun
@@ -13381,6 +13382,7 @@ makes verb
 want verb
 curl verb
 book noun
+==========
 like verb
 rain noun
 weather noun
@@ -13399,7 +13401,6 @@ Aquarium noun
 see verb
 kinds noun
 life noun
-==========
 Have verb
 aquarium noun
 's verb
@@ -13409,6 +13410,7 @@ explorer noun
 discover noun
 something noun
 know verb
+==========
 ocean noun
 Well noun
 think verb
@@ -13423,7 +13425,6 @@ life noun
 mystery noun
 covers verb
 % noun
-==========
 Earth noun
 surface noun
 mean verb
@@ -13438,6 +13439,7 @@ want verb
 take verb
 care noun
 study verb
+==========
 zoologist noun
 think verb
 lots noun
@@ -13845,8 +13847,7 @@ order noun
 breathe verb
 starts verb
 O noun
-ends noun
-==========
+ends verb
 i-­‐gen noun
 Well noun
 'm verb
@@ -13863,6 +13864,7 @@ know verb
 life noun
 Earth noun
 seen verb
+==========
 microscope noun
 Have verb
 looked verb
@@ -13876,7 +13878,6 @@ forms noun
 life noun
 's verb
 world noun
-==========
 biologist noun
 's verb
 world noun
@@ -13904,6 +13905,7 @@ Mercury noun
 planet noun
 closets noun
 sun noun
+==========
 Venus noun
 planet noun
 say verb
@@ -14047,12 +14049,12 @@ blocks noun
 engineer noun
 LAUGHS noun
 Get verb
+==========
 adds verb
 Math noun
 part noun
 sciences noun
 love verb
-==========
 'm verb
 Emmy noun
 Noether noun
@@ -14413,8 +14415,6 @@ help verb
 take verb
 care noun
 dog noun
-==========
-Aw noun
 help verb
 take verb
 care noun
@@ -14554,7 +14554,6 @@ magazines noun
 world noun
 want verb
 people noun
-==========
 say verb
 designs noun
 Well noun
@@ -14715,7 +14714,8 @@ wearing verb
 something noun
 love verb
 matter verb
-matches verb
+==========
+matches noun
 love verb
 'm verb
 gon verb
@@ -14726,7 +14726,6 @@ look noun
 makes verb
 feel verb
 anything noun
-==========
 'm verb
 think verb
 something noun
@@ -14778,13 +14777,13 @@ blast noun
 creating verb
 rocking verb
 looks noun
+==========
 's verb
 outfit noun
 sounds verb
 awesome noun
 GASP noun
 fairy noun
-==========
 EXCITED noun
 Oh noun
 part noun
@@ -15035,6 +15034,8 @@ think verb
 read verb
 add verb
 list noun
+==========
+Ohh noun
 okay noun
 Hey noun
 love verb
@@ -15338,6 +15339,7 @@ food noun
 groups noun
 habits noun
 's verb
+==========
 information noun
 Uh noun
 huh noun
@@ -15531,7 +15533,6 @@ want verb
 things noun
 grow verb
 think verb
-==========
 independence noun
 places noun
 get verb
@@ -15554,6 +15555,7 @@ beach noun
 house noun
 grew verb
 'm verb
+==========
 love verb
 matter noun
 think verb
@@ -15564,7 +15566,6 @@ grown verb
 Sounds noun
 decision noun
 make verb
-==========
 know verb
 Mhmm noun
 kids noun
@@ -15844,7 +15845,6 @@ friends noun
 's verb
 friend noun
 name noun
-==========
 're verb
 's verb
 friend noun
@@ -15858,6 +15858,7 @@ naming verb
 friend noun
 like verb
 friends noun
+==========
 Is verb
 happens verb
 makes verb
@@ -16151,6 +16152,7 @@ something noun
 done verb
 fix verb
 misunderstanding noun
+==========
 're verb
 apologize verb
 'm verb
@@ -16163,8 +16165,6 @@ think verb
 *should* verb
 apologize verb
 'm verb
-==========
-miss verb
 friend noun
 's verb
 need verb
@@ -16531,6 +16531,7 @@ questions noun
 way noun
 break verb
 ice noun
+==========
 someone noun
 've verb
 figured verb
@@ -16538,7 +16539,6 @@ figured verb
 Making verb
 friends noun
 things noun
-==========
 's verb
 tip noun
 thought verb
@@ -16557,6 +16557,7 @@ Chelsea noun
 invited verb
 sleepover noun
 friend noun
+==========
 house noun
 Cool noun
 huh noun
@@ -16568,8 +16569,6 @@ friendship noun
 fudge noun
 sundae noun
 cherry noun
-top noun
-==========
 YUHM-­‐MEE noun
 Well noun
 know verb
@@ -17128,7 +17127,6 @@ practice noun
 friend noun
 walking noun
 surprise verb
-==========
 SETTING verb
 SURPRISE noun
 MOMENT noun
@@ -17271,6 +17269,7 @@ Curious noun
 spit verb
 toothpaste noun
 teeth verb
+==========
 teeth noun
 see verb
 land noun
@@ -17297,7 +17296,6 @@ try verb
 ask verb
 advisors noun
 remind verb
-==========
 repeat noun
 let verb
 see verb
@@ -17313,6 +17311,7 @@ bed noun
 think verb
 's verb
 working verb
+==========
 idea noun
 's verb
 SING noun
@@ -17336,7 +17335,6 @@ sit verb
 evening noun
 meal noun
 start verb
-==========
 sweet noun
 dessert noun
 dinner noun
@@ -17347,6 +17345,7 @@ cake noun
 chocolate noun
 sprouts noun
 brussels verb
+==========
 'm verb
 friend noun
 keep verb
@@ -17364,7 +17363,6 @@ dessert noun
 dinner noun
 reminds verb
 home noun
-==========
 Oh noun
 see verb
 dinner verb
@@ -17374,7 +17372,7 @@ melt noun
 're verb
 eating verb
 dinner noun
-Well noun
+==========
 see verb
 's verb
 eat verb
@@ -17637,7 +17635,7 @@ story noun
 Let verb
 see verb
 happens verb
-==========
+Well noun
 let verb
 see verb
 Fairy noun
@@ -17657,6 +17655,7 @@ known verb
 wiped verb
 eyes noun
 tears noun
+==========
 stung noun
 hid verb
 face noun
@@ -17666,8 +17665,7 @@ hands noun
 said verb
 wait noun
 see noun
-/ noun
-==========
+/ verb
 end verb
 loving verb
 place noun
@@ -17803,7 +17801,6 @@ wings noun
 started verb
 share noun
 everything noun
-==========
 stuff noun
 loved verb
 spells noun
@@ -17811,6 +17808,7 @@ knew verb
 / noun
 friendship noun
 grew verb
+==========
 INTERRUPTING noun
 made verb
 friend noun
@@ -17848,7 +17846,6 @@ feels verb
 NOT noun
 make verb
 / noun
-==========
 guess verb
 learned verb
 something noun
@@ -17972,7 +17969,6 @@ story noun
 Thank noun
 talking verb
 tell verb
-==========
 something noun
 wanted verb
 ask verb
@@ -18294,7 +18290,6 @@ closet noun
 ball noun
 gowns noun
 Ooo.. noun
-==========
 ball noun
 look noun
 Will verb
@@ -18697,8 +18692,7 @@ want verb
 rainforest noun
 room noun
 theme noun
-==========
-Want noun
+Want verb
 robot noun
 theme noun
 theme noun
@@ -18713,6 +18707,7 @@ Oh noun
 OK. noun
 Well noun
 fun noun
+==========
 want verb
 dream noun
 room noun
@@ -18736,6 +18731,7 @@ Which noun
 Rainforest noun
 Robots noun
 Princess noun
+==========
 Hey noun
 want verb
 create verb
@@ -18744,7 +18740,6 @@ room noun
 time noun
 fun noun
 imagining verb
-==========
 room noun
 designs noun
 Something verb
@@ -18890,6 +18885,7 @@ sounds noun
 Anything noun
 want verb
 dream verb
+==========
 're verb
 kidding verb
 thought verb
@@ -18901,7 +18897,6 @@ invite verb
 Dance noun
 Party noun
 Ok noun
-==========
 please noun
 love verb
 Let noun
@@ -19214,7 +19209,6 @@ coming verb
 look verb
 drawing verb
 face noun
-==========
 LAUGHS noun
 Wolves noun
 canines noun
@@ -19228,6 +19222,7 @@ model noun
 wolf noun
 came verb
 looking verb
+==========
 LAUGHS noun
 Ooh noun
 drawing verb
@@ -19380,6 +19375,7 @@ front noun
 house noun
 feels verb
 home noun
+==========
 Fun noun
 doodling verb
 name noun
@@ -19392,7 +19388,6 @@ flowers noun
 make verb
 letters noun
 look verb
-==========
 animals noun
 drawing verb
 school noun
@@ -19411,6 +19406,8 @@ hills noun
 water noun
 landscapes noun
 seascapes noun
+==========
+like verb
 drawing verb
 create verb
 world noun
@@ -19423,7 +19420,6 @@ drawing verb
 things noun
 ll verb
 get verb
-==========
 know verb
 staring verb
 page noun
@@ -19667,7 +19663,6 @@ Bear noun
 Bear noun
 Is verb
 cool verb
-==========
 like verb
 think verb
 mom noun
@@ -20009,6 +20004,7 @@ Pengy noun
 's verb
 penguin noun
 've verb
+==========
 's verb
 advice noun
 Thank noun
@@ -20024,7 +20020,6 @@ toothbrush noun
 floss noun
 Do noun
 get verb
-==========
 LAUGHS noun
 love verb
 brand noun
@@ -20522,6 +20517,7 @@ sun noun
 's verb
 something noun
 need verb
+==========
 Yep noun
 yummy noun
 snacks noun
@@ -20557,7 +20553,6 @@ squash noun
 corn noun
 potato verb
 salad noun
-==========
 YUM noun
 love verb
 fruit noun
@@ -20567,8 +20562,9 @@ mouthwatering verb
 watermelon noun
 -­‐-­‐ verb
 treat noun
+==========
 Great noun
-thinking verb
+thinking noun
 Sounds noun
 smell noun
 hotdogs noun
@@ -20589,7 +20585,6 @@ anything noun
 family noun
 likes noun
 dinner verb
-==========
 well verb
 's verb
 family noun
@@ -20604,6 +20599,8 @@ Perfect noun
 food noun
 picnic noun
 idea noun
+==========
+YUM noun
 stomach noun
 rumbling noun
 's verb
@@ -20954,6 +20951,7 @@ rides noun
 've verb
 ball noun
 bugs noun
+==========
 yes noun
 get verb
 soaked verb
@@ -20965,7 +20963,7 @@ afterwards noun
 Ooh noun
 whoosh verb
 mines noun
-==========
+Ooh noun
 ones noun
 Ooh noun
 're verb
@@ -21247,7 +21245,6 @@ Let verb
 've verb
 wondered verb
 view noun
-==========
 's verb
 Australia noun
 landscape noun
@@ -21263,6 +21260,7 @@ hopping verb
 wanted verb
 ride verb
 camel noun
+==========
 Well noun
 Scandanavia noun
 Europe noun
@@ -21277,7 +21275,6 @@ Gotcha noun
 excited verb
 exploring verb
 Greece noun
-==========
 Great noun
 boating noun
 check noun
@@ -21298,6 +21295,7 @@ desert noun
 Zebra noun
 photos noun
 check noun
+==========
 Sahara noun
 desert noun
 Africa noun
@@ -21312,7 +21310,6 @@ want verb
 check verb
 Zebra noun
 Photography noun
-==========
 Amazon noun
 Rainforest noun
 South noun
@@ -21329,6 +21326,7 @@ go verb
 daring verb
 volcano noun
 hike noun
+==========
 've verb
 wanted verb
 explore verb
@@ -21744,7 +21742,6 @@ bet verb
 've verb
 got verb
 friends noun
-==========
 instruments noun
 play verb
 've verb
@@ -21756,6 +21753,7 @@ love verb
 sound noun
 helps verb
 keep verb
+==========
 rhythm noun
 band noun
 Have verb

@@ -5260,7 +5260,7 @@ Your mom? Cool! What does she usually buy from the hardware store?
 
 Oh, sorry! I didn't hear you. Who in your family would run the hardware store? 
 
-My mom is a great wood-­‐worker! When I was little, she built me my rocking chair! And I still have it. 
+My mom is a great woodworker! When I was little, she built me my rocking chair! And I still have it. 
 
 Your stepmom? What does she usually buy from the hardware store? 
 
@@ -5619,14 +5619,14 @@ My grandpa gives me money on my birthday every year. He doesn't know it, but I'v
 
 to buy him something! I can't wait to surprise him! 
 
-Your aunt? Cool! Why is she the best person in your family to run the bank?  108  Your aunt must be very responsible! 
-
-Your uncle? Awesome. Why is he the best person in your family to run the bank? 
-
-Time to visit the next shop!
+Your aunt? Cool! Why is she the best person in your family to run the bank?  108  Your aunt must be very responsible!
 ==========
 
  
+
+Your uncle? Awesome. Why is he the best person in your family to run the bank? 
+
+Time to visit the next shop! 
 
 Sorry, I missed that. Who in your family did you say would run the bank? 
 
@@ -5636,7 +5636,10 @@ Well, that's one responsible and trustworthy person!
 
 Let's see the next shop! 
 
-Do all your family members have a shop now, or should we keep going? 
+Do all your family members have a shop now, or should we keep going?
+==========
+
+ 
 
  
 
@@ -5646,10 +5649,7 @@ Oh! I think that's all the shops in this town!
 
 Oh, alright! On to the next shop! 
 
-Sorry! I didn't hear you. Did you say we should stop playing or keep going to more shops?
-==========
-
- 
+Sorry! I didn't hear you. Did you say we should stop playing or keep going to more shops? 
 
  
 
@@ -5860,7 +5860,10 @@ Oh really? Yeah -­‐ sometimes you just want to sit back, close your eyes and 
 
 you..... 
 
-Ooh, yeah! I love songs with clever rhymes too. Cause if you've got the time, anyone can rhyme! Haha, 
+Ooh, yeah! I love songs with clever rhymes too. Cause if you've got the time, anyone can rhyme! Haha,
+==========
+
+ 
 
 right? 
 
@@ -6208,14 +6211,14 @@ Sculpture -­‐ that's so neat! Molding things with clay is super fun. What kin
 
 your students to make? 
 
-Oh yeah. I made a sculpture of my horse, Tawny, once. When she saw it, she said, neighhhh, which I
-==========
-
- 
+Oh yeah. I made a sculpture of my horse, Tawny, once. When she saw it, she said, neighhhh, which I 
 
 hope meant yayyy! Hehe. 
 
-Drawing is amazing. What kinds of things would you ask your students to draw? 
+Drawing is amazing. What kinds of things would you ask your students to draw?
+==========
+
+ 
 
 Really? I've been trying to get better at drawing. I practice everyday -­‐ it really makes a difference, you 
 
@@ -6439,7 +6442,10 @@ Hmm. I like that one song a lot. You know, that one that goes (VAGUE) bum bum bu
 
 bummmmmm...I know you've heard it. Anyway, what's the last song you listened to? 
 
-Yeah...I always have a hard time choosing a fave. I usually have 5 or 6 songs on rotation that I play over 
+Yeah...I always have a hard time choosing a fave. I usually have 5 or 6 songs on rotation that I play over
+==========
+
+ 
 
 and over -­‐ do you do that, too? 
 
@@ -6451,14 +6457,14 @@ comes pretty close, don't you think?
 
 Really? Wait.. remind me again, what instrument do you play?  123  Well? Which instrument? 
 
-Oh, I love the piano! Beethoven, Chopin, all the greats have written for it. What's your favorite piece to
-==========
-
- 
+Oh, I love the piano! Beethoven, Chopin, all the greats have written for it. What's your favorite piece to 
 
 play? 
 
-Oh yeah? That's great! You know what I saw once? In New York City, a woman was playing a baby grand 
+Oh yeah? That's great! You know what I saw once? In New York City, a woman was playing a baby grand
+==========
+
+ 
 
 piano... down in the subway!? Isn't that wild? 
 
@@ -6774,7 +6780,10 @@ sports?
 
 Oh yeah. Practicing and training make a HUGE difference, am I right? 
 
-And you must spend a lot of time practicing on the slopes. 
+And you must spend a lot of time practicing on the slopes.
+==========
+
+ 
 
 And you must practice SO hard on the tennis courts. 
 
@@ -6862,14 +6871,14 @@ And I'll bet your dugout is a pretty cool place to be!
 
 So, what sort of stuff do you and your teammates do together? 
 
-Oh yeah? So how do you guys get in the zone? Do you sing any songs or cheers...? 
-
-(LAUGHS) I'm gonna guess you guys know just how to psyche each other up, right? 
-
-Okay, let's play a game! Let's pretend we're playing on a team and you're the Captain! It's late in the
+Oh yeah? So how do you guys get in the zone? Do you sing any songs or cheers...?
 ==========
 
  
+
+(LAUGHS) I'm gonna guess you guys know just how to psyche each other up, right? 
+
+Okay, let's play a game! Let's pretend we're playing on a team and you're the Captain! It's late in the 
 
 game, the other team is winning, but there's still time left for us to make a killer comeback and win this 
 
@@ -6920,29 +6929,29 @@ It's pretty important to know the weather? And not just if it's going to rain. Y
 
 anything! What's your favorite kind of weather? 
 
-I love sunshine! That's the most common weather where I live. What's your favorite thing about a sunny
-==========
-
- 
+I love sunshine! That's the most common weather where I live. What's your favorite thing about a sunny 
 
 day? 
 
 I love the rain, it gives me a chance to wear my cute rain boots! Why do you like it? 
 
-Ahh, "brrrrr" -­‐-­‐ we don't get much cold weather in Malibu! Can you tell me more -­‐-­‐ why do you like it so 
+Ahh, "brrrrr" -­‐-­‐ we don't get much cold weather in Malibu! Can you tell me more -­‐-­‐ why do you like it so
+==========
+
+ 
 
 much? 
 
 Big chunks of ice falling from the sky? 
 
-A windy day can be fun -­‐-­‐ I even love how it messes up my hair! What do you like about the wind?
-==========
-
- 
+A windy day can be fun -­‐-­‐ I even love how it messes up my hair! What do you like about the wind? 
 
 Wow, you really like extreme weather! That's so interesting. What do you like about it so much? 
 
-Oh, yeah, I love a gray and overcast day, it makes me want to curl up with a good book. Why do you like 
+Oh, yeah, I love a gray and overcast day, it makes me want to curl up with a good book. Why do you like
+==========
+
+ 
 
 it? 
 
@@ -6950,27 +6959,27 @@ it?
 
 Whoa -­‐-­‐ I love the ocean! It's a big, deep mysterious world. What do you love about it? 
 
-Aquatic life is so fascinating. I love going to the Aquarium to see all kinds of undersea life.
-==========
-
- 
+Aquatic life is so fascinating. I love going to the Aquarium to see all kinds of undersea life. 
 
 Have you ever been to an aquarium? 
 
-Really! That's so great! Tell me about it!  132  Wow, you could be the next famous underwater explorer and discover something we didn't even know 
+Really! That's so great! Tell me about it!  132  Wow, you could be the next famous underwater explorer and discover something we didn't even know
+==========
+
+ 
 
 was deep in the ocean! 
 
 Well, I think an aquarium's the place for you! Especially since you love underwater life so much! 
 
-You're so right. The ocean is a fascinating world: huge, full of life and mystery, and covers 71% of the
-==========
-
- 
+You're so right. The ocean is a fascinating world: huge, full of life and mystery, and covers 71% of the 
 
 Earth's surface. I mean, it's why we're called the blue planet, right? 
 
-Oh, animals are the best! Do you want to take care of them, like a veterinarian? Or study them, like a 
+Oh, animals are the best! Do you want to take care of them, like a veterinarian? Or study them, like a
+==========
+
+ 
 
 zoologist? 
 
@@ -7147,25 +7156,22 @@ What else do you like about chemistry?
 
 Oh, I bet you can guess one! 
 
-Well, there's a really important element that we need in order to breathe. It starts with "O"... And ends
-==========
-
- 
+Well, there's a really important element that we need in order to breathe. It starts with "O"... And ends 
 
 with "i-­‐gen"? 
 
 Well, I'm sure you've got all the elements of an eager young chemist... get it? Elements? Hehe. 
 
-The study of life! You know, some of the most interesting life on Earth is too small to be seen without a 
+The study of life! You know, some of the most interesting life on Earth is too small to be seen without a
+==========
+
+ 
 
 microscope. Have you ever looked through a microscope? 
 
 Oh wow. What did you see? 
 
-Isn't it amazing to think about all those really small forms of life? That's the wonderful world of being a
-==========
-
- 
+Isn't it amazing to think about all those really small forms of life? That's the wonderful world of being a 
 
 biologist! 
 
@@ -7175,7 +7181,10 @@ What do you like about biology?
 
 I adore the stars and planets and outer space! Oh! What's your favorite planet in our solar system? 
 
-I've got a soft spot for the little guy -­‐-­‐ Mercury is the smallest planet and closets to the sun. Why do you 
+I've got a soft spot for the little guy -­‐-­‐ Mercury is the smallest planet and closets to the sun. Why do you
+==========
+
+ 
 
 like it so much? 
 
@@ -7235,12 +7244,12 @@ An engineer? Wow, I'm impressed. What did you make? Tell me more!
 
 I can't believe you built that! Amazing! 
 
-Tell me, why do you like engineering?  137  Well, I'm sure you've got all the building blocks to be a great engineer! (LAUGHS) Get it? 
-
-That totally adds up! Math is such a vital part of so many sciences. What do you love about it so much?
+Tell me, why do you like engineering?  137  Well, I'm sure you've got all the building blocks to be a great engineer! (LAUGHS) Get it?
 ==========
 
  
+
+That totally adds up! Math is such a vital part of so many sciences. What do you love about it so much? 
 
 I'm sure you'd be a great mathematician! You could be the next Emmy Noether -­‐-­‐ she made major 
 
@@ -7397,10 +7406,7 @@ Aw, you help take care of your gerbil?
 
 Aw, you help take care of your fish? 
 
-Oh, you help take care of you cat?  140  Aw, you help take care of your dog?
-==========
-
- 
+Oh, you help take care of you cat?  140  Aw, you help take care of your dog? 
 
 Aw, you help take care of your pet? 
 
@@ -7463,10 +7469,7 @@ to say about your designs?
 
 Well, I'm sure your beautiful designs would speak for themselves! 
 
-I totally get that! I bet your designs will be in magazines all over the world! What do you want people to
-==========
-
- 
+I totally get that! I bet your designs will be in magazines all over the world! What do you want people to 
 
 say about your designs? 
 
@@ -7539,14 +7542,14 @@ Well, when you feel great, you look great!
 
 So...how do you feel when you put together a new outfit and finally get to wear it? 
 
-You know, I always feel really confident when I'm wearing something I love ... it doesn't even matter if it 
-
-matches ... if I love it, I'm gonna wear it! 
-
-It's so exciting, putting together your own look ...it makes you feel like you can do anything!
+You know, I always feel really confident when I'm wearing something I love ... it doesn't even matter if it
 ==========
 
  
+
+matches ... if I love it, I'm gonna wear it! 
+
+It's so exciting, putting together your own look ...it makes you feel like you can do anything! 
 
 Oh, I'm sure you can think of something ...like... making your own outfits, or...expressing who you are 
 
@@ -7573,16 +7576,16 @@ Yeah! You know, I bet you really love mixing and matching!
 
 I see. I just love when I am able to express myself through fashion! 
 
-Uh huh. I bet you have a blast creating and rocking new looks for yourself! 
+Uh huh. I bet you have a blast creating and rocking new looks for yourself!
+==========
+
+ 
 
 So, what's your favorite outfit? 
 
 Well, that sounds pretty awesome to me! 
 
-(GASP) You would be such a great fairy!
-==========
-
- 
+(GASP) You would be such a great fairy! 
 
 (EXCITED) Oh that would be awesome! So what would be the best part about being a mermaid? 
 
@@ -7714,7 +7717,10 @@ Wowie Wow Wow...me too! I love that series. What do you like about it?
 
 Hey, me too. And I know, Greg...it's a JOURNAL, not a diary! (LAUGHS). What do you like about them? 
 
-Oh, I don't think I've read that one. I'll add it to my list! Why is that one so special for you? 
+Oh, I don't think I've read that one. I'll add it to my list! Why is that one so special for you?
+==========
+
+ 
 
 Ohh okay... 
 
@@ -7865,7 +7871,10 @@ aren't you?
 
 (THINKING) So you work well with others... 
 
-Yeah, I remember learning about the different food groups and healthy habits. It's important 
+Yeah, I remember learning about the different food groups and healthy habits. It's important
+==========
+
+ 
 
 information, right? 
 
@@ -7950,10 +7959,7 @@ Well, I do like going on dates, but I also love spending time with my friends an
 
 ... or learning new things ... going on adventures. It's all so awesome! 
 
-Oh, I get that. We all want to do more things on our own when we grow up. What do you think you'd do
-==========
-
- 
+Oh, I get that. We all want to do more things on our own when we grow up. What do you think you'd do 
 
 with all that independence? 
 
@@ -7963,14 +7969,14 @@ older?
 
 Yeah, I don't know. I guess they seem a little different to me sometimes. I think they call it 
 
-"perspective"... but my favorite places, like art museums, the beach, the house I grew up in... I'm pretty 
-
-sure I'll love them no matter how old I am. 
-
-I think that's stuff you should talk about with a grown up. Sounds like a decision you make together, you
+"perspective"... but my favorite places, like art museums, the beach, the house I grew up in... I'm pretty
 ==========
 
  
+
+sure I'll love them no matter how old I am. 
+
+I think that's stuff you should talk about with a grown up. Sounds like a decision you make together, you 
 
 know? 
 
@@ -8109,14 +8115,14 @@ Me? I'm your best friend? That's amazing! I am so honored. And, guess what -­�
 
 too! 
 
-This is so cool. But so tell me, bestie, about one of your other friends. What's your friend's name?
-==========
-
- 
+This is so cool. But so tell me, bestie, about one of your other friends. What's your friend's name? 
 
 You're mom's your best friend? That's so sweet. I bet she'd be honored to hear that, right? 
 
-Oh, that's alright. Sometimes I have a hard time naming a best friend because I like all my friends so 
+Oh, that's alright. Sometimes I have a hard time naming a best friend because I like all my friends so
+==========
+
+ 
 
 much. Is that what happens for you? 
 
@@ -8252,14 +8258,14 @@ So, my friend Teresa and I had a misunderstanding the other day. We got mad, and
 
 since. I really miss her, but I don't know what to say to her now. What should I do? 
 
-Hmm. Well, what's something you've done to fix a misunderstanding? 
-
-You're right. I should apologize. I'm not mad anymore and just want to be friends again. 
-
-I see. That's a good idea. I think maybe I *should* just apologize. I'm not mad anymore and just really
+Hmm. Well, what's something you've done to fix a misunderstanding?
 ==========
 
  
+
+You're right. I should apologize. I'm not mad anymore and just want to be friends again. 
+
+I see. That's a good idea. I think maybe I *should* just apologize. I'm not mad anymore and just really 
 
 miss my friend. 
 
@@ -8431,27 +8437,27 @@ Oh, I like that! Playtime is always a great time for new friendships to grow! Yo
 
 that. 
 
-That's a great strategy! People love being asked questions -­‐ it's a surefire way to break the ice with 
-
-someone new, as you've clearly figured out! 
-
-That's smart! Making new friends is easy when you both like the same things!
+That's a great strategy! People love being asked questions -­‐ it's a surefire way to break the ice with
 ==========
 
  
+
+someone new, as you've clearly figured out! 
+
+That's smart! Making new friends is easy when you both like the same things! 
 
 Wow! That's a good tip. I hadn't thought of that before. Give me another one?  159 You really know what you're doing with this making new friends business! You've obviously thought a lot 
 
 about it, haven't you? 
 
-So I just found out something. My little sister Chelsea was invited on her first sleepover at a friend's 
-
-house! Cool, huh? 
-
-Well, here's what I've learned. (BOLD) Your friendship is like at triple fudge sundae with a cherry on top!
+So I just found out something. My little sister Chelsea was invited on her first sleepover at a friend's
 ==========
 
  
+
+house! Cool, huh? 
+
+Well, here's what I've learned. (BOLD) Your friendship is like at triple fudge sundae with a cherry on top! 
 
 YUHM-­‐MEE! 
 
@@ -8741,10 +8747,7 @@ Okay and what would this surprise party be like?
 
 Would you all be hiding and then jump out as soon as your friend walked in? 
 
-(SUPER EXCITED) Ooh! Let's practice now. I'll be your friend walking in and you have to surprise me, ok?
-==========
-
- 
+(SUPER EXCITED) Ooh! Let's practice now. I'll be your friend walking in and you have to surprise me, ok? 
 
 (SETTING UP SURPRISE MOMENT) Alright...I'm walking though the door...and I turn on the lights AND... 
 
@@ -8819,7 +8822,10 @@ strange?
 
 Oh, just like Wardsbackia! 
 
-Curious, then where do you spit out your toothpaste when you teeth your brush-­‐-­‐I mean brush your 
+Curious, then where do you spit out your toothpaste when you teeth your brush-­‐-­‐I mean brush your
+==========
+
+ 
 
 teeth? 
 
@@ -8833,14 +8839,14 @@ Good idea! I will write down "bathroom in brush-­‐-­‐I mean-­‐-­‐bru
 
 What a great idea! I'll try it a give! 
 
-Oh yes! I could ask one of my royal advisors to me remind!
-==========
-
- 
+Oh yes! I could ask one of my royal advisors to me remind! 
 
 Oh, repeat it, let's see: (QUICKLY TO HERSELF) "brush before bed, brush before bed, brush before 
 
-bed...." I think it's working! 
+bed...." I think it's working!
+==========
+
+ 
 
 Oh, good idea! How's this: (SING SONGY) "Bathroom brush, then go to bed / I've got to keep that in my 
 
@@ -8848,14 +8854,14 @@ head!"
 
 I see. Thank you! I will try my best to remember! 
 
-Now, my next question... In Wardsbackia, when we sit down for our evening meal, we always start with
-==========
-
- 
+Now, my next question... In Wardsbackia, when we sit down for our evening meal, we always start with 
 
 a sweet, yummy dessert BEFORE our main dinner dish. Is this how it is here done? 
 
-Really! You have your cake chocolate before your sprouts brussels too? 
+Really! You have your cake chocolate before your sprouts brussels too?
+==========
+
+ 
 
 Oh, I'm sorry my friend, I'll keep working on that, thank you for reminding me! 
 
@@ -8865,14 +8871,14 @@ Mmmm! Dessert is delectible! What is your dessert favorite?
 
 Leeee-­‐dish-­‐-­‐ous! 
 
-Well, all this talk of dessert before dinner really reminds me of home!
-==========
-
- 
+Well, all this talk of dessert before dinner really reminds me of home! 
 
  167  Oh, no? What do you here do then? 
 
-I see, dinner first. But don't your splits banana melt while you're eating your dinner? 
+I see, dinner first. But don't your splits banana melt while you're eating your dinner?
+==========
+
+ 
 
 Well see! That's why we eat dessert right away in Wardsbackia! 
 
@@ -8988,23 +8994,20 @@ friends. Have you ever moved to a new place?
 
 Ah, okay. Well, back to the story to see what happens! 
 
-Really? Then you can probably relate to this story. Let's see what happens next.
-==========
-
- 
+Really? Then you can probably relate to this story. Let's see what happens next. 
 
 Well, let's see how our Fairy feels about having to move. 
 
 The Fairy was shocked and thought, how can this be? / I've never lived anywhere but this old hollow 
 
-tree. / And what of the friends I've known since I was young? / She wiped at her eyes and the hot tears 
-
-that stung. 
-
-She hid her wet face from her family, / but they pulled at her hands and said, "Well, wait and see! / You
+tree. / And what of the friends I've known since I was young? / She wiped at her eyes and the hot tears
 ==========
 
  
+
+that stung. 
+
+She hid her wet face from her family, / but they pulled at her hands and said, "Well, wait and see! / You 
 
 might end up loving the new place we go. / Just because it feels scary, does not make it so!" 
 
@@ -9050,12 +9053,12 @@ The new fairy giggled and said, "Golly my! / That was so much fun, you should gi
 
 flew up and twirled all around, then landed next to the other laying on the ground. 
 
-The two laughed together, and fluttered their wings, / and right away started to share everything! / All
+The two laughed together, and fluttered their wings, / and right away started to share everything! / All 
+
+the stuff that they loved and the spells that they knew, / and just like that, their friendship grew!
 ==========
 
  
-
-the stuff that they loved and the spells that they knew, / and just like that, their friendship grew! 
 
 (INTERRUPTING) Oh! She made a friend! I'm so glad, aren't you? 
 
@@ -9065,10 +9068,7 @@ When the Fairy returned to her brand new home tree, / she got nervous looks from
 
 beamed a big smile, and said with a cheer, / "Guess what everybody -­‐ I'm liking it here!" 
 
-All the family rejoiced, and the Fairy thought, "Ohhh! / Just because it feels scary does NOT make it so! /
-==========
-
- 
+All the family rejoiced, and the Fairy thought, "Ohhh! / Just because it feels scary does NOT make it so! / 
 
 I guess that I learned something cool in the end. / In every new place, you'll find a new friend." The End. 
 
@@ -9129,10 +9129,7 @@ Hey! I thought maybe I could tell you the Fairy Friendship Story again? Want to 
 
 Ooh, I had forgotten about that. You're right... 
 
-Well, I do hope you liked the story. Thank you for talking about it with me. Maybe I can tell it again
-==========
-
- 
+Well, I do hope you liked the story. Thank you for talking about it with me. Maybe I can tell it again 
 
 sometime! 
 
@@ -9335,10 +9332,7 @@ Sounds good to me!
 
 The ultimate royal color combination! 
 
-There will be a giant ballroom in one corner, and a closet full of ball gowns in another! Ooo.. what will
-==========
-
- 
+There will be a giant ballroom in one corner, and a closet full of ball gowns in another! Ooo.. what will 
 
 your favorite ball gown look like? 
 
@@ -9564,14 +9558,14 @@ How about a rainforest room?
 
 Oh then what theme? 
 
-Do you want to do a rainforest room or a princess theme?
-==========
-
- 
+Do you want to do a rainforest room or a princess theme? 
 
 Want to do a robot theme or a princess theme? 
 
-Do you want to design a high tech robot room or a rainforest room?  180  Oh OK. Well this was so much fun! 
+Do you want to design a high tech robot room or a rainforest room?  180  Oh OK. Well this was so much fun!
+==========
+
+ 
 
 would you want your dream room to have lots of plants like an awesome Amazon rainforest, or have all 
 
@@ -9579,12 +9573,12 @@ sorts of new and exciting technology, or make you feel like a royal princess?
 
 Oh, okay. We'll do something else then! 
 
-Sorry -­‐ can you say that one more time? Which is your favorite -­‐-­‐ Rainforest, Robots, or Princess? 
-
-Hey, want to create another dream room together? Last time, I had so much fun imagining different
+Sorry -­‐ can you say that one more time? Which is your favorite -­‐-­‐ Rainforest, Robots, or Princess?
 ==========
 
  
+
+Hey, want to create another dream room together? Last time, I had so much fun imagining different 
 
 room designs with you! 
 
@@ -9662,14 +9656,14 @@ OH! We have to talk about food! What kind of treats would you serve at your part
 
 At my party, we'd have hot chocolate with marshmallows, and lots of popcorn! How about you? 
 
-Ohmigosh! Your party sounds so AMAZING! Anything else about it you want to dream up? 
-
-You're kidding!? I never would have thought of something that cool! 
-
-I sure hope you invite me to your Dance Party! Ok?
+Ohmigosh! Your party sounds so AMAZING! Anything else about it you want to dream up?
 ==========
 
  
+
+You're kidding!? I never would have thought of something that cool! 
+
+I sure hope you invite me to your Dance Party! Ok? 
 
 Oh please? I would love to be there! 
 
@@ -9847,16 +9841,16 @@ Sometimes if Blissa's taking a nap, I'll sketch her-­‐-­‐she's so cute whe
 
 Dogs are so interesting! Why do you like drawing them? 
 
-I tried to draw Taffy once, but she kept coming over to look at what I was drawing and lick my face!
-==========
-
- 
+I tried to draw Taffy once, but she kept coming over to look at what I was drawing and lick my face! 
 
 (LAUGHS) 
 
 Yes! Wolves and other wild canines are so interesting! Why do you like drawing them? 
 
-Once I tried to draw a wolf using Taffy as a model, but my wolf came out looking too sweet and cuddly! 
+Once I tried to draw a wolf using Taffy as a model, but my wolf came out looking too sweet and cuddly!
+==========
+
+ 
 
 (LAUGHS) 
 
@@ -9932,14 +9926,14 @@ It's great drawing practice and you learn all about different styles! Whaddaya t
 
 Home IS where the heart is! Why do you like drawing your house? 
 
-I like drawing everyone in my family standing in front of my house, then it really feels like home! 
-
-Fun! Why do you like doodling your name? 
-
-It's so much fun to draw letters in different ways-­‐-­‐bubbles, flowers, you can even make letters look like
+I like drawing everyone in my family standing in front of my house, then it really feels like home!
 ==========
 
  
+
+Fun! Why do you like doodling your name? 
+
+It's so much fun to draw letters in different ways-­‐-­‐bubbles, flowers, you can even make letters look like 
 
 animals! 
 
@@ -9947,16 +9941,16 @@ Why do you like drawing your school?
 
 One time I drew a picture of my school with all my classmates smiling out of the windows! So fun! 
 
-(SIGHS, WISTFUL) The sun... the moon... hills... water... landscapes and seascapes are so great! Why do 
+(SIGHS, WISTFUL) The sun... the moon... hills... water... landscapes and seascapes are so great! Why do
+==========
+
+ 
 
 you like drawing them? 
 
 It can be so fun to create your own world through drawing! 
 
-(LAUGHS, CHARMING) You know, if you keep drawing the same things over and over, you''ll get really
-==========
-
- 
+(LAUGHS, CHARMING) You know, if you keep drawing the same things over and over, you''ll get really 
 
 good! 
 
@@ -10073,10 +10067,7 @@ Ursa means Bear... so Ursa Major means Big Bear! Isn't that cool?
 
 Right next to it is Ursa Minor, which means Little Bear. 
 
-Ursa means Bear... so Ursa Major and Ursa Minor mean Big Bear and Little Bear! Isn't that cool?
-==========
-
- 
+Ursa means Bear... so Ursa Major and Ursa Minor mean Big Bear and Little Bear! Isn't that cool? 
 
 I like to think of them as a mom bear with her bear cub playing in the sky! What do you think? 
 
@@ -10253,7 +10244,10 @@ in no time, right?  193  That's true! If you had someone there with you that wou
 
 Oh, yes! I could bring one of my stuffed animals! To comfort me right? 
 
-(CONFESSIONAL WHISPER) My stuffed animal's name is Pengy, she's a little penguin and I've had her 
+(CONFESSIONAL WHISPER) My stuffed animal's name is Pengy, she's a little penguin and I've had her
+==========
+
+ 
 
 forever! 
 
@@ -10261,10 +10255,7 @@ That's such great advice. Thank you!
 
 (LONG EXHALE) I'm feeling a lot less nervous about it! 
 
-And after it's over I'll get a great little goodie bag with a new toothbrush and floss! Do you get those?
-==========
-
- 
+And after it's over I'll get a great little goodie bag with a new toothbrush and floss! Do you get those? 
 
 (LAUGHS) I love brand new toothbrushes don't you? 
 
@@ -10587,7 +10578,10 @@ Yeah! Sun protection is super important. Don't you think?
 
 What's something else we might need? 
 
-Awesome! We'll definitely need to be careful in the sun! But what's something else that we might need? 
+Awesome! We'll definitely need to be careful in the sun! But what's something else that we might need?
+==========
+
+ 
 
 Yep. And maybe also some yummy snacks and a blanket to cover the ground! 
 
@@ -10601,12 +10595,12 @@ now!
 
 So... picnic food. Check! What else should we bring? 
 
-Mmmm. I love summer vegetables like grilled squash and corn... and potato salad! So good!
+Mmmm. I love summer vegetables like grilled squash and corn... and potato salad! So good! 
+
+YUM! I love fruit in the summer... Big slices of mouthwatering watermelon -­‐-­‐ what a perfect picnic treat!
 ==========
 
  
-
-YUM! I love fruit in the summer... Big slices of mouthwatering watermelon -­‐-­‐ what a perfect picnic treat! 
 
 Great thinking!  200  Sounds delicious! The smell of hotdogs and hamburgers cooking on the grill always makes me think of 
 
@@ -10614,16 +10608,16 @@ summertime with my family.
 
 Are there any foods that make you think of family like that? 
 
-Well... is there anything that your family likes having when you have dinner together?
-==========
-
- 
+Well... is there anything that your family likes having when you have dinner together? 
 
 Oh, well that's ok! Your family must have lots of different favorite foods. 
 
 Yum! 
 
-Cheese, crackers and bread! YUM! Perfect food for a picnic! Good idea. 
+Cheese, crackers and bread! YUM! Perfect food for a picnic! Good idea.
+==========
+
+ 
 
 YUM! My stomach's rumbling already. 
 
@@ -10822,14 +10816,14 @@ Yes! Is that your favorite part of vacation? Playing games with friends and fami
 
 So what are the some of best rides you've been on? 
 
-Oh yes with that giant ball? And those bugs?! 
-
-Oh yes and you get soaked in water? And did you see the picture of you on the ride afterwards? 
-
-Ooh when you whoosh through the mines?
+Oh yes with that giant ball? And those bugs?!
 ==========
 
  
+
+Oh yes and you get soaked in water? And did you see the picture of you on the ride afterwards? 
+
+Ooh when you whoosh through the mines? 
 
 Ooh you like the scary ones? 
 
@@ -10974,10 +10968,7 @@ Oh! Well the top of Mount Everest is the highest point on earth! It's over twent
 
 high! Should we check it out?  207  I understand. Let's scuba dive then! 
 
-Yay! I've always wondered what the view would be like from up there!
-==========
-
- 
+Yay! I've always wondered what the view would be like from up there! 
 
 Oh! Well, it's Australia's natural landscape. It's mostly made up of beautiful wide deserts. Sound like a 
 
@@ -10985,16 +10976,16 @@ fun place to explore?
 
 Kangaroo hopping it is, then! 
 
-Woohoo! I've always wanted to ride a camel! 
+Woohoo! I've always wanted to ride a camel!
+==========
+
+ 
 
 Oh! Well Scandanavia is at the very top of Europe... wayyy up north... where it's super cold and snowy! 
 
 Sound like a fun place to explore? 
 
-Gotcha. I was pretty excited about exploring Greece, anyway.
-==========
-
- 
+Gotcha. I was pretty excited about exploring Greece, anyway. 
 
 Great so... paddle boating, check! 
 
@@ -11004,22 +10995,25 @@ Would you want to explore that?
 
 Ooo then let's go to the desert instead! 
 
-Sweet! Zebra photos... check! 
+Sweet! Zebra photos... check!
+==========
+
+ 
 
 The Sahara is the largest desert in Africa with huge mounds of sand over five hundred feet tall! That's 
 
 more than a hundred of you stacked on top of eachother!! Would you want to check them out? 
 
-Ok then Zebra Photography it is!
-==========
-
- 
+Ok then Zebra Photography it is! 
 
 Oh! The Amazon Rainforest is in South America and it has over a thousand species of birds and 2 and a 
 
 half MILLION kinds of insects! Sound like a place you'd want to go? 
 
-Then a daring volcano hike it is! 
+Then a daring volcano hike it is!
+==========
+
+ 
 
 Cool! I've always wanted to explore a rainforest! 
 
@@ -11239,14 +11233,14 @@ I had a feeling your dad was Hall of Fame material. Sounds great!
 
 What a rockin' mom you have! That would be awesome! 
 
-Oo yes! I bet you've got some very talented friends!
-==========
-
- 
+Oo yes! I bet you've got some very talented friends! 
 
 And what instruments would we all play? 
 
-I've always wanted to give the electric bass a try. I love that low, thumpy sound, and how it helps keep 
+I've always wanted to give the electric bass a try. I love that low, thumpy sound, and how it helps keep
+==========
+
+ 
 
 the rhythm for the whole band! Have you ever heard a bass before? 
 
