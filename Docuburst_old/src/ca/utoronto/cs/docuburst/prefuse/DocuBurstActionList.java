@@ -225,7 +225,8 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 		
 //		String fullTextFile = "texts/" + filename + ".tiled.txt";
 //		String wordsFile = "texts/" + filename + ".tiled.tagged.cleaned.txt";
-		String fullTextFile = "texts/" + filename + ".txt";
+//		String fullTextFile = "texts/" + filename + ".txt";
+		String fullTextFile = filename;
 		
 		// do this on Event processing thread because need this to continue setup
 		if (dictionary == null)

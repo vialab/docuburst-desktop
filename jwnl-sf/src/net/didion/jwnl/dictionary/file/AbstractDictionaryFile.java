@@ -23,12 +23,14 @@ public abstract class AbstractDictionaryFile implements DictionaryFile {
 	 */
 	private DictionaryFileType _fileType;
 	private File _file;
+	private String _path;
 
 	public AbstractDictionaryFile() {}
 
 	protected AbstractDictionaryFile(String path, POS pos, DictionaryFileType fileType) {
 		_pos = pos;
 		_fileType = fileType;
+		_path = path + "/" + makeFilename();
 		_file = new File(path, makeFilename());
 	}
 
@@ -37,6 +39,7 @@ public abstract class AbstractDictionaryFile implements DictionaryFile {
 
 	/** Open the file at path <code>path</code> */
 	protected abstract void openFile(File file) throws IOException;
+	protected abstract void openFile(String path) throws IOException;
 
 	/** The POS associated with this file.*/
 	public POS getPOS() {
@@ -55,6 +58,6 @@ public abstract class AbstractDictionaryFile implements DictionaryFile {
 	/** Open the file. */
 	public void	open() throws IOException {
 		if (!isOpen())
-			openFile(_file);
+			openFile(_path);
 	}
 }

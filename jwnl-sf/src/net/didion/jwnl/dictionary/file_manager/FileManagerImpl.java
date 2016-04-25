@@ -5,6 +5,7 @@
 package net.didion.jwnl.dictionary.file_manager;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
@@ -69,13 +70,18 @@ public class FileManagerImpl implements FileManager {
 		checkFileType(dictionaryFileType);
 		_files = new DictionaryCatalogSet(searchDir, dictionaryFileType);
 		_files.open();
-        String sense = System.getProperty("file.separator") + "index.sense";
+//        String sense = System.getProperty("file.separator") + "index.sense";
+		String sense = "/" + "index.sense";
         if (JWNL.getVersion().getNumber() < 2.1) {
-            sense = System.getProperty("file.separator") + "sense.idx";
+//            sense = System.getProperty("file.separator") + "sense.idx";
+        	sense = "/" + "sense.idx";
 		}
-        senseFile = new File(searchDir + sense);
-        
-        Grep.setFile(senseFile);
+        try {
+        	senseFile = new File(getClass().getResource(searchDir + sense).getPath());
+        	Grep.setFile(senseFile);
+        } catch(Exception e){
+        	Grep.setFile(getClass().getResourceAsStream(searchDir + sense));
+        }
 	}
 
     /**
@@ -91,7 +97,7 @@ public class FileManagerImpl implements FileManager {
 		checkFileType(fileClass);
 
 		String path = ((Param)params.get(PATH)).getValue();
-
+		
 		try {
 			return new FileManagerImpl(path, fileClass);
 		} catch (IOException ex) {

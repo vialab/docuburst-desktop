@@ -106,4 +106,10 @@ public class PrincetonChannelDictionaryFile extends AbstractPrincetonRandomAcces
 	public int read() throws IOException {
 		return (int)_buffer.get();
 	}
+
+    @Override
+    protected void openFile(String path) throws IOException {
+        // TODO Auto-generated method stub
+        
+    }
 }

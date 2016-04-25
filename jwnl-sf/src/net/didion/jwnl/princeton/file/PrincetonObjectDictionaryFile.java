@@ -117,4 +117,10 @@ public class PrincetonObjectDictionaryFile extends AbstractPrincetonDictionaryFi
 			openInputStream();
 		}
 	}
+
+    @Override
+    protected void openFile(String path) throws IOException {
+        // TODO Auto-generated method stub
+        
+    }
 }

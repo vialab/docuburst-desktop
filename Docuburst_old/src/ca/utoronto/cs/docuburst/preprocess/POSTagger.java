@@ -13,7 +13,7 @@ import edu.stanford.nlp.tagger.maxent.MaxentTagger;
 public class POSTagger {
 
 	public static List<List<TaggedWord>> tagTiles(List<String> tiles) throws Exception{
-        MaxentTagger tagger = new MaxentTagger("data/taggers/english-left3words-distsim.tagger");
+        MaxentTagger tagger = new MaxentTagger("taggers/english-left3words-distsim.tagger");
         
         List<List<CoreLabel>> tokenizedTiles = new ArrayList<List<CoreLabel>>();
         for (String tile : tiles) {

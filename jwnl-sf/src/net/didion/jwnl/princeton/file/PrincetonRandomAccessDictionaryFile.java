@@ -94,11 +94,21 @@ public class PrincetonRandomAccessDictionaryFile extends
 	}
 
 	protected void openFile(File path) throws IOException {
-
-		DataInputStream is = new DataInputStream(
-				streamFromFile(path.toString()));
+		DataInputStream is = new DataInputStream(this.getClass().getResourceAsStream(path.toString()));
 		_file = RandomAccessFactory.createBufferedRO(is);
 		filename = path.getName();
+		try { 
+			length = FileLengths.get(filename+JWNL.getVersion().getNumber());
+		} catch (NullPointerException e) {
+			throw new IOException("Unknown file: " + filename + ". Check FileLengths map.");
+		}
+	}
+	
+	protected void openFile(String path) throws IOException {
+		//DataInputStream is = new DataInputStream(streamFromFile(path.toString()));
+		DataInputStream is = new DataInputStream(this.getClass().getResourceAsStream(path));
+		_file = RandomAccessFactory.createBufferedRO(is);
+		filename = path.substring(path.lastIndexOf("/")+1);
 		try { 
 			length = FileLengths.get(filename+JWNL.getVersion().getNumber());
 		} catch (NullPointerException e) {

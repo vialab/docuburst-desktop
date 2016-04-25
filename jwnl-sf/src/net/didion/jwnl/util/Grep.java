@@ -46,6 +46,8 @@ package net.didion.jwnl.util;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
@@ -56,6 +58,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+
+import sun.misc.IOUtils;
 
 /**
  * This is a utility class to find a pattern within a file, specifically the sense.idx file. 
@@ -138,6 +142,23 @@ public class Grep {
     	indexFile = decoder.decode(bb);
     	
     	fc.close();
+    }
+    
+    public static void setFile(InputStream fis) throws IOException {
+//    	FileInputStream fis = new FileInputStream(f);
+//    	FileChannel fc = fis.getChannel();
+    	;
+
+    	// Get the file's size and then map it into memory
+//    	int sz = (int)fc.size();
+//    	MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, sz);
+//    	 Decode the file into a char buffer
+    	
+    	byte[] bytes = org.apache.commons.io.IOUtils.toByteArray(fis);
+    	indexFile = decoder.decode(ByteBuffer.wrap(bytes));
+    	
+    	fis.close();
+//    	fc.close();
     }
 
     /**
