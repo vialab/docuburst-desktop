@@ -193,7 +193,10 @@ public class HighlightTextHoverActionControl extends ControlAdapter {
 				if (fullText.get(i) != null) { 
 					m = p.matcher(fullText.get(i)); 
 					while (m.find()) {
-						concordances.append(String.format(ConcordancePanel.CONCORDANCE_FORMAT, i+1, m.group(1), m.group(3), m.group(m.groupCount()-1)));
+						concordances.append(String.format(ConcordancePanel.CONCORDANCE_FORMAT, i+1, 
+						        m.group(1).replaceAll("[\\n\\r]", " "), 
+						        m.group(3).replaceAll("[\\n\\r]", " "), 
+						        m.group(m.groupCount()-1).replaceAll("[\\n\\r]", " ")));
 						Iterator documentIterator = allDocuments.tuples(new ComparisonPredicate(ComparisonPredicate.EQ, new NumericLiteral(i+1), new ColumnExpression("row")));
 						while (documentIterator.hasNext()) {
 							Tuple document = (Tuple) documentIterator.next();

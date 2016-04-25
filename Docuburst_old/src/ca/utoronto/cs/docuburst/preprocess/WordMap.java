@@ -149,7 +149,7 @@ public class WordMap {
 	public static void main(String[] args) throws Exception {
 		// initialize JWNL using properties file; must be done before
         // use
-        String propsFile = "lib/jwnl_file_properties.xml"; // jwnl properties
+        String propsFile = "jwnl_file_properties.xml"; // jwnl properties
         try {
             InputStream propsStream = IOLib.streamFromString(propsFile);
             JWNL.initialize(propsStream);
