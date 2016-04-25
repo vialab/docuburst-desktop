@@ -48,7 +48,7 @@ public RawText(InputStream in) {
 public RawText(String file) {
 	try {
 		/* Open the file and attach stream tokenizer */
-		Reader r = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+		Reader r = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF8"));
 		parse(r);
 		r.close();
 	}
