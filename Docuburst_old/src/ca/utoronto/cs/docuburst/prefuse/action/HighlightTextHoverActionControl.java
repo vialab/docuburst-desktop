@@ -113,6 +113,8 @@ public class HighlightTextHoverActionControl extends ControlAdapter {
 	
 	public void setConcordanceTextPane(JTextPane textPane) {
 		this.concordancePane = textPane;
+        ((StyledDocument) concordancePane.getDocument()).setParagraphAttributes(0, 0, MONOSPACED, true);
+
 	}
 	
 	public void setCountField(String countField) {
