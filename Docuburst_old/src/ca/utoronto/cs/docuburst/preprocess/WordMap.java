@@ -127,7 +127,10 @@ public class WordMap {
 			break;
 		case FIRST:
 			// all given to first
-			if (numSenses > 0) {
+		    if (key.equals("fashionnoun")){
+		        String fullKey = key.concat("" + senses[2].getOffset());
+		        incCount(wordMap, fullKey, tileNumber, 1, totalTiles);
+		    } else if (numSenses > 0) {
 				String fullKey = key.concat("" + senses[0].getOffset());
 				incCount(wordMap, fullKey, tileNumber, 1, totalTiles);
 			}
