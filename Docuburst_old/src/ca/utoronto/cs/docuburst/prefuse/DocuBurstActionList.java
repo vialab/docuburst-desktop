@@ -430,7 +430,12 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 		Action resizeAction = new Action() {
 			public void run(double frac) {
 				// animate reset zoom to fit the data (must run only AFTER layout)
-				Rectangle2D bounds = m_vis.getBounds("graph");
+				Rectangle2D bounds = null;
+				try{
+					bounds = m_vis.getBounds("graph");
+				} catch(IndexOutOfBoundsException e){
+					return;
+				}
 				if (bounds.getWidth() == 0)
 					return;
 				GraphicsLib.expand(bounds, (int) (1 / m_vis.getDisplay(0).getScale()));

@@ -686,9 +686,7 @@ public class DocuBurst extends JPanel implements LoadData {
  		        ((SearchTupleSet) docuburstVisualization.getFocusGroup(Visualization.SEARCH_ITEMS)).index(docuburstVG.getNodeTable().tuples(), "limitedSearchKey");
  		        ((SearchTupleSet) docuburstVisualization.getFocusGroup(Visualization.SEARCH_ITEMS)).index(docuburstVG.getNodeTable().tuples(),
  		                "multiWordLimitedSearchKey");
-                 
-                 
-                 
+                               
 				return graph;
 			}
 			
@@ -696,11 +694,15 @@ public class DocuBurst extends JPanel implements LoadData {
 			protected void done() {		        
 		        // RUNS LAYOUT
 		        docuburstVisualization.setInteractive("graph.edges", null, false);
+		        docuburstVisualization.cancel("layout");
+		        docuburstVisualization.cancel("resize");
+		        docuburstVisualization.cancel("animate");
 		        docuburstVisualization.run("layout");
-		        docuburstVisualization.run("resize");
+		        docuburstVisualization.runAfter("layout", "resize");
 		        long t1 = System.currentTimeMillis();
-		        SearchQueryBinding sq = new SearchQueryBinding((Table) docuburstVisualization.getGroup("graph.nodes"), "label", (SearchTupleSet) docuburstVisualization
- 		                .getFocusGroup(Visualization.SEARCH_ITEMS));
+		        SearchQueryBinding sq = new SearchQueryBinding((Table) docuburstVisualization
+		        		.getGroup("graph.nodes"), "label", 
+		        		(SearchTupleSet)docuburstVisualization.getFocusGroup(Visualization.SEARCH_ITEMS));
 //		        JSearchPanel search = new JSearchPanel(sq.getSearchSet(), "label", true) {
 //		            public String getQuery() {
 //		                String query = super.getQuery();
