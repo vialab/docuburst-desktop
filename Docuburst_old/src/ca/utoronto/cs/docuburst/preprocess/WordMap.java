@@ -54,17 +54,25 @@ public class WordMap {
 					}
 					else
 						continue;
-
+					
 					// note that not all base forms reported by the
 					// MorphologicalProcessor are necessarily valid
 					// (i.e. they may not have any IndexWord for the
 					// POS. e.g. "is", NOUN)
 					List<String> baseForms = dictionary.getMorphologicalProcessor()
 							.lookupAllBaseForms(pos, word);
+					
+					if (word.toLowerCase().equals("cookies")){
+						if (baseForms.size() > 1) {
+							baseForms.remove(1);
+							logger.info("Removed cooky base form of cookies");
+						}						
+					}
+					
 					Iterator<String> formIterator = baseForms.iterator();
 					
 					logger.info("word: " + word);
-					
+
 					String newWord, key;
 
 					while (formIterator.hasNext()) {

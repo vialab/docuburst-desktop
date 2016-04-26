@@ -58,6 +58,8 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import com.itextpdf.text.log.SysoCounter;
+
 import net.didion.jwnl.JWNL;
 import net.didion.jwnl.JWNLException;
 import net.didion.jwnl.data.IndexWord;
@@ -313,9 +315,9 @@ public class DocuBurst extends JPanel implements LoadData {
     // initialize loggers
     // 
     static {
-        Logger.getLogger(LanguageLib.class.getName()).setLevel(Level.OFF);
+//        Logger.getLogger(LanguageLib.class.getName()).setLevel(Level.OFF);
         //Logger.getLogger(DocuBurst.class.getName()).setLevel(Level.SEVERE);
-        Logger.getLogger(DocuBurst.class.getName()).setLevel(Level.OFF);
+        Logger.getLogger(DocuBurst.class.getName()).setLevel(Level.SEVERE);
         
         // from http://stackoverflow.com/questions/470430/java-util-logging-logger-doesnt-respect-java-util-logging-level
         
@@ -332,8 +334,6 @@ public class DocuBurst extends JPanel implements LoadData {
                 break;
             }
         }
-
-
         if (consoleHandler == null) {
             //there was no console handler found, create a new one
             consoleHandler = new ConsoleHandler();
@@ -651,6 +651,7 @@ public class DocuBurst extends JPanel implements LoadData {
         // DOCUBURST
         // this processing takes long, so do it in a separate thread
         new SwingWorker<Graph, Void>() {
+        	
 			@Override
 			protected Graph doInBackground() throws Exception {
 				docuburstVisualization.reset();
@@ -665,11 +666,16 @@ public class DocuBurst extends JPanel implements LoadData {
 		        	// duplicate columns exception
 		        	e.printStackTrace();
 		        }       
+		        long t1 = System.currentTimeMillis();
 		        docuburstLayout.processCounts(graph);
-		        
+		        long t2 = System.currentTimeMillis();
+		        LOGGER.info(String.format("processCounts() took %f seconds.", (float)(t2-t1)/1000));
 		        // clear search sets
 		        docuburstVisualization.getFocusGroup(Visualization.SEARCH_ITEMS).clear();
 		        docuburstLayout.addLabels();
+		        
+		        
+		        long t3 = System.currentTimeMillis();
 		        
 		        //Search depth tracks search results: 0 -- no result; 1 -- result; d >
                 // 1 -- a descendant at depth d is a result
@@ -680,12 +686,16 @@ public class DocuBurst extends JPanel implements LoadData {
                 graph.addColumn("limitedSearchKey", "CONCAT(label, \"|\", \" \", \"|\", label, \"|\")");
                 // create a column for limiting multi-word searches to exact match, not prefix
                 graph.addColumn("multiWordLimitedSearchKey", "CONCAT(multiWordSearchKey, \"|\", \" \", \"|\", multiWordSearchKey, \"|\")");
-                 
+
+                
                 // create a search panel and index radial search set 		        
  		        ((SearchTupleSet) docuburstVisualization.getFocusGroup(Visualization.SEARCH_ITEMS)).index(docuburstVG.getNodeTable().tuples(), "multiWordSearchKey");
  		        ((SearchTupleSet) docuburstVisualization.getFocusGroup(Visualization.SEARCH_ITEMS)).index(docuburstVG.getNodeTable().tuples(), "limitedSearchKey");
  		        ((SearchTupleSet) docuburstVisualization.getFocusGroup(Visualization.SEARCH_ITEMS)).index(docuburstVG.getNodeTable().tuples(),
  		                "multiWordLimitedSearchKey");
+ 		        
+		        long t4 = System.currentTimeMillis();
+		        LOGGER.info((String.format("index() took %f seconds.", (float)(t4-t3)/1000)));
                                
 				return graph;
 			}
@@ -699,7 +709,7 @@ public class DocuBurst extends JPanel implements LoadData {
 		        docuburstVisualization.cancel("animate");
 		        docuburstVisualization.run("layout");
 		        docuburstVisualization.runAfter("layout", "resize");
-		        long t1 = System.currentTimeMillis();
+		        
 		        SearchQueryBinding sq = new SearchQueryBinding((Table) docuburstVisualization
 		        		.getGroup("graph.nodes"), "label", 
 		        		(SearchTupleSet)docuburstVisualization.getFocusGroup(Visualization.SEARCH_ITEMS));
@@ -713,9 +723,7 @@ public class DocuBurst extends JPanel implements LoadData {
 //		            }
 //		        };
 		        JSearchPanel search = sq.createSearchPanel();
-		        long t2 = System.currentTimeMillis();
-//                System.out.println("Is EDT: " + SwingUtilities.isEventDispatchThread());
-//                System.out.println(String.format("visualize() took %d seconds.", (t2-t1)/1000));
+		        
 		    
 		        search.setShowBorder(false);
 		        search.setShowResultCount(true);
@@ -729,7 +737,7 @@ public class DocuBurst extends JPanel implements LoadData {
 		        search.requestFocusInWindow();
 			}
         
-        }.run();
+        }.execute();
  
         
         
@@ -807,7 +815,11 @@ public class DocuBurst extends JPanel implements LoadData {
             final boolean mergeWords) throws JWNLException {
         final SwingWorker<Graph, Void> worker = new SwingWorker<Graph, Void>() {
             protected Graph doInBackground() throws InterruptedException, ExecutionException, JWNLException {
+            	long t1 = System.currentTimeMillis();
+                
                 Graph tempgraph = WordNetTree.fillGraph(synset, relationshipTypes, countPolysemy, mergeWords);
+                long t2 = System.currentTimeMillis();
+                LOGGER.info("fillgraph time: " + (float)(t2-t1)/1000);
                 return tempgraph;
             }
 

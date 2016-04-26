@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
+import java.util.logging.Logger;
 
 import javax.swing.JTextPane;
 import javax.swing.text.AttributeSet;
@@ -964,6 +965,7 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 	private VisibilityFilter createVisibilityFilter() {
 		VisibilityFilter vF = new VisibilityFilter("graph", DocuBurst.WORDS_PREDICATE) {
 			public void run(double frac) {
+				long t1 = System.currentTimeMillis();
 				// only check visible items: fisheye filter already set
 				// everything visible
 				Iterator items = m_vis.visibleItems(m_group);
@@ -996,6 +998,9 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 					if (item instanceof NodeItem && item.isVisible())
 						visibleCount++;
 				}
+				long t2 = System.currentTimeMillis();
+				Logger.getLogger(this.getClass().getName())
+					.info(String.format("Visibility filtering took %f seconds.", (float)(t2-t1)/1000));
 //				System.out.println(visibleCount + " nodes are visible.");
 			}
 		};

@@ -3,6 +3,7 @@ package ca.utoronto.cs.docuburst.prefuse;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Logger;
 
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
@@ -106,7 +107,8 @@ public class CachedTreeCutFilter extends FisheyeTreeFilter {
         lastCut = cut;
         long t2 = System.currentTimeMillis();
 //        System.out.println(String.format("Tree cut has %s nodes with weight = %s", cut.size(), weight));        
-//        System.out.println(String.format("Tree cut filtering took %d seconds.", (t2-t1)/1000));
+        Logger.getLogger(this.getClass().getName())
+        	.info(String.format("Tree cut filtering took %f seconds.", (float)(t2-t1)/1000));
     }
     
     public void markExceptional(NodeItem n){
