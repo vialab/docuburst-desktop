@@ -70,7 +70,7 @@ public class WordMap {
 					while (formIterator.hasNext()) {
 						newWord = formIterator.next();
 						key = new String(newWord.concat(posLabel));
-
+						
 						// logger.info("form: "+ newWord + " ");
 						// for each base for and POS, count numSenses
 						Synset[] senses = null;
@@ -102,6 +102,7 @@ public class WordMap {
 		float[] wordCounts = (float[]) wordMap.get(key);
 		wordCounts[tileNumber] += value;
 	}
+	
 
 	private static void count(String key, Synset[] senses,
 			CountMethod countMethod, int tileNumber, HashMap<String, float[]> wordMap, 

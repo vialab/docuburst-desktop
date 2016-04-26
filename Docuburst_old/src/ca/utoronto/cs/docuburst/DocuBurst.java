@@ -712,8 +712,8 @@ public class DocuBurst extends JPanel implements LoadData {
 //		        };
 		        JSearchPanel search = sq.createSearchPanel();
 		        long t2 = System.currentTimeMillis();
-                System.out.println("Is EDT: " + SwingUtilities.isEventDispatchThread());
-                System.out.println(String.format("visualize() took %d seconds.", (t2-t1)/1000));
+//                System.out.println("Is EDT: " + SwingUtilities.isEventDispatchThread());
+//                System.out.println(String.format("visualize() took %d seconds.", (t2-t1)/1000));
 		    
 		        search.setShowBorder(false);
 		        search.setShowResultCount(true);

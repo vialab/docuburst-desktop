@@ -224,6 +224,11 @@ public class HighlightTextHoverActionControl extends ControlAdapter {
 	public String getItemRegEx(VisualItem item) {
 		return getItemRegEx((Node)item);
 	}
+	
+	// matches the word OR its plural
+	public String getWordRegex(String word){
+		return String.format("\\b%1$s\\b|\\b%1$ss\\b", word);
+	}
 
 	public String getItemRegEx(Tuple item) {
 		int type = item.getInt("type");
@@ -232,9 +237,9 @@ public class HighlightTextHoverActionControl extends ControlAdapter {
 		try {
 			if ((type == LEMMA)
 					|| (type == WORD)) {
-				regEx = new StringBuffer("(\\b");
-				regEx.append(item.getString("label"));
-				regEx.append("\\b)");
+				regEx = new StringBuffer("(")
+					.append(getWordRegex(item.getString("label")))
+					.append(")");			
 				return regEx.toString();
 			}
 			if (type == SENSE) {
@@ -243,23 +248,17 @@ public class HighlightTextHoverActionControl extends ControlAdapter {
 						.getLong("offset"));
 				Word[] words = synset.getWords();
 				if (words.length == 1) {
-					regEx = new StringBuffer("(\\b");
-					regEx.append(words[0].getLemma().replaceAll("_", " "));
-					regEx.append("\\b)");
-					return regEx.toString();
+					return "("+ getWordRegex(words[0].getLemma().replaceAll("_", " ")) + ")";
 				}
-				regEx = new StringBuffer("\\b(");
+				regEx = new StringBuffer("(");
 				for (int i = 0; i < words.length - 1; i++) {
-					regEx = regEx.append("(");
-					regEx = regEx.append(words[i].getLemma().replaceAll(
-							"_", " "));
-					regEx = regEx.append(")|");
+					regEx.append(getWordRegex(words[i].getLemma().replaceAll("_", " ")))
+						 .append("|");
 				}
-				regEx = regEx.append("(");
-				regEx = regEx.append(words[words.length - 1].getLemma()
-						.replaceAll("_", " "));
-				regEx = regEx.append("))\\b");
-				return regEx.toString();
+				return regEx.append(getWordRegex(words[words.length - 1].
+										getLemma().replaceAll("_", " ")))
+						    .append(")\\b")
+						    .toString();
 			}
 		} catch (JWNLException e1) {
 			e1.printStackTrace();

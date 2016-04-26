@@ -102,12 +102,11 @@ public class CachedTreeCutFilter extends FisheyeTreeFilter {
         	iterSize++;
         	markExceptional(n);     	
         }
-        System.out.println("iterItems: " + iterSize);
         
         lastCut = cut;
         long t2 = System.currentTimeMillis();
-        System.out.println(String.format("Tree cut has %s nodes with weight = %s", cut.size(), weight));        
-        System.out.println(String.format("Tree cut filtering took %d seconds.", (t2-t1)/1000));
+//        System.out.println(String.format("Tree cut has %s nodes with weight = %s", cut.size(), weight));        
+//        System.out.println(String.format("Tree cut filtering took %d seconds.", (t2-t1)/1000));
     }
     
     public void markExceptional(NodeItem n){

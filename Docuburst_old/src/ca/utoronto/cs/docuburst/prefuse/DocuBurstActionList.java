@@ -991,7 +991,7 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 					if (item instanceof NodeItem && item.isVisible())
 						visibleCount++;
 				}
-				System.out.println(visibleCount + " nodes are visible.");
+//				System.out.println(visibleCount + " nodes are visible.");
 			}
 		};
 		return vF;
