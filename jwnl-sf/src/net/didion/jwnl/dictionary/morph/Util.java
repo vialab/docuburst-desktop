@@ -33,7 +33,7 @@ public class Util {
 		List tokens = new ArrayList();
 		StringBuffer buf = new StringBuffer();
 		for (int i = 0; i < chars.length; i++) {
-			if ((chars[i] >= 'a' && chars[i] <= 'z') || chars[i] == '\'') {
+			if ((chars[i] >= 'a' && chars[i] <= 'z') || (chars[i] >= 'A' && chars[i] <= 'Z') ||chars[i] == '\'') {
 				buf.append(chars[i]);
 			} else {
 				if (buf.length() > 0) {

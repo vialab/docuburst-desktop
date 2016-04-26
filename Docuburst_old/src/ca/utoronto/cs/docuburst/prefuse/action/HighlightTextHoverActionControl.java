@@ -153,13 +153,13 @@ public class HighlightTextHoverActionControl extends ControlAdapter {
 			Tuple t = (Tuple) iter.next();
 			if (t.getInt("type") == WORD) {
 				if (found) 
-					regExBuffer.append("|(");
+					regExBuffer.append("|");
 				else { 
 					found = true;
-					regExBuffer.append("(");
+//					regExBuffer.append("(");
 				}
 				regExBuffer.append(getItemRegEx(t));
-				regExBuffer.append(")");
+//				regExBuffer.append("");
 			}
 		}
 		if (!found) {
