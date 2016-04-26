@@ -41,6 +41,8 @@ public abstract class Action extends Activity {
     /** A reference to the visualization processed by this Action. */
     protected Visualization m_vis;
     
+    private String name = "";
+    
     /**
      * Creates an action instance with zero duration. This Action will only
      * run once if invoked.
@@ -117,6 +119,8 @@ public abstract class Action extends Activity {
      */
     protected void run(long elapsedTime) {
         Visualization vis = getVisualization();
+        
+        s_logger.info(String.format("Running %s", getName()));
         if ( vis != null ) {
             synchronized (vis) {
                 run(getPace(elapsedTime));
@@ -142,5 +146,13 @@ public abstract class Action extends Activity {
     public void setVisualization(Visualization vis) {
         m_vis = vis;
     }
-
+    
+    public void setName(String name) {
+		this.name = name;
+	}
+    
+    public String getName() {
+		return name;
+	}
+    
 } // end of class Action

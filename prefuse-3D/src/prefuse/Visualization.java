@@ -1087,6 +1087,7 @@ public class Visualization {
     public Action putAction(String name, Action action) {
         action.setVisualization(this);
         m_actions.put(name, action);
+        action.setName(name);
         return action;
     }
     
