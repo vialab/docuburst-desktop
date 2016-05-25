@@ -102,9 +102,6 @@ public class NodeColorAction extends ColorAction {
 //			if (item.getBoolean("cut")){
 //				return new Color(222,13,107).getRGB();
 //			}
-			
-			
-			
 			// color is fixed, what changes as a function of the value is the transparency (alpha)
 			int color = sca.getColor(item);
 			

@@ -101,13 +101,17 @@ public abstract class ItemAction extends GroupAction {
         int i = 0;
         while ( items.hasNext() ) {
             i++;
+//            if (i > 200000)
+//            	System.out.println("debug");
             VisualItem item = (VisualItem)items.next();
             process(item, frac);
+            
         }
 //        // For debugging
-//        String[] className = this.getClass().getName().split("\\.");
-//        System.out.println(String.format("[%s] Iterated over %s items", 
-//                className[className.length - 1],  i));
+        String[] className = this.getClass().getName().split("\\.");
+        System.out.println(String.format("[%s] Iterated over %s items", 
+                className[className.length - 1],  i));
+        
     }
     
     /**

@@ -39,7 +39,7 @@ public class DisplaySenseMouseOverControl extends ControlAdapter {
     /**
      * Tags and fixes the node under the mouse pointer.
      */
-    public void itemEntered(VisualItem item, MouseEvent e) {            
+    public void itemEntered(VisualItem item, MouseEvent e) {
         ((Display)e.getSource()).setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         item.setFixed(true);
         int type = item.getInt("type");

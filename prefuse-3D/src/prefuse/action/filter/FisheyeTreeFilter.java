@@ -1,8 +1,7 @@
 package prefuse.action.filter;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
+import java.util.logging.Logger;
 
 import prefuse.Constants;
 import prefuse.Visualization;
@@ -10,6 +9,7 @@ import prefuse.action.GroupAction;
 import prefuse.data.Graph;
 import prefuse.data.Tree;
 import prefuse.data.expression.Predicate;
+import prefuse.data.expression.parser.ExpressionParser;
 import prefuse.util.PrefuseLib;
 import prefuse.visual.EdgeItem;
 import prefuse.visual.NodeItem;
@@ -41,10 +41,10 @@ public class FisheyeTreeFilter extends GroupAction {
     protected String m_sources;
     protected Predicate m_groupP;
     
-    private int m_threshold;
+    protected int m_threshold;
     
-    private NodeItem m_root;
-    private double m_divisor;
+    protected NodeItem m_root;
+    protected double m_divisor;
     
     /**
      * Create a new FisheyeTreeFilter that processes the given group.
@@ -131,6 +131,7 @@ public class FisheyeTreeFilter extends GroupAction {
      * @see prefuse.action.GroupAction#run(double)
      */
     public void run(double frac) {
+    	long t1 = System.currentTimeMillis();
         Tree tree = ((Graph)m_vis.getGroup(m_group)).getSpanningTree();
         m_divisor = tree.getNodeCount();
         //System.out.println("Tree node count: " + m_divisor); // debug
@@ -159,28 +160,30 @@ public class FisheyeTreeFilter extends GroupAction {
             if ( item.getDOI() == Constants.MINIMUM_DOI )
                 PrefuseLib.updateVisible(item, false);
         }
-        
+        long t2 = System.currentTimeMillis();
+		Logger.getLogger(this.getClass().getName())
+			.info(String.format("FisheyeTreeFilter filtering took %f seconds.", (float)(t2-t1)/1000));
     }
-
+    
     /**
      * Visit a focus node.
      */
     protected void visitFocus(NodeItem n, NodeItem c) {
     	if (n == null)
     		return;
-    	// R: root has minimum DOI in the beginning
+    	// all nodes have minimum DOI in the beginning
         if ( n.getDOI() <= -1 ) {
-            visit(n, c, 0, 0); // set root DOI to 0
+            visit(n, c, 0, 0); // set focus DOI to 0
             if ( m_threshold < 0 )                 
                 visitDescendants(n, c);
-            visitAncestors(n);
+            visitAncestors(n); // make siblings visible
         }
     }
     
     /**
-     * Visit a specific node and update its degree-of-interest.
+     * Visit a specific node, make it visible and update its degree-of-interest.
      */
-    private void visit(NodeItem n, NodeItem c, int doi, int ldist) {
+    protected void visit(NodeItem n, NodeItem c, int doi, int ldist) {    	
         PrefuseLib.updateVisible(n, true);
         double localDOI = -ldist / Math.min(1000.0, m_divisor);
         n.setDOI(doi+localDOI);
@@ -202,7 +205,7 @@ public class FisheyeTreeFilter extends GroupAction {
     }
     
     /**
-     * Traverse tree descendants.
+     * Traverse (and make visible) tree descendants, except skip.
      */
     private void visitDescendants(NodeItem p, NodeItem skip) {
         int lidx = ( skip == null ? 0 : p.getChildIndex(skip) );
@@ -218,7 +221,7 @@ public class FisheyeTreeFilter extends GroupAction {
             
             int doi = (int)(p.getDOI()-1);            
             visit(c, c, doi, Math.abs(lidx-i));      
-            if ( doi > m_threshold ) // stopping condition
+            if ( doi > m_threshold) // stopping condition
                 visitDescendants(c, null);   
         }
     }

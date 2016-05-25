@@ -12,6 +12,9 @@ import static ca.utoronto.cs.wordnetexplorer.utilities.Constants.dictionary;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import net.didion.jwnl.JWNLException;
 import net.didion.jwnl.data.IndexWord;
@@ -23,10 +26,84 @@ import net.didion.jwnl.data.Word;
 import prefuse.data.Edge;
 import prefuse.data.Graph;
 import prefuse.data.Node;
+import prefuse.data.Tuple;
+import prefuse.util.collections.IntIterator;
 import ca.utoronto.cs.wordnetexplorer.swing.WordNetSearchPanel;
 
 public abstract class WordNetTree {
 
+	// result of calling fillGraph with the synset entity as argument
+	private static Graph fullSynsetGraphCache = null;
+	// attribute of the cached graph above
+	private static HashSet<PointerType> pointerTypeLabelsCache = null;
+	private static Boolean countPolysemyCache = null;
+	private static Boolean mergeWordsCache = null;
+
+	private static String NODE_KEY_COLUMN = "key";
+	
+	/**
+	 * Creates a new graph based on a cache.
+	 * @param synset
+	 * @return
+	 */
+	private static Graph getCachedFilledGraph(Synset synset){
+		if (synset.getOffset() == 1740) // entity
+			return fullSynsetGraphCache;
+		Graph newGraph = new Graph(true);
+//		setupGraph(newGraph, countPolysemyCache, mergeWordsCache);
+		
+		Graph cacheGraph = fullSynsetGraphCache;
+				
+		// find the tuple corresponding to this synset		
+		Tuple synsetCachedTuple = null;
+		for (Iterator<Tuple> it = cacheGraph.getNodes().tuples(); it.hasNext();) {
+			Tuple tuple = it.next();
+			if (tuple.getLong("offset") == synset.getOffset()){
+				synsetCachedTuple = tuple;
+				break;
+			}
+		}
+		
+		// add to new graph all columns found in the cache
+		// this will include counts added to the graph in other parts of the code
+		newGraph.addColumns(synsetCachedTuple.getSchema());
+		
+		// copy that tuple into a node of the new graph and make it root
+		Node newRootNode = newGraph.addNode();
+		setupCloneNode(newRootNode, synsetCachedTuple);
+		newRootNode.setBoolean("root", true);
+		
+		// find the descendants of this node and copy them from the cache (Tuple instances)
+		// into the new graph (Node instances)
+		Queue<Tuple> cachedTupleQ = new LinkedList<Tuple>();
+		Queue<Node>  nodeQ  = new LinkedList<Node>();		
+		cachedTupleQ.add(synsetCachedTuple);
+		nodeQ.add(newRootNode);
+		
+		while (!cachedTupleQ.isEmpty()){
+			Tuple sourceTuple = cachedTupleQ.poll();
+			Node  sourceNode  = nodeQ.poll();
+			
+			IntIterator outEdges = cacheGraph.edgeRows(sourceTuple.getRow(), Graph.OUTEDGES);
+			while (outEdges.hasNext()) {
+				Tuple targetTuple = cacheGraph.getNode(cacheGraph.getTargetNode(outEdges.nextInt()));
+				Node  targetNode  = newGraph.addNode();
+				setupCloneNode(targetNode, targetTuple);
+				newGraph.addEdge(sourceNode, targetNode);
+				cachedTupleQ.add(targetTuple);
+				nodeQ.add(targetNode);
+			}
+		}
+				
+		return newGraph;
+	}
+	
+	private static boolean isCachedGraphUseful(HashSet<PointerType> pointerTypeLabels, 
+			boolean countPolysemy, boolean mergeWords){
+		return countPolysemy == countPolysemyCache && mergeWords == mergeWordsCache
+				&& pointerTypeLabels.equals(pointerTypeLabelsCache);
+	}
+	
     /**
      * Fill a tree graph starting at the provided synset and recursively following all 
      * pointers of the given type.  Only add edges once (don't loop in cycles) and
@@ -40,7 +117,11 @@ public abstract class WordNetTree {
      * @throws JWNLException 
      */
     public static Graph fillGraph(Synset synset, HashSet<PointerType> pointerTypeLabels, boolean countPolysemy, boolean mergeWords) throws JWNLException {
-        Graph g = new Graph(true);
+    	if (fullSynsetGraphCache != null 
+    			&& isCachedGraphUseful(pointerTypeLabels, countPolysemy, mergeWords))
+    		return getCachedFilledGraph(synset); 
+    	
+    	Graph g = new Graph(true);
         setupGraph(g, countPolysemy, false);
         
         // temporary data structures to track nodes and edges already created
@@ -81,6 +162,13 @@ public abstract class WordNetTree {
             findRelations(synset, root, g, nodeHashMap, edgeSet, pointerTypeLabel, countPolysemy, mergeWords);
             edgeSet.clear(); // edges can't be the same over different type labels, so clear to save memory
         }
+        
+        // save in cache
+        fullSynsetGraphCache   = g;
+        countPolysemyCache     = countPolysemy;
+        mergeWordsCache        = mergeWords;
+        pointerTypeLabelsCache = pointerTypeLabels;
+        
         return g;
     }
 
@@ -268,78 +356,81 @@ public abstract class WordNetTree {
             Graph g, HashMap nodeHashMap, HashSet edgeSet, PointerType pointerType, boolean countPolysemy, boolean mergeWords) throws JWNLException {
         // ** Create a HashMap to put all the related "Word" objects we found
         Pointer[] pointers = synset.getPointers();
-        if (pointers.length > 0) {
-            // Use pointer to get all realated synset
-            for (int k = 0; k < pointers.length; k++) {
-                // Pointer Type
-                PointerType pType = pointers[k].getType();
-                if (pType == null) 
-                    throw (new NullPointerException("pType null exception: " + synset.toString() + " pointer: " + pointers[k].toString()));
-                else {
-                    if (pType.equals(pointerType)) {
-                        Synset targetSynset = pointers[k].getTargetSynset();
-                        // Create synsetNode for this sense
-                        Node targetNode;
-                        // if already encountered synset, use it, unless mergeWords not selected
-                        if (nodeHashMap.containsKey(targetSynset.getKey()) && (mergeWords)){
-                            targetNode = (Node) nodeHashMap.get(targetSynset.getKey());
-                        }
-                        else {
-                            targetNode = g.addNode();
-                            setupSynsetNode(targetNode, parent, targetSynset);
-                            nodeHashMap.put(targetSynset.getKey(), targetNode);
+        if (pointers.length < 1)
+        	return;
+            
+        // Use pointer to get all related synset
+        for (int k = 0; k < pointers.length; k++) {
+            // Pointer Type
+            PointerType pType = pointers[k].getType();
+            if (pType == null) 
+                throw (new NullPointerException("pType null exception: " + synset.toString() + " pointer: " + pointers[k].toString()));
 
-                            // Get Word from each Pointer Synset (new node guaranteed not to have word edges already)
-                            int wordSize = 0;
-                            int synsetPolysemy = 0;
-                            wordSize = targetSynset.getWordsSize();
-                            if (wordSize > 0) {
-                                Word[] words = targetSynset.getWords();
-                                
-                                for (int j = 0; j < words.length; j++) {
-                                    // Search all nodes to see if word node exists already
-                                    // do not duplicate word node if mergetWords is true
-                                    Node wordNode;
-                                    if ((!mergeWords) || (!nodeHashMap.containsKey(words[j].getLemma()))) {
-                                        // Create WNDefaultNode object for this word
-                                        wordNode = g.addNode();
-                                        setupWordNode(wordNode, targetNode, words[j]);
-                                        // put this node into wordHashMap
-                                        nodeHashMap.put(words[j].getLemma(), wordNode);
-                                    } else {
-                                        // get the node from wordHashMap
-                                        wordNode = (Node) nodeHashMap.get((String) words[j].getLemma());
-                                    }
-                                    // Link wordNode to senseNode
-                                    Edge wordEdge = g.addEdge(targetNode, wordNode);
-                                    wordEdge.set("label", targetNode.getString("label") + " " + wordNode.getString("label"));
-                                    if (countPolysemy) synsetPolysemy += wordNode.getInt("polysemy"); 
-                                    // Set edge attribute to indicate the
-                                    // relationship between these two node
-                                    wordEdge.set("type", S2W);
-                                }
-                            }
-                            if (countPolysemy) targetNode.setInt("polysemy", synsetPolysemy);
+            if (!pType.equals(pointerType))
+            	continue;
+
+            Synset targetSynset = pointers[k].getTargetSynset();
+            // Create synsetNode for this sense
+            Node targetNode;
+            // if already encountered synset, use it, unless mergeWords not selected
+            if (nodeHashMap.containsKey(targetSynset.getKey()) && (mergeWords)){
+                targetNode = (Node) nodeHashMap.get(targetSynset.getKey());
+            }
+            else {
+                targetNode = g.addNode();
+                setupSynsetNode(targetNode, parent, targetSynset);
+                nodeHashMap.put(targetSynset.getKey(), targetNode);
+
+                // Get Word from each Pointer Synset (new node guaranteed not to have word edges already)
+                int wordSize = 0;
+                int synsetPolysemy = 0;
+                wordSize = targetSynset.getWordsSize();
+                if (wordSize > 0) {
+                    Word[] words = targetSynset.getWords();
+                    
+                    for (int j = 0; j < words.length; j++) {
+                        // Search all nodes to see if word node exists already
+                        // do not duplicate word node if mergetWords is true
+                        Node wordNode;
+                        if ((!mergeWords) || (!nodeHashMap.containsKey(words[j].getLemma()))) {
+                            // Create WNDefaultNode object for this word
+                            wordNode = g.addNode();
+                            setupWordNode(wordNode, targetNode, words[j]);
+                            // put this node into wordHashMap
+                            nodeHashMap.put(words[j].getLemma(), wordNode);
+                        } else {
+                            // get the node from wordHashMap
+                            wordNode = (Node) nodeHashMap.get((String) words[j].getLemma());
                         }
-                        
-                        // link targetNode to parent node if not added already
-                        // don't processes edges already added (i.e. only process cycles once)
-                        if (!edgeSet.contains(makeKey(parent, targetNode, pType))) {
-                            edgeSet.add(makeKey(parent, targetNode, pType));
-                            Edge psynEdge = g.addEdge(parent, targetNode);
-                            psynEdge.set("label", parent.getString("label") + " " + targetNode.getString("label"));
-                            // Set edge attribute to indicate the relationship between them
-                            if (pType == PointerType.HYPONYM)
-                                psynEdge.set("type", HYPONOMY);
-                            if (pType == PointerType.HYPERNYM) 
-                                psynEdge.set("type", HYPERONOMY);
-                            psynEdge.setString("linktype", pType.getLabel());
-                            findRelations(targetSynset, targetNode, g, nodeHashMap, edgeSet, pointerType, countPolysemy, mergeWords);
-                        }
+                        // Link wordNode to senseNode
+                        Edge wordEdge = g.addEdge(targetNode, wordNode);
+                        wordEdge.set("label", targetNode.getString("label") + " " + wordNode.getString("label"));
+                        if (countPolysemy) synsetPolysemy += wordNode.getInt("polysemy"); 
+                        // Set edge attribute to indicate the
+                        // relationship between these two node
+                        wordEdge.set("type", S2W);
                     }
                 }
+                if (countPolysemy) targetNode.setInt("polysemy", synsetPolysemy);
             }
-        }
+            
+            // link targetNode to parent node if not added already
+            // don't processes edges already added (i.e. only process cycles once)
+            if (!edgeSet.contains(makeKey(parent, targetNode, pType))) {
+                edgeSet.add(makeKey(parent, targetNode, pType));
+                Edge psynEdge = g.addEdge(parent, targetNode);
+                psynEdge.set("label", parent.getString("label") + " " + targetNode.getString("label"));
+                // Set edge attribute to indicate the relationship between them
+                if (pType == PointerType.HYPONYM)
+                    psynEdge.set("type", HYPONOMY);
+                if (pType == PointerType.HYPERNYM) 
+                    psynEdge.set("type", HYPERONOMY);
+                psynEdge.setString("linktype", pType.getLabel());
+                findRelations(targetSynset, targetNode, g, nodeHashMap, edgeSet, pointerType, countPolysemy, mergeWords);
+            }
+        }                
+        
+        
         // End of findLinkSyn
     }
 
@@ -395,6 +486,12 @@ public abstract class WordNetTree {
         	synsetNode.setInt("senseIndex", senseIndex);
     }
     
+	private static void setupCloneNode(Node newNode, Tuple ref){
+		for (int i = 0; i < ref.getColumnCount(); i++)
+			newNode.set(i, ref.get(i));		
+	}
+   
+	
     private static void setupGraph(Graph g, boolean countPolysemy, boolean trackSenseIndex) {
 	   g.addColumn("type", int.class);
        g.addColumn("label", String.class);

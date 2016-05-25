@@ -61,7 +61,7 @@ public class DocuburstTreeCut extends ca.uoit.science.vialab.treecut.MDLTreeCut 
      */
     public List<Node> findcut(Node root){
         
- 		float sampleSize = Util.sum((float[]) root.get("childCount"));
+ 		float sampleSize = root.getFloat("cacheCountchildCount");
  		
         return findcut(root, (int)sampleSize); 
     }
@@ -119,7 +119,7 @@ public class DocuburstTreeCut extends ca.uoit.science.vialab.treecut.MDLTreeCut 
         TreeCutNode adapt = new TreeCutNode();
         
         String name = root.getString("label") + root.getString("pos") + root.getLong("offset");
-        double freq = Util.sum((float[])root.get("childCount"));
+        double freq = root.getFloat("cacheCountchildCount");
         
         int nBottomLeaves = 0;
         for (Iterator it = root.children(); it.hasNext();) {

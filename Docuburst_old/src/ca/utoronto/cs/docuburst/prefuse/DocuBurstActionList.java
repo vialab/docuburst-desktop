@@ -11,6 +11,7 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.GradientPaint;
 import java.awt.Graphics2D;
+import java.awt.event.MouseWheelEvent;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
@@ -24,14 +25,13 @@ import javax.swing.JTextPane;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 
-import java.awt.event.*;
-
 import prefuse.Constants;
 import prefuse.Display;
 import prefuse.DisplayComponent;
 import prefuse.Visualization;
 import prefuse.action.Action;
 import prefuse.action.ActionList;
+import prefuse.action.GroupAction;
 import prefuse.action.ItemAction;
 import prefuse.action.RepaintAction;
 import prefuse.action.animate.ColorAnimator;
@@ -55,8 +55,10 @@ import prefuse.data.Node;
 import prefuse.data.Schema;
 import prefuse.data.Tree;
 import prefuse.data.Tuple;
+import prefuse.data.event.ExpressionListener;
 import prefuse.data.event.TupleSetListener;
 import prefuse.data.expression.AndPredicate;
+import prefuse.data.expression.ExpressionVisitor;
 import prefuse.data.expression.OrPredicate;
 import prefuse.data.expression.Predicate;
 import prefuse.data.expression.parser.ExpressionParser;
@@ -72,6 +74,7 @@ import prefuse.render.LabelRenderer;
 import prefuse.util.ColorLib;
 import prefuse.util.FontLib;
 import prefuse.util.GraphicsLib;
+import prefuse.util.PredicateChain;
 import prefuse.util.PrefuseLib;
 import prefuse.util.display.DisplayLib;
 import prefuse.visual.DecoratorItem;
@@ -82,6 +85,7 @@ import prefuse.visual.expression.StartVisiblePredicate;
 import prefuse.visual.expression.VisiblePredicate;
 import ca.utoronto.cs.docuburst.DocuBurst;
 import ca.utoronto.cs.docuburst.Param;
+import ca.utoronto.cs.docuburst.data.treecut.DocuburstTreeCut;
 import ca.utoronto.cs.docuburst.prefuse.action.HighlightTextHoverActionControl;
 import ca.utoronto.cs.docuburst.prefuse.action.NodeColorAction;
 import ca.utoronto.cs.docuburst.prefuse.action.NodeStrokeColorAction;
@@ -90,7 +94,6 @@ import ca.utoronto.cs.docuburst.prefuse.action.StarburstScaleFontAction;
 import ca.utoronto.cs.docuburst.preprocess.POSTagger;
 import ca.utoronto.cs.docuburst.preprocess.Tiling;
 import ca.utoronto.cs.docuburst.preprocess.WordMap;
-import ca.utoronto.cs.docuburst.util.Util;
 import ca.utoronto.cs.prefuseextensions.layout.StarburstLayout;
 import ca.utoronto.cs.prefuseextensions.layout.StarburstLayout.WidthType;
 import ca.utoronto.cs.prefuseextensions.lib.Colors;
@@ -101,7 +104,6 @@ import ca.utoronto.cs.prefuseextensions.sort.TreeDepthItemSorter;
 import ca.utoronto.cs.wordnetexplorer.prefuse.FisheyeDocument;
 import ca.utoronto.cs.wordnetexplorer.prefuse.action.WordNetExplorerActionList;
 import ca.utoronto.cs.wordnetexplorer.prefuse.controls.DisplaySenseMouseOverControl;
-import ca.utoronto.cs.wordnetexplorer.utilities.LanguageLib;
 import ca.utoronto.cs.wordnetexplorer.utilities.LanguageLib.CountMethod;
 import edu.stanford.nlp.ling.TaggedWord;
 
@@ -141,7 +143,8 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 
 	// predicate filtering which nodes should be labeled 
 	private static Predicate labelPredicate = new AndPredicate(ExpressionParser.predicate("(type = 1 or type = 0)"), 
-			new OrPredicate(new VisiblePredicate(), new StartVisiblePredicate()));
+//			new OrPredicate(new VisiblePredicate(), new StartVisiblePredicate()));
+	new OrPredicate(new VisiblePredicate()));
 
 	public static final boolean FONTFROMDIAGONAL = false;
 	
@@ -401,15 +404,15 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 		// set autoscale off so if display is zoomed on repaint, the layout isn't resized to fit in full display 
 		treeLayout.setAutoScale(false);
 
-		CollapsedSubtreeLayout subLayout = new CollapsedSubtreeLayout("graph");
+//		CollapsedSubtreeLayout subLayout = new CollapsedSubtreeLayout("graph");
 
 		CompositeTupleSet searchAndFocus = new CompositeTupleSet();
 		searchAndFocus.addSet(Visualization.FOCUS_ITEMS, m_vis.getFocusGroup(Visualization.FOCUS_ITEMS));
 		searchAndFocus.addSet(Visualization.SEARCH_ITEMS, m_vis.getFocusGroup(Visualization.SEARCH_ITEMS));
 		m_vis.addFocusGroup("searchAndFocus", searchAndFocus);
 
-		VisibilityFilter vF = createVisibilityFilter();
-		m_vis.putAction("visibility", vF);
+//		VisibilityFilter vF = createVisibilityFilter();
+//		m_vis.putAction("visibility", vF);
 
 		// create the filtering and layout for initial layout (no animation;
 		// workaround for problem caused by MutableFisheyeTreeFilter on initial animation.
@@ -420,11 +423,12 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 				item.setString("gloss", wrap(item.getString("gloss"), 30));
 			};
 		});
-//		fisheyeTreeFilter = new FisheyeTreeFilter("graph", "searchAndFocus", 6);
-//		treeCutFilterWagner = new TreeCutFilterWagner("graph", "searchAndFocus");
-//		treeCutFilterInc = new TreeCutFilterIncremental("graph", "searchAndFocus");
-		fisheyeTreeFilter = depthFilter.equals(Param.DepthFilter.TREECUT) ? new CachedTreeCutFilter("graph", depthFilterScope, getDepthFilterDistance()) :
-			new FisheyeTreeFilter("graph", depthFilterScope, getDepthFilterDistance());
+
+		fisheyeTreeFilter = depthFilter.equals(Param.DepthFilter.TREECUT) ? 
+				new CachedTreeCutFilter("graph", depthFilterScope, getDepthFilterDistance(),
+						getTreeFilterPredicates()) :
+				new MultiCriteriaFisheyeFilter("graph", depthFilterScope, 
+						getDepthFilterDistance(), getTreeFilterPredicates());
 		
 
 		// recentre and rezoom on reload
@@ -448,7 +452,13 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 		// create the filtering and layout
 		
 		this.add(fisheyeTreeFilter);
-		this.add(vF);
+//		this.add(vF);
+		this.add(new GroupAction() {			
+			@Override
+			public void run(double frac) {
+				addLabels();				
+			}
+		});
 		this.add(treeLayout);
 		this.add(new LabelLayout(LABELS));
 		this.add(decoratorFonts);
@@ -459,15 +469,16 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 
 		
 		// animated transition
-		ActionList animate = new ActionList(500);
-		animate.setPacingFunction(new SlowInSlowOutPacer());
-		animate.add(new QualityControlAnimator());
-		animate.add(new VisibilityAnimator(LABELS));
-		animate.add(new VisibilityAnimator("graph"));
-		animate.add(new ColorAnimator("graph"));
-		animate.add(new RepaintAction());
-		m_vis.putAction("animate", animate);
-		m_vis.alwaysRunAfter("layout", "animate");
+//		ActionList animate = new ActionList(100);
+//		animate.setPacingFunction(new SlowInSlowOutPacer());
+////		animate.add(new QualityControlAnimator());
+//		animate.add(new VisibilityAnimator(LABELS));
+//		animate.add(new VisibilityAnimator("graph"));
+////		animate.add(new ColorAnimator("graph"));
+//		animate.add(new RepaintAction());
+//		
+//		m_vis.putAction("animate", animate);
+//		m_vis.alwaysRunAfter("layout", "animate");
 
 		// add listeners to displays, for "click" and "hover"
 		for (int i = 0; i < m_vis.getDisplayCount(); i++) {
@@ -534,11 +545,44 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 	    if (depthFilter.equals(Param.DepthFilter.TREECUT))
 	        fisheyeTreeFilter = new CachedTreeCutFilter("graph", depthFilterScope, null);
 	    else
-	        fisheyeTreeFilter = new FisheyeTreeFilter("graph", depthFilterScope, getDepthFilterDistance());
+	        fisheyeTreeFilter = new MultiCriteriaFisheyeFilter("graph", depthFilterScope, 
+	        		getDepthFilterDistance(), getTreeFilterPredicates());
 	    
 	    fisheyeTreeFilter.setDistance(getDepthFilterDistance());
 	    this.add(0, fisheyeTreeFilter);
 	    m_vis.putAction("layout", this);
+        m_vis.cancel("layout");
+        m_vis.cancel("animate");
+        m_vis.run("layout");
+        m_vis.run("resize");
+	}
+	
+	private void resetTreeFilterPredicates(){
+		MultiCriteriaFisheyeFilter f = (MultiCriteriaFisheyeFilter)fisheyeTreeFilter;
+		f.setPredicates(getTreeFilterPredicates());
+	}
+	
+	private Predicate[] getTreeFilterPredicates(){
+		List<Predicate> predicates = new ArrayList<Predicate>();
+		if (omitWords) predicates.add(DocuBurst.OMIT_WORDS_PREDICATE);
+		if (omitZeros && !countType.equals(NOCOUNT)) 
+			predicates.add((Predicate) ExpressionParser.parse(
+					String.format("%s > 0", CACHECOUNT + CHILDCOUNT)));
+		return predicates.toArray(new Predicate[0]);
+	}
+
+	public void setOmitWords(boolean omitWords){
+		DocuBurstActionList.omitWords = omitWords;
+		resetTreeFilterPredicates();
+        m_vis.cancel("layout");
+        m_vis.cancel("animate");
+        m_vis.run("layout");
+        m_vis.run("resize");
+	}
+	
+	public void setOmitZeros(boolean omitZeros){
+		DocuBurstActionList.omitZeros = omitZeros;
+		resetTreeFilterPredicates();
         m_vis.cancel("layout");
         m_vis.cancel("animate");
         m_vis.run("layout");
@@ -556,7 +600,7 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
     public void setDepthFilterDistance(int d) {
         this.depthFilterDistance = d;
         fisheyeTreeFilter.setDistance(d);
-        
+       
     }
     
     public void setTreeCutWeight(double w){
@@ -569,7 +613,12 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 	
 	
 	public void addLabels() {
-		m_vis.addDecorators(LABELS, "graph.nodes", labelPredicate, LABEL_SCHEMA);
+		try {
+			m_vis.addDecorators(LABELS, "graph.nodes", labelPredicate, LABEL_SCHEMA);
+		}
+		catch (IllegalArgumentException e) {
+			
+		}
 	}
 
 	public void cancel() {
@@ -674,21 +723,28 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 	 * @param graph the graph to add occurrence count columns to
 	 */
 	public void processCounts(Graph graph) {
-		Schema countsSchema = new Schema();
-		countsSchema.addColumn(NODECOUNT, float[].class, null);
-		countsSchema.addColumn(CHILDCOUNT, float[].class, null);
-		countsSchema.addColumn(CACHERANGE, String.class, null);
-		countsSchema.addColumn(CACHECOUNT + CHILDCOUNT, float.class, null);
-		countsSchema.addColumn(CACHECOUNT + NODECOUNT, float.class, null);
-		countsSchema.addColumn(LEAFCOUNT, float.class, null);
-//		countsSchema.addColumn(CONDENTROPY, float.class, null);
-		// if true, the nodes belongs to the tree cut
-		countsSchema.addColumn(CUT, boolean.class, false);
+		// check if this graph already has the count schema
+		// if so, assume the counts are cached and skip it
+		boolean cache = graph.getNodeTable().getColumn(NODECOUNT) != null;
 		
-		// Graph graph = (Graph) m_vis.getGroup(m_group);
-		graph.addColumns(countsSchema);
-		Tree t = graph.getSpanningTree();
-		addCounts(t.getRoot());
+		if (!cache){
+			Schema countsSchema = new Schema();
+			countsSchema.addColumn(NODECOUNT, float[].class, null);
+			countsSchema.addColumn(CHILDCOUNT, float[].class, null);
+			countsSchema.addColumn(CACHERANGE, String.class, null);
+			countsSchema.addColumn(CACHECOUNT + CHILDCOUNT, float.class, null);
+			countsSchema.addColumn(CACHECOUNT + NODECOUNT, float.class, null);
+			countsSchema.addColumn(LEAFCOUNT, float.class, null);
+//			countsSchema.addColumn(CONDENTROPY, float.class, null);
+			// if true, the nodes belongs to the tree cut
+			countsSchema.addColumn(CUT, boolean.class, false);
+			
+			// Graph graph = (Graph) m_vis.getGroup(m_group);
+			graph.addColumns(countsSchema);
+			Tree t = graph.getSpanningTree();
+			addCounts(t.getRoot());
+		}
+
 		cacheTotals(graph);
 //		addCondEntropy(t.getRoot());
 	}
@@ -968,6 +1024,7 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 				long t1 = System.currentTimeMillis();
 				// only check visible items: fisheye filter already set
 				// everything visible
+//				Iterator items = m_vis.visibleItems(m_group);
 				Iterator items = m_vis.visibleItems(m_group);
 				int visibleCount = 0;
 				while (items.hasNext()) {
@@ -980,28 +1037,28 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 						item.setEndVisible(false);
 					}
 					// omit zero count subtrees if omitting zeros and counting
-					if (omitZeros && !countType.equals(NOCOUNT)) {
-						// only check childCount so parents of nodes with counts are always visible
-						float total = item.getFloat(CACHECOUNT + CHILDCOUNT);
-						if (total == 0) {
-							// set DOI to minimum -- only those items (and their children) that 
-							// are visible are checked by the fishEyeFilter; since we may have
-							// no visible items after the zeros-off step, we set the DOI to 
-							// circumvent the first step of the fishEyeFilter and force re-check
-							// on any nodes which we turn off.
-							// have minimum DOI are checked by fishEyeFilter
-							item.setDOI(Constants.MINIMUM_DOI);
-							item.setVisible(false);
-							item.setEndVisible(false);
-						}
-					}
-					if (item instanceof NodeItem && item.isVisible())
+//					if (omitZeros && !countType.equals(NOCOUNT)) {
+//						// only check childCount so parents of nodes with counts are always visible
+//						float total = item.getFloat(CACHECOUNT + CHILDCOUNT);
+//						if (total == 0) {
+//							// set DOI to minimum -- only those items (and their children) that 
+//							// are visible are checked by the fishEyeFilter; since we may have
+//							// no visible items after the zeros-off step, we set the DOI to 
+//							// circumvent the first step of the fishEyeFilter and force re-check
+//							// on any nodes which we turn off.
+//							// have minimum DOI are checked by fishEyeFilter
+//							item.setDOI(Constants.MINIMUM_DOI);
+//							item.setVisible(false);
+//							item.setEndVisible(false);
+//						}
+//					}
+//					if (item instanceof NodeItem && item.isVisible())
 						visibleCount++;
 				}
 				long t2 = System.currentTimeMillis();
 				Logger.getLogger(this.getClass().getName())
 					.info(String.format("Visibility filtering took %f seconds.", (float)(t2-t1)/1000));
-//				System.out.println(visibleCount + " nodes are visible.");
+				System.out.println(visibleCount + " items processed by VisibilityFilter.");
 			}
 		};
 		return vF;

@@ -19,7 +19,7 @@ import prefuse.visual.expression.VisiblePredicate;
 public class VisibilityFilter extends GroupAction {
     
     private Predicate m_filter;
-    private Predicate m_predicate;
+    protected Predicate m_predicate;
     
     /**
      * Create a new VisibilityFilter.

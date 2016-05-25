@@ -11,21 +11,32 @@ import javax.swing.SwingWorker;
 import prefuse.Constants;
 import prefuse.action.GroupAction;
 import prefuse.action.filter.FisheyeTreeFilter;
+import prefuse.data.CascadedTable;
 import prefuse.data.Graph;
 import prefuse.data.Node;
+import prefuse.data.Table;
 import prefuse.data.Tree;
+import prefuse.data.Tuple;
+import prefuse.data.column.Column;
+import prefuse.data.event.ProjectionListener;
+import prefuse.data.expression.AndPredicate;
 import prefuse.data.expression.Predicate;
+import prefuse.data.expression.parser.ExpressionParser;
+import prefuse.data.util.ColumnProjection;
+import prefuse.data.util.TableIterator;
 import prefuse.util.PrefuseLib;
+import prefuse.util.collections.IntIterator;
 import prefuse.visual.EdgeItem;
 import prefuse.visual.NodeItem;
 import prefuse.visual.VisualItem;
 import prefuse.visual.expression.InGroupPredicate;
+import prefuse.visual.expression.VisiblePredicate;
 import ca.uoit.science.vialab.treecut.Wagner;
 import ca.utoronto.cs.docuburst.data.treecut.DocuburstTreeCut;
 import ca.utoronto.cs.docuburst.data.treecut.TreeCutCache;
 import ca.utoronto.cs.docuburst.util.Util;
 
-public class CachedTreeCutFilter extends FisheyeTreeFilter {
+public class CachedTreeCutFilter extends MultiCriteriaFisheyeFilter {
 
     private TreeCutCache cache; 
     
@@ -46,8 +57,9 @@ public class CachedTreeCutFilter extends FisheyeTreeFilter {
         super(group, sources, 1);
     }
     
-    public CachedTreeCutFilter(String group, String sources, int distance) {
-        super(group, sources, distance);
+    public CachedTreeCutFilter(String group, String sources, int distance, 
+    		Predicate... predicates) {
+        super(group, sources, distance, predicates);
     }
     
     @Override
@@ -69,40 +81,55 @@ public class CachedTreeCutFilter extends FisheyeTreeFilter {
         Tree tree = graph.getSpanningTree();
         Node root = tree.getRoot();
                 
-        // mark current visible items as invisible and non-expanded
+        // mark current visible items as non-expanded        
         Iterator<?> items = m_vis.visibleItems(m_group);
         while ( items.hasNext() ) {
             VisualItem item = (VisualItem)items.next();
+            // Never call updateVisible. Don't know why this operation is SO COSTLY!
+            // Instead, use DOI as a visibility flag. Later, call updateVisible only
+            // for visible items that have DOI == MINIMUM_DOI.
 //            PrefuseLib.updateVisible(item, false);
+            item.setDOI(Constants.MINIMUM_DOI); //
             item.setExpanded(false);
+            item.setBoolean("cut", false);
         }
         
-        // try to find tree cut in cache
-        float sampleSize = Util.sum((float[]) root.get("childCount"));
+        long t3 = System.currentTimeMillis();
+        float sampleSize = root.getFloat("cacheCountchildCount");
         Wagner measure = new Wagner(weight, sampleSize);
-        List<Node> cut = new DocuburstTreeCut(measure).findcut(root);        
-                
+        List<Node> cut = new DocuburstTreeCut(measure).findcut(root);
+        long t4 = System.currentTimeMillis();
+        Logger.getLogger(this.getClass().getName())
+    		.info(String.format("Find cut took %f seconds.", (float)(t4-t3)/1000));        
+        
         // Marks all descendants of cut members as invisible and
         // all ancestors as visible.       
-        
-        // unmark all items belonging to the last cut
-        for (Node n : lastCut) 
-        	n.setBoolean("cut", false);
                 
-        // mark all items belonging to the new cut
+        // mark all nodes belonging to the new cut
         for (Node n : cut) 
         	n.setBoolean("cut", true);        
-            
-        markNode((NodeItem)root, true);
         
+        markNodeVisible((NodeItem)root);
         
-        int iterSize = 0;
+        // make visible items that were queried through search
         Iterator iter = m_vis.items(m_sources, m_groupP);
         while ( iter.hasNext() ){
         	NodeItem n = (NodeItem)iter.next();
-        	iterSize++;
         	markExceptional(n);     	
         }
+        
+        long t5 = System.currentTimeMillis();        
+        // mark currently visible unreached items as invisible
+        Iterator<VisualItem> visible = m_vis.visibleItems(m_group);
+        while ( visible.hasNext() ){
+        	VisualItem item = visible.next();
+        	if (item.getDOI() == Constants.MINIMUM_DOI)
+        		PrefuseLib.updateVisible(item, false);
+        }
+        long t6 = System.currentTimeMillis();
+        Logger.getLogger(this.getClass().getName())
+			.info(String.format("Marking invisible took %f seconds.", (float)(t6-t5)/1000));
+      
         
         lastCut = cut;
         long t2 = System.currentTimeMillis();
@@ -112,25 +139,40 @@ public class CachedTreeCutFilter extends FisheyeTreeFilter {
     }
     
     public void markExceptional(NodeItem n){
+    	boolean isVisible = matchOtherVisibilityCriteria(n);
+    	
+    	if (!isVisible)	return;
+    	
     	PrefuseLib.updateVisible(n, true);
+    	n.setDOI(0);
         n.setExpanded(n.children().hasNext());
+    	
+        // climb up hierarchy marking ancestors visible
         
     	NodeItem parent = (NodeItem)n.getParent();
-    	boolean alreadyVisible = false;
+    	NodeItem skip   = n; // last parent (has been visited)
+    	
     	while (parent != null){
-    		alreadyVisible = parent.isVisible();
+    		if (parent.isVisible()) // no reason to climb up hierarchy
+    			return;
+    		
     		PrefuseLib.updateVisible(parent, true);
+    		parent.setDOI(0);
     		parent.setExpanded(true);
     		
-    		for (Iterator<Node> it = parent.children(); it.hasNext();) {
-				NodeItem c = (NodeItem)it.next();
+    		// make siblings visible
+    		for (Iterator<NodeItem> it = parent.children(); it.hasNext();) {
+				NodeItem c = it.next();
+				
+				if (c == skip || !matchOtherVisibilityCriteria(c)) continue;
+				
 				PrefuseLib.updateVisible(c, true);
-				if (c.children().hasNext())
-					c.setExpanded(true);
+				c.setDOI(0);
+				c.setExpanded(c.children().hasNext());
 			}
     		
-    		parent = (NodeItem)parent.getParent();
-    		
+    		skip = parent;
+    		parent = (NodeItem)parent.getParent();    		
     	}
     }
     
@@ -141,20 +183,29 @@ public class CachedTreeCutFilter extends FisheyeTreeFilter {
      * @param n node
      * @param isVisible determines if the node is visible/invisible
      */
-    public void markNode(NodeItem n, boolean isVisible){
+    public void markNodeVisible(NodeItem n){
         
-        PrefuseLib.updateVisible(n, isVisible);
+        PrefuseLib.updateVisible(n, true);
+        n.setDOI(0);
+        EdgeItem parentEdge = (EdgeItem)n.getParentEdge();
+        if (parentEdge != null)
+        	PrefuseLib.updateVisible(parentEdge, true);
         
-        // if n is visible and not member of the cut, its children will be visible too
-        boolean isChildrenVisible = isVisible && !n.getBoolean("cut");
+        // if n is member of the cut, its children won't be visible
+        boolean isChildrenVisible = !n.getBoolean("cut");
         
-//        n.setExpanded(isChildrenVisible);
-        n.setExpanded(isVisible);
+        Iterator<NodeItem> children = n.children();
+        n.setExpanded(children.hasNext());
         
-        for (Iterator iterator = n.children(); iterator.hasNext();) {
-            markNode((NodeItem) iterator.next(), isChildrenVisible);
-            
+        if (isChildrenVisible){
+	        while (children.hasNext()) {
+	        	NodeItem c = children.next();
+	        	if (matchOtherVisibilityCriteria(c))
+	        		markNodeVisible(c);            
+	        }
         }
+        
+        
     }
     
     public TreeCutCache getTreeCutCache(){

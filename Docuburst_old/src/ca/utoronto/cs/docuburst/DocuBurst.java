@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.ConsoleHandler;
@@ -76,10 +77,12 @@ import prefuse.activity.ActivityListener;
 import prefuse.data.Graph;
 import prefuse.data.Table;
 import prefuse.data.Tree;
+import prefuse.data.Tuple;
 import prefuse.data.expression.Predicate;
 import prefuse.data.expression.parser.ExpressionParser;
 import prefuse.data.query.SearchQueryBinding;
 import prefuse.data.search.SearchTupleSet;
+import prefuse.data.tuple.TupleSet;
 import prefuse.util.FontLib;
 import prefuse.util.display.ExportDisplayAction;
 import prefuse.util.display.PaintListener;
@@ -317,7 +320,7 @@ public class DocuBurst extends JPanel implements LoadData {
     static {
 //        Logger.getLogger(LanguageLib.class.getName()).setLevel(Level.OFF);
         //Logger.getLogger(DocuBurst.class.getName()).setLevel(Level.SEVERE);
-        Logger.getLogger(DocuBurst.class.getName()).setLevel(Level.SEVERE);
+        Logger.getLogger(DocuBurst.class.getName()).setLevel(Level.INFO);
         
         // from http://stackoverflow.com/questions/470430/java-util-logging-logger-doesnt-respect-java-util-logging-level
         
@@ -340,7 +343,7 @@ public class DocuBurst extends JPanel implements LoadData {
             topLogger.addHandler(consoleHandler);
         }
         //set the console handler to fine:
-        consoleHandler.setLevel(java.util.logging.Level.SEVERE);
+        consoleHandler.setLevel(java.util.logging.Level.INFO);
     }
 
     public static void main(String[] args) {
@@ -672,30 +675,35 @@ public class DocuBurst extends JPanel implements LoadData {
 		        LOGGER.info(String.format("processCounts() took %f seconds.", (float)(t2-t1)/1000));
 		        // clear search sets
 		        docuburstVisualization.getFocusGroup(Visualization.SEARCH_ITEMS).clear();
-		        docuburstLayout.addLabels();
-		        
-		        
+//		        docuburstLayout.addLabels();
+		        		        
 		        long t3 = System.currentTimeMillis();
 		        
-		        //Search depth tracks search results: 0 -- no result; 1 -- result; d >
-                // 1 -- a descendant at depth d is a result
-                graph.addColumn("searchDepth", int.class, 0);
-                // create a column with _ instead of " " for searching multi-word entries
-                graph.addColumn("multiWordSearchKey", "REPLACE(label,\" \", \"_\")");
-                // create a column for limiting search to a word, instead of a prefix
-                graph.addColumn("limitedSearchKey", "CONCAT(label, \"|\", \" \", \"|\", label, \"|\")");
-                // create a column for limiting multi-word searches to exact match, not prefix
-                graph.addColumn("multiWordLimitedSearchKey", "CONCAT(multiWordSearchKey, \"|\", \" \", \"|\", multiWordSearchKey, \"|\")");
-
-                
-                // create a search panel and index radial search set 		        
- 		        ((SearchTupleSet) docuburstVisualization.getFocusGroup(Visualization.SEARCH_ITEMS)).index(docuburstVG.getNodeTable().tuples(), "multiWordSearchKey");
- 		        ((SearchTupleSet) docuburstVisualization.getFocusGroup(Visualization.SEARCH_ITEMS)).index(docuburstVG.getNodeTable().tuples(), "limitedSearchKey");
- 		        ((SearchTupleSet) docuburstVisualization.getFocusGroup(Visualization.SEARCH_ITEMS)).index(docuburstVG.getNodeTable().tuples(),
- 		                "multiWordLimitedSearchKey");
- 		        
+		        boolean isCached = graph.getNodeTable().getColumn("searchDepth") != null;
+		        
+		        if (!isCached){
+			        //Search depth tracks search results: 0 -- no result; 1 -- result; d >
+	                // 1 -- a descendant at depth d is a result
+	                graph.addColumn("searchDepth", int.class, 0);
+	                // create a column with _ instead of " " for searching multi-word entries
+	                graph.addColumn("multiWordSearchKey", "REPLACE(label,\" \", \"_\")");
+	                // create a column for limiting search to a word, instead of a prefix
+	                graph.addColumn("limitedSearchKey", "CONCAT(label, \"|\", \" \", \"|\", label, \"|\")");
+	                // create a column for limiting multi-word searches to exact match, not prefix
+	                graph.addColumn("multiWordLimitedSearchKey", "CONCAT(multiWordSearchKey,"
+	                		+ " \"|\", \" \", \"|\", multiWordSearchKey, \"|\")");	
+	                
+	                SearchTupleSet focusGroup = ((SearchTupleSet) docuburstVisualization
+	                		.getFocusGroup(Visualization.SEARCH_ITEMS));
+	                Iterator tuples = docuburstVG.getNodeTable().tuples();
+	                //  index radial search set 		        
+	 		        focusGroup.index(tuples, "multiWordSearchKey");
+	 		        focusGroup.index(tuples, "limitedSearchKey");
+	 		        focusGroup.index(tuples, "multiWordLimitedSearchKey");
+		        }
+		        
 		        long t4 = System.currentTimeMillis();
-		        LOGGER.info((String.format("index() took %f seconds.", (float)(t4-t3)/1000)));
+		        LOGGER.info(String.format("index() took %f seconds.", (float)(t4-t3)/1000));
                                
 				return graph;
 			}
@@ -710,6 +718,7 @@ public class DocuBurst extends JPanel implements LoadData {
 		        docuburstVisualization.run("layout");
 		        docuburstVisualization.runAfter("layout", "resize");
 		        
+		        // create a search panel
 		        SearchQueryBinding sq = new SearchQueryBinding((Table) docuburstVisualization
 		        		.getGroup("graph.nodes"), "label", 
 		        		(SearchTupleSet)docuburstVisualization.getFocusGroup(Visualization.SEARCH_ITEMS));
@@ -723,8 +732,6 @@ public class DocuBurst extends JPanel implements LoadData {
 //		            }
 //		        };
 		        JSearchPanel search = sq.createSearchPanel();
-		        
-		    
 		        search.setShowBorder(false);
 		        search.setShowResultCount(true);
 		        search.setLabelText("Focus:");
@@ -819,7 +826,7 @@ public class DocuBurst extends JPanel implements LoadData {
                 
                 Graph tempgraph = WordNetTree.fillGraph(synset, relationshipTypes, countPolysemy, mergeWords);
                 long t2 = System.currentTimeMillis();
-                LOGGER.info("fillgraph time: " + (float)(t2-t1)/1000);
+                LOGGER.info("fillgraph() time: " + (float)(t2-t1)/1000);
                 return tempgraph;
             }
 
@@ -1065,7 +1072,7 @@ public class DocuBurst extends JPanel implements LoadData {
         wordsCheckBox.setSelected(!DocuBurstActionList.omitWords);
         wordsCheckBox.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                DocuBurstActionList.omitWords = !wordsCheckBox.isSelected();
+                docuburstLayout.setOmitWords(!wordsCheckBox.isSelected());
                 run();
             }
         });
@@ -1074,7 +1081,7 @@ public class DocuBurst extends JPanel implements LoadData {
         zerosCheckBox.setSelected(!DocuBurstActionList.omitZeros);
         zerosCheckBox.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                DocuBurstActionList.omitZeros = !zerosCheckBox.isSelected();
+                docuburstLayout.setOmitZeros(!zerosCheckBox.isSelected());
                 run();
             }
         });
