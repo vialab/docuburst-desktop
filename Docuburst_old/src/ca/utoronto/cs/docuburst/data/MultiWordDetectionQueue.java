@@ -80,14 +80,14 @@ public class MultiWordDetectionQueue {
 					
 				// only test if the sequence of this length was built
 				original = originalBuilder.toString().trim();
-				set = dictionary.getAllIndexWords(original);	
+				set = dictionary.lookupAllIndexWords(original);	
 				if ((set.size() > 0) && (set.getLemma().equalsIgnoreCase(original))) {
 					found = j;
 					foundSet = set;
 					foundOriginal = original;
 				} else {
 					lemma = lemmaBuilder.toString().trim();
-					set = dictionary.getAllIndexWords(lemma);
+					set = dictionary.lookupAllIndexWords(lemma);
 					if ((set.size() > 0) && (set.getLemma().equalsIgnoreCase(lemma))) {
 						found = j;
 						foundSet = set;

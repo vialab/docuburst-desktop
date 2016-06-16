@@ -4,6 +4,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/PrefuseExtensions"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/prefuse-3D"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jwnl"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/jwnl14-rc2"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

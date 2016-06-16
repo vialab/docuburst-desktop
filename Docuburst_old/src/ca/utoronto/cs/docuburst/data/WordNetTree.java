@@ -353,7 +353,8 @@ public abstract class WordNetTree {
      * @param nodeHashMap the temporary storage of nodes, for easy lookup of JWNL index if they have already been created and cached
      */
     private static void findRelations(Synset synset, Node parent,
-            Graph g, HashMap nodeHashMap, HashSet edgeSet, PointerType pointerType, boolean countPolysemy, boolean mergeWords) throws JWNLException {
+            Graph g, HashMap nodeHashMap, HashSet edgeSet, PointerType pointerType, 
+            boolean countPolysemy, boolean mergeWords) throws JWNLException {
         // ** Create a HashMap to put all the related "Word" objects we found
         Pointer[] pointers = synset.getPointers();
         if (pointers.length < 1)
@@ -442,7 +443,7 @@ public abstract class WordNetTree {
         wordNode.setString("pos", word.getPOS().getLabel());
         wordNode.setLong("offset", word.getSynset().getOffset());
         if (wordNode.canSetInt("polysemy")) {
-        	IndexWordSet iws = dictionary.getAllIndexWords(word.getLemma().replace(' ', '_'));
+        	IndexWordSet iws = dictionary.lookupAllIndexWords(word.getLemma().replace(' ', '_'));
         	IndexWord[] iw = iws.getIndexWordArray();
             int size = 0;
             for (int i = 0; i < iw.length; i++) {
@@ -475,10 +476,7 @@ public abstract class WordNetTree {
                 .removeExamplesFromGloss(synset.getGloss()));
     	synsetNode.setString("gloss", WordNetSearchPanel
                 .removeExamplesFromGloss(synset.getGloss()));                            
-    	if (synsetParentNode == null)
-    		synsetNode.setBoolean("root", true);
-    	else
-    		synsetNode.setBoolean("root", false);
+   		synsetNode.setBoolean("root", synsetParentNode == null);
         synsetNode.setLong("offset", synset.getOffset()); // put this synset reference to node
     	synsetNode.setString("pos", synset.getPOS().getLabel());
     	synsetNode.setInt("wordChildren", synset.getWordsSize());
