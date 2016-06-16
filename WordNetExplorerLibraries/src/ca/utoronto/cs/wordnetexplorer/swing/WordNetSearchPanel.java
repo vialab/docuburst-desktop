@@ -12,6 +12,8 @@ import java.awt.event.FocusListener;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -24,7 +26,6 @@ import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 
 import ca.utoronto.cs.prefuseextensions.swing.Utilities;
-
 import net.didion.jwnl.JWNLException;
 import net.didion.jwnl.data.IndexWord;
 import net.didion.jwnl.data.IndexWordSet;
@@ -308,7 +309,7 @@ public class WordNetSearchPanel extends JPanel implements FocusListener {
         return indexWord;
     }
     
-    protected Word getWord(String lemma, POS pos, int senseNumber) {
+    public Word getWord(String lemma, POS pos, int senseNumber) {
         try {
             String searchLemma = lemma.replace(' ','_');
             IndexWord indexWord = dictionary.lookupIndexWord(pos, searchLemma);
@@ -359,8 +360,7 @@ public class WordNetSearchPanel extends JPanel implements FocusListener {
             }
             if (sense_pre.lastIndexOf(';') == sense_pre.length()-1) {
                 sense_pre = sense_pre.substring(0, sense_pre.lastIndexOf(';'));
-            }
-                
+            }                
         }
         // REMOVED by CMC March 24 -- no need to remove after ;
         //if(sense_pre != null && sense_pre.length()>0){

@@ -35,15 +35,11 @@ import prefuse.action.GroupAction;
 import prefuse.action.ItemAction;
 import prefuse.action.RepaintAction;
 import prefuse.action.animate.ColorAnimator;
-import prefuse.action.animate.QualityControlAnimator;
-import prefuse.action.animate.VisibilityAnimator;
 import prefuse.action.assignment.ColorAction;
 import prefuse.action.assignment.FontAction;
 import prefuse.action.filter.FisheyeTreeFilter;
 import prefuse.action.filter.VisibilityFilter;
-import prefuse.action.layout.CollapsedSubtreeLayout;
 import prefuse.action.layout.Layout;
-import prefuse.activity.SlowInSlowOutPacer;
 import prefuse.controls.ControlAdapter;
 import prefuse.controls.HoverActionControl;
 import prefuse.controls.PanControl;
@@ -55,10 +51,8 @@ import prefuse.data.Node;
 import prefuse.data.Schema;
 import prefuse.data.Tree;
 import prefuse.data.Tuple;
-import prefuse.data.event.ExpressionListener;
 import prefuse.data.event.TupleSetListener;
 import prefuse.data.expression.AndPredicate;
-import prefuse.data.expression.ExpressionVisitor;
 import prefuse.data.expression.OrPredicate;
 import prefuse.data.expression.Predicate;
 import prefuse.data.expression.parser.ExpressionParser;
@@ -74,18 +68,14 @@ import prefuse.render.LabelRenderer;
 import prefuse.util.ColorLib;
 import prefuse.util.FontLib;
 import prefuse.util.GraphicsLib;
-import prefuse.util.PredicateChain;
 import prefuse.util.PrefuseLib;
 import prefuse.util.display.DisplayLib;
 import prefuse.visual.DecoratorItem;
-import prefuse.visual.NodeItem;
 import prefuse.visual.VisualItem;
 import prefuse.visual.expression.HoverPredicate;
-import prefuse.visual.expression.StartVisiblePredicate;
 import prefuse.visual.expression.VisiblePredicate;
 import ca.utoronto.cs.docuburst.DocuBurst;
 import ca.utoronto.cs.docuburst.Param;
-import ca.utoronto.cs.docuburst.data.treecut.DocuburstTreeCut;
 import ca.utoronto.cs.docuburst.prefuse.action.HighlightTextHoverActionControl;
 import ca.utoronto.cs.docuburst.prefuse.action.NodeColorAction;
 import ca.utoronto.cs.docuburst.prefuse.action.NodeStrokeColorAction;
@@ -543,7 +533,8 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 	    
 	    depthFilter = a;
 	    if (depthFilter.equals(Param.DepthFilter.TREECUT))
-	        fisheyeTreeFilter = new CachedTreeCutFilter("graph", depthFilterScope, null);
+	        fisheyeTreeFilter = new CachedTreeCutFilter("graph", depthFilterScope, 
+	        		getDepthFilterDistance(), getTreeFilterPredicates());
 	    else
 	        fisheyeTreeFilter = new MultiCriteriaFisheyeFilter("graph", depthFilterScope, 
 	        		getDepthFilterDistance(), getTreeFilterPredicates());

@@ -60,10 +60,12 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import com.itextpdf.text.log.SysoCounter;
+import com.sun.org.glassfish.external.statistics.annotations.Reset;
 
 import net.didion.jwnl.JWNL;
 import net.didion.jwnl.JWNLException;
 import net.didion.jwnl.data.IndexWord;
+import net.didion.jwnl.data.POS;
 import net.didion.jwnl.data.PointerType;
 import net.didion.jwnl.data.Synset;
 import net.didion.jwnl.data.Word;
@@ -416,6 +418,10 @@ public class DocuBurst extends JPanel implements LoadData {
         // make search box the default focus
         docuburst.searchPanel.requestFocusInWindow();
         jFrame.setVisible(true);
+        
+        // Load "entity.n.01" as Default root
+		docuburst.reset(docuburst.searchPanel.getWord("entity", 
+					POS.getPOSForLabel("noun"),	1));
 
     }
 
@@ -771,7 +777,8 @@ public class DocuBurst extends JPanel implements LoadData {
             protected Dictionary doInBackground() throws Exception {
                 // initialize JWNL using properties file; must be done before
                 // use
-                String propsFile = "jwnl_file_properties.xml"; // jwnl properties
+//            	String propsFile = "jwnl_file_properties.xml"; // jwnl properties
+                String propsFile = "jwnl_file_properties_map.xml"; // jwnl properties
                 try {
                     InputStream propsStream = IOLib.streamFromString(propsFile);
                     JWNL.initialize(propsStream);
