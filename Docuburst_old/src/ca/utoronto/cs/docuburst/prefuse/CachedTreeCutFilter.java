@@ -133,43 +133,42 @@ public class CachedTreeCutFilter extends MultiCriteriaFisheyeFilter {
         
         lastCut = cut;
         long t2 = System.currentTimeMillis();
-//        System.out.println(String.format("Tree cut has %s nodes with weight = %s", cut.size(), weight));        
         Logger.getLogger(this.getClass().getName())
         	.info(String.format("Tree cut filtering took %f seconds.", (float)(t2-t1)/1000));
     }
     
-    public void markExceptional(NodeItem n){
-    	boolean isVisible = matchOtherVisibilityCriteria(n);
-    	
-    	if (!isVisible)	return;
-    	
+    private void setVisible(NodeItem n){
     	PrefuseLib.updateVisible(n, true);
     	n.setDOI(0);
         n.setExpanded(n.children().hasNext());
+    }
+    
+    public void markExceptional(NodeItem n){
+    	if (!matchOtherVisibilityCriteria(n))
+    		return;
+    	    	
+    	setVisible(n);
     	
-        // climb up hierarchy marking ancestors visible
-        
+        // climb up hierarchy marking ancestors visible        
     	NodeItem parent = (NodeItem)n.getParent();
     	NodeItem skip   = n; // last parent (has been visited)
     	
     	while (parent != null){
-    		if (parent.isVisible()) // no reason to climb up hierarchy
-    			return;
-    		
-    		PrefuseLib.updateVisible(parent, true);
-    		parent.setDOI(0);
-    		parent.setExpanded(true);
-    		
+        	if (parent.getString("label").toLowerCase().equals("family"))
+    			System.out.println("debug");
     		// make siblings visible
     		for (Iterator<NodeItem> it = parent.children(); it.hasNext();) {
 				NodeItem c = it.next();
 				
 				if (c == skip || !matchOtherVisibilityCriteria(c)) continue;
 				
-				PrefuseLib.updateVisible(c, true);
-				c.setDOI(0);
-				c.setExpanded(c.children().hasNext());
+				setVisible(c);
 			}
+    		
+    		if (parent.getDOI()==0) // if parent is already visible, then we can return
+    			return;
+
+    		setVisible(parent);
     		
     		skip = parent;
     		parent = (NodeItem)parent.getParent();    		
@@ -184,9 +183,8 @@ public class CachedTreeCutFilter extends MultiCriteriaFisheyeFilter {
      * @param isVisible determines if the node is visible/invisible
      */
     public void markNodeVisible(NodeItem n){
+        setVisible(n);
         
-        PrefuseLib.updateVisible(n, true);
-        n.setDOI(0);
         EdgeItem parentEdge = (EdgeItem)n.getParentEdge();
         if (parentEdge != null)
         	PrefuseLib.updateVisible(parentEdge, true);
@@ -203,9 +201,7 @@ public class CachedTreeCutFilter extends MultiCriteriaFisheyeFilter {
 	        	if (matchOtherVisibilityCriteria(c))
 	        		markNodeVisible(c);            
 	        }
-        }
-        
-        
+        }        
     }
     
     public TreeCutCache getTreeCutCache(){

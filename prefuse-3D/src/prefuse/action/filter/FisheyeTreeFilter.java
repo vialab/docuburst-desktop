@@ -149,7 +149,13 @@ public class FisheyeTreeFilter extends GroupAction {
         Iterator iter = m_vis.items(m_sources, m_groupP);
         while ( iter.hasNext() ){
         	NodeItem n = (NodeItem)iter.next();
-            visitFocus(n, null);
+        	// by default, each of these m_groupP items (usually search) used to be a focus
+        	// as a result, we would expose as many of their descendants as depth allowed:
+            // visitFocus(n, null);
+        	
+        	// now we only expose n and its siblings
+        	if (visit(n, null, 0, 0)) // set focus DOI to 0
+            	visitAncestors(n); // make siblings visible       
         }
         visitFocus(m_root, null);
 
@@ -183,7 +189,7 @@ public class FisheyeTreeFilter extends GroupAction {
     /**
      * Visit a specific node, make it visible and update its degree-of-interest.
      */
-    protected void visit(NodeItem n, NodeItem c, int doi, int ldist) {    	
+    protected boolean visit(NodeItem n, NodeItem c, int doi, int ldist) {    	
         PrefuseLib.updateVisible(n, true);
         double localDOI = -ldist / Math.min(1000.0, m_divisor);
         n.setDOI(doi+localDOI);
@@ -193,6 +199,8 @@ public class FisheyeTreeFilter extends GroupAction {
         	e.setDOI(c.getDOI());
         	PrefuseLib.updateVisible(e, true);
         }
+        
+        return true;
     }
     
     /**

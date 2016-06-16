@@ -55,9 +55,11 @@ public class MultiCriteriaFisheyeFilter extends FisheyeTreeFilter {
     	return true;
     }
     
-    protected void visit(NodeItem n, NodeItem c, int doi, int ldist) {
+    protected boolean visit(NodeItem n, NodeItem c, int doi, int ldist) {
     	if (matchOtherVisibilityCriteria(n))
-    		super.visit(n, c, doi, ldist);
+    		return super.visit(n, c, doi, ldist);
+    	else
+    		return false;
     }
     
     public void setPredicates(Predicate[] predicates){
