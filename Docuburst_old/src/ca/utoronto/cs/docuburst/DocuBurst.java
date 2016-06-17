@@ -53,14 +53,10 @@ import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-
-import com.itextpdf.text.log.SysoCounter;
-import com.sun.org.glassfish.external.statistics.annotations.Reset;
 
 import net.didion.jwnl.JWNL;
 import net.didion.jwnl.JWNLException;
@@ -70,6 +66,15 @@ import net.didion.jwnl.data.PointerType;
 import net.didion.jwnl.data.Synset;
 import net.didion.jwnl.data.Word;
 import net.didion.jwnl.dictionary.Dictionary;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+
 import prefuse.Display;
 import prefuse.DisplayComponent;
 import prefuse.Visualization;
@@ -79,12 +84,10 @@ import prefuse.activity.ActivityListener;
 import prefuse.data.Graph;
 import prefuse.data.Table;
 import prefuse.data.Tree;
-import prefuse.data.Tuple;
 import prefuse.data.expression.Predicate;
 import prefuse.data.expression.parser.ExpressionParser;
 import prefuse.data.query.SearchQueryBinding;
 import prefuse.data.search.SearchTupleSet;
-import prefuse.data.tuple.TupleSet;
 import prefuse.util.FontLib;
 import prefuse.util.display.ExportDisplayAction;
 import prefuse.util.display.PaintListener;
@@ -112,7 +115,6 @@ import ca.utoronto.cs.wordnetexplorer.prefuse.controls.LoadDataControl;
 import ca.utoronto.cs.wordnetexplorer.swing.SensePane;
 import ca.utoronto.cs.wordnetexplorer.swing.TwoComponentSlidingPanel;
 import ca.utoronto.cs.wordnetexplorer.swing.WordNetSearchPanel;
-import ca.utoronto.cs.wordnetexplorer.utilities.LanguageLib;
 
 /**
  * Runnable main class, initiates the GUI for the Radial WordNet Visualization.
@@ -125,6 +127,10 @@ import ca.utoronto.cs.wordnetexplorer.utilities.LanguageLib;
 @SuppressWarnings("serial")
 public class DocuBurst extends JPanel implements LoadData {
 
+	static {
+		initializeLogger(0);
+	}
+	
     /**
      * The <code>APP_NAME</code> is the title of this JFrame.
      */
@@ -318,43 +324,87 @@ public class DocuBurst extends JPanel implements LoadData {
     private JCheckBox zerosCheckBox;
 
     // initialize loggers
-    // 
-    static {
-//        Logger.getLogger(LanguageLib.class.getName()).setLevel(Level.OFF);
-        //Logger.getLogger(DocuBurst.class.getName()).setLevel(Level.SEVERE);
-        Logger.getLogger(DocuBurst.class.getName()).setLevel(Level.INFO);
-        
-        // from http://stackoverflow.com/questions/470430/java-util-logging-logger-doesnt-respect-java-util-logging-level
-        
-        //get the top Logger:
-        Logger topLogger = java.util.logging.Logger.getLogger("");
-
-        // Handler for console (reuse it if it already exists)
-        Handler consoleHandler = null;
-        //see if there is already a console handler
-        for (Handler handler : topLogger.getHandlers()) {
-            if (handler instanceof ConsoleHandler) {
-                //found the console handler
-                consoleHandler = handler;
-                break;
-            }
-        }
-        if (consoleHandler == null) {
-            //there was no console handler found, create a new one
-            consoleHandler = new ConsoleHandler();
-            topLogger.addHandler(consoleHandler);
-        }
-        //set the console handler to fine:
-        consoleHandler.setLevel(java.util.logging.Level.INFO);
+     
+    public static void initializeLogger(int verboseLevel){
+    	Level level = Level.SEVERE;
+    	switch (verboseLevel) {
+    	case 0:
+    		level = Level.OFF;    break;
+		case 1:
+			level = Level.SEVERE; break;
+		case 2:
+			level = Level.INFO;   break;
+		default:                  break; }
+    	    	
+	    Logger.getLogger(DocuBurst.class.getName()).setLevel(level);
+	    
+	    // from http://stackoverflow.com/questions/470430/java-util-logging-logger-doesnt-respect-java-util-logging-level
+	    
+	    //get the top Logger:
+	    Logger topLogger = java.util.logging.Logger.getLogger("");
+	
+	    // Handler for console (reuse it if it already exists)
+	    Handler consoleHandler = null;
+	    //see if there is already a console handler
+	    for (Handler handler : topLogger.getHandlers()) {
+	        if (handler instanceof ConsoleHandler) {
+	            //found the console handler
+	            consoleHandler = handler;
+	            break;
+	        }
+	    }
+	    if (consoleHandler == null) {
+	        //there was no console handler found, create a new one
+	        consoleHandler = new ConsoleHandler();
+	        topLogger.addHandler(consoleHandler);
+	    }
+	    
+	    consoleHandler.setLevel(level);
+    	
     }
+    
+    
+
+	/** 
+	 * Print usage information to provided OutputStream. 
+	 *  
+	 * @param applicationName Name of application to list in usage. 
+	 * @param options Command-line options to be part of usage. 
+	 * @param out OutputStream to which to write the usage information. 
+	 */  
+	public static void printHelp(final Options options)  
+	{  
+	   final HelpFormatter usageFormatter = new HelpFormatter();  
+	   usageFormatter.printHelp("java -jar docuburst.jar", "Options", options, "", true);
+	}  
 
     public static void main(String[] args) {
         UILib.setPlatformLookAndFeel();
         
-        if (args.length == 0)
-            System.err.println("Usage: DocuBurst inputFileStem");
-        else
-            documentFile = args[0];
+        // Define command-line arguments
+        Options opts = new Options();
+        opts.addOption(Option.builder("v").argName("level").desc("verbose level")
+        		.hasArg(true).optionalArg(true).type(Integer.class).build());
+        
+        // Parse command-line arguments
+        CommandLineParser parser = new DefaultParser();
+        try {
+			CommandLine cli = parser.parse(opts, args);
+			if (cli.hasOption("v")){
+				Integer verboseLevel = Integer.parseInt(cli.getOptionValue("v"));
+				initializeLogger(verboseLevel);
+			}
+			args = cli.getArgs();
+			
+			if (args.length > 0) documentFile = args[0];
+			else throw new IllegalArgumentException();
+		} catch (ParseException e) {
+			e.printStackTrace();
+		} catch (Exception e){
+			printHelp(opts);
+			return;
+		}
+        
 
         /*
          * Schedule a job for the event-dispatching thread: creating and showing

@@ -1,6 +1,7 @@
 package prefuse.action;
 
 import java.util.Iterator;
+import java.util.logging.Logger;
 
 import prefuse.Visualization;
 import prefuse.data.expression.Predicate;
@@ -17,6 +18,9 @@ import prefuse.visual.expression.VisiblePredicate;
  */
 public abstract class ItemAction extends GroupAction {
     
+	private static final Logger s_logger = 
+	        Logger.getLogger(ActionList.class.getName());
+	
     /** A reference to filtering predicate for this Action */
     protected Predicate m_predicate;
     
@@ -109,9 +113,9 @@ public abstract class ItemAction extends GroupAction {
         }
 //        // For debugging
         String[] className = this.getClass().getName().split("\\.");
-        System.out.println(String.format("[%s] Iterated over %s items", 
-                className[className.length - 1],  i));
         
+        s_logger.info(String.format("[%s] Iterated over %s items", 
+                className[className.length - 1],  i));     
     }
     
     /**
