@@ -5,6 +5,5 @@
 	<classpathentry kind="lib" path="lib/commons-logging.jar"/>
 	<classpathentry kind="lib" path="lib/junit-4.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons-io-2.5.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/uio"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
