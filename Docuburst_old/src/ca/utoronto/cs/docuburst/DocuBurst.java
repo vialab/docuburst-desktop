@@ -97,7 +97,7 @@ import prefuse.util.ui.UILib;
 import prefuse.visual.VisualGraph;
 import ca.utoronto.cs.docuburst.data.WordNetTree;
 import ca.utoronto.cs.docuburst.data.treecut.TreeCutCache;
-import ca.utoronto.cs.docuburst.prefuse.CachedTreeCutFilter;
+import ca.utoronto.cs.docuburst.prefuse.DefaultTreeCutFilter;
 import ca.utoronto.cs.docuburst.prefuse.DocuBurstActionList;
 import ca.utoronto.cs.docuburst.swing.ConcordancePanel;
 import ca.utoronto.cs.docuburst.swing.TilesPanel;
@@ -938,7 +938,7 @@ public class DocuBurst extends JPanel implements LoadData {
     private JPanel createTreeCutPanel(){
         
         JPanel panel = new JPanel(new BorderLayout());
-        TreeCutCache cache = ((CachedTreeCutFilter)docuburstLayout.getFisheyeTreeFilter()).getTreeCutCache();
+        TreeCutCache cache = ((DefaultTreeCutFilter)docuburstLayout.getFisheyeTreeFilter()).getTreeCutCache();
         List<Double> weights = cache.getSortedWeights();
         ArrayList<Point> points = new ArrayList<ScentedSliderModel.Point>();
         for (Double w : weights) {

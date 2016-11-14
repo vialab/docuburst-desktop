@@ -5,38 +5,20 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
-import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
-
-import prefuse.Constants;
-import prefuse.action.GroupAction;
-import prefuse.action.filter.FisheyeTreeFilter;
-import prefuse.data.CascadedTable;
-import prefuse.data.Graph;
-import prefuse.data.Node;
-import prefuse.data.Table;
-import prefuse.data.Tree;
-import prefuse.data.Tuple;
-import prefuse.data.column.Column;
-import prefuse.data.event.ProjectionListener;
-import prefuse.data.expression.AndPredicate;
-import prefuse.data.expression.Predicate;
-import prefuse.data.expression.parser.ExpressionParser;
-import prefuse.data.util.ColumnProjection;
-import prefuse.data.util.TableIterator;
-import prefuse.util.PrefuseLib;
-import prefuse.util.collections.IntIterator;
-import prefuse.visual.EdgeItem;
-import prefuse.visual.NodeItem;
-import prefuse.visual.VisualItem;
-import prefuse.visual.expression.InGroupPredicate;
-import prefuse.visual.expression.VisiblePredicate;
 import ca.uoit.science.vialab.treecut.Wagner;
 import ca.utoronto.cs.docuburst.data.treecut.DocuburstTreeCut;
 import ca.utoronto.cs.docuburst.data.treecut.TreeCutCache;
-import ca.utoronto.cs.docuburst.util.Util;
+import prefuse.Constants;
+import prefuse.data.Graph;
+import prefuse.data.Node;
+import prefuse.data.Tree;
+import prefuse.data.expression.Predicate;
+import prefuse.util.PrefuseLib;
+import prefuse.visual.EdgeItem;
+import prefuse.visual.NodeItem;
+import prefuse.visual.VisualItem;
 
-public class CachedTreeCutFilter extends MultiCriteriaFisheyeFilter {
+public class DefaultTreeCutFilter extends MultiCriteriaFisheyeFilter {
 
     private TreeCutCache cache; 
     
@@ -53,11 +35,11 @@ public class CachedTreeCutFilter extends MultiCriteriaFisheyeFilter {
     * a Graph instance, otherwise exceptions will result when this
     * Action is run.
     **/
-    public CachedTreeCutFilter(String group, String sources, TreeCutCache cache) {
+    public DefaultTreeCutFilter(String group, String sources, TreeCutCache cache) {
         super(group, sources, 1);
     }
     
-    public CachedTreeCutFilter(String group, String sources, int distance, 
+    public DefaultTreeCutFilter(String group, String sources, int distance, 
     		Predicate... predicates) {
         super(group, sources, distance, predicates);
     }
@@ -70,7 +52,6 @@ public class CachedTreeCutFilter extends MultiCriteriaFisheyeFilter {
     
     public void setSources(String sources) {
     	super.setSources(sources);
-    	buildTreeCutCache((Graph)m_vis.getGroup(m_group));
     };
     
     @Override
@@ -218,27 +199,6 @@ public class CachedTreeCutFilter extends MultiCriteriaFisheyeFilter {
     
     public TreeCutCache getTreeCutCache(){
     	return null;
-    }
-    
-    private TreeCutCache buildTreeCutCache(Graph graph){
-        Tree tree = graph.getSpanningTree();
-        Node root = tree.getRoot();
-        float s = Util.sum((float[]) root.get("childCount")); // sample size
-        
-        Wagner measure = new Wagner(Math.round(s));
-        DocuburstTreeCut treeCutter = new DocuburstTreeCut(measure);
-        
-        TreeCutCache treeCutCache = new TreeCutCache();
-        
-        // add tree cut for initial weight
-        treeCutCache.add(measure.getWeight(), treeCutter.findcut(root));
-        
-        for (int w=250; w<5000; w+=250){
-            measure.setWeight(w);
-            treeCutCache.add(w, treeCutter.findcut(root));
-        }        
-        
-        return treeCutCache;
     }
     
     public void setWeight(double weight) {

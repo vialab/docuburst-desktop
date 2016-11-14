@@ -178,9 +178,7 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 	
 	// prefuse controls and actions 
 	private FisheyeTreeFilter fisheyeTreeFilter; 
-	private TreeCutFilterWagner treeCutFilterWagner;
-	private TreeCutFilterIncremental treeCutFilterInc;
-	public CachedTreeCutFilter cachedTreeCutFilter;
+	public DefaultTreeCutFilter cachedTreeCutFilter;
 	private NodeColorAction nodeColor;
 	private ColorAction handlerFillColor;
 	
@@ -426,7 +424,7 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 		});
 
 		fisheyeTreeFilter = depthFilter.equals(Param.DepthFilter.TREECUT) ? 
-				new CachedTreeCutFilter("graph", depthFilterScope, getDepthFilterDistance(),
+				new DefaultTreeCutFilter("graph", depthFilterScope, getDepthFilterDistance(),
 						getTreeFilterPredicates()) :
 				new MultiCriteriaFisheyeFilter("graph", depthFilterScope, 
 						getDepthFilterDistance(), getTreeFilterPredicates());
@@ -530,7 +528,7 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 	    
 	    depthFilter = a;
 	    if (depthFilter.equals(Param.DepthFilter.TREECUT))
-	        fisheyeTreeFilter = new CachedTreeCutFilter("graph", depthFilterScope, 
+	        fisheyeTreeFilter = new DefaultTreeCutFilter("graph", depthFilterScope, 
 	        		getDepthFilterDistance(), getTreeFilterPredicates());
 	    else{
 	        fisheyeTreeFilter = new MultiCriteriaFisheyeFilter("graph", depthFilterScope, 
@@ -599,7 +597,7 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
     }
     
     public void setTreeCutWeight(double w){
-	    ((CachedTreeCutFilter)fisheyeTreeFilter).setWeight(w);
+	    ((DefaultTreeCutFilter)fisheyeTreeFilter).setWeight(w);
         m_vis.cancel("layout");
         m_vis.cancel("animate");
         m_vis.run("layout");
@@ -1103,7 +1101,7 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 			nodeMaxTotal = maxTotal;
 	};
 	
-	public CachedTreeCutFilter getTreeCutFilter(){
+	public DefaultTreeCutFilter getTreeCutFilter(){
 	    return this.cachedTreeCutFilter;
 	}
 
