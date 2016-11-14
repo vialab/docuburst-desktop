@@ -22,7 +22,7 @@ public class SectorRenderer extends AbstractShapeRenderer {
     private double innerRadius = 10;
     private double outerRadius = 40;
     
-    private Sector2D sector2D = new Sector2D();
+    protected Sector2D sector2D = new Sector2D();
     
     public static final Schema SECTOR_SCHEMA = new Schema();
     static {
@@ -84,11 +84,18 @@ public class SectorRenderer extends AbstractShapeRenderer {
         if ( Double.isNaN(y) || Double.isInfinite(y) )
             y = 0;
         
+        double angleExtent = item.getDouble(ANGLE_EXTENT);
+        double outerRadius = item.getDouble(OUTER_RADIUS);
+        // if item is small, compensate for lack of .5px border
+        // see NodeStrokeColorAction
+        if (angleExtent < 2)
+        	outerRadius += .5d;
+        
         sector2D.setSectorByCenter(x, y, 
                 item.getDouble(INNER_RADIUS), 
-                item.getDouble(OUTER_RADIUS),
+                outerRadius,
                 item.getDouble(START_ANGLE), 
-                item.getDouble(ANGLE_EXTENT));
+                angleExtent);
         return sector2D;
     }
 }

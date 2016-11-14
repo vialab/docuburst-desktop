@@ -447,7 +447,7 @@ public class ArcLabelRenderer extends AbstractShapeRenderer {
         if (type==RENDER_TYPE_DRAW || type==RENDER_TYPE_DRAW_AND_FILL) {
             GraphicsLib.paint(g,item,shape,getStroke(item),RENDER_TYPE_DRAW);
         }
-        
+//        
         
     }
     

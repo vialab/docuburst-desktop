@@ -1,5 +1,8 @@
 package ca.utoronto.cs.docuburst.preprocess;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -61,8 +64,24 @@ public class Tiling {
         return tiles;
     }
     
+    public static void printTiles(List<String> tiles, File f){
+    	try {
+			FileWriter writer = new FileWriter(f);
+			for (String tile : tiles) {
+				writer.write(tile);
+				writer.write("\n");
+				writer.write("================\n");
+			}
+			writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+    }
+    
     public static void main(String[] args) {
-        tile("/Users/rafa/Dropbox/Dev/docuburst/Docuburst_old/texts/hellobarbie_lines_v2.txt");        
+//        tile("/Users/rafa/Dropbox/Dev/docuburst/Docuburst_old/texts/hellobarbie_lines_v2.txt");
+    	printTiles(tile("/Users/rafa/Dev/barbie/data/hellobarbie.txt"),
+    			new File("/Users/rafa/Dev/barbie/data/hellobarbie.tiled.txt"));
     }
 
 }

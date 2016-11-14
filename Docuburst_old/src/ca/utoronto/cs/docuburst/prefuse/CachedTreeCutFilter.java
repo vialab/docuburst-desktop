@@ -92,6 +92,7 @@ public class CachedTreeCutFilter extends MultiCriteriaFisheyeFilter {
             item.setDOI(Constants.MINIMUM_DOI); //
             item.setExpanded(false);
             item.setBoolean("cut", false);
+            item.setBoolean("agg", false);
         }
         
         long t3 = System.currentTimeMillis();
@@ -105,9 +106,9 @@ public class CachedTreeCutFilter extends MultiCriteriaFisheyeFilter {
         // Marks all descendants of cut members as invisible and
         // all ancestors as visible.       
                 
-        // mark all nodes belonging to the new cut
-        for (Node n : cut) 
-        	n.setBoolean("cut", true);        
+        // mark all nodes that belong to the new cut
+        for (Node n : cut)
+        	n.setBoolean("cut", true);                	
         
         markNodeVisible((NodeItem)root);
         
@@ -154,8 +155,7 @@ public class CachedTreeCutFilter extends MultiCriteriaFisheyeFilter {
     	NodeItem skip   = n; // last parent (has been visited)
     	
     	while (parent != null){
-        	if (parent.getString("label").toLowerCase().equals("family"))
-    			System.out.println("debug");
+    	    
     		// make siblings visible
     		for (Iterator<NodeItem> it = parent.children(); it.hasNext();) {
 				NodeItem c = it.next();
@@ -165,8 +165,11 @@ public class CachedTreeCutFilter extends MultiCriteriaFisheyeFilter {
 				setVisible(c);
 			}
     		
-    		if (parent.getDOI()==0) // if parent is already visible, then we can return
+    		if (parent.getDOI()==0){ // if parent is already visible, then we can return
+    		    // since we have made parent's children visible, parent can no longer be an aggregate
+                parent.setBoolean("agg", false);
     			return;
+    		}
 
     		setVisible(parent);
     		
@@ -190,18 +193,27 @@ public class CachedTreeCutFilter extends MultiCriteriaFisheyeFilter {
         	PrefuseLib.updateVisible(parentEdge, true);
         
         // if n is member of the cut, its children won't be visible
-        boolean isChildrenVisible = !n.getBoolean("cut");
+        boolean onCut = n.getBoolean("cut");
         
         Iterator<NodeItem> children = n.children();
         n.setExpanded(children.hasNext());
         
-        if (isChildrenVisible){
-	        while (children.hasNext()) {
-	        	NodeItem c = children.next();
-	        	if (matchOtherVisibilityCriteria(c))
-	        		markNodeVisible(c);            
-	        }
-        }        
+        // a. count # of valid children
+        // b. set visible valid children if they are on or above the cut
+        int validChildren = 0;
+        while (children.hasNext()) {
+        	NodeItem c = children.next();
+        	if (matchOtherVisibilityCriteria(c)){
+        		validChildren++;
+        		if (!onCut)
+        			markNodeVisible(c);            
+        	}
+        }
+        
+        // if n is on cut and has valid children, then mark it as an aggregate
+        if (onCut && validChildren > 0)
+        	n.setBoolean("agg", true);
+        
     }
     
     public TreeCutCache getTreeCutCache(){

@@ -74,8 +74,10 @@ import prefuse.visual.DecoratorItem;
 import prefuse.visual.VisualItem;
 import prefuse.visual.expression.HoverPredicate;
 import prefuse.visual.expression.VisiblePredicate;
+import prefuse.visual.sort.ItemSorter;
 import ca.utoronto.cs.docuburst.DocuBurst;
 import ca.utoronto.cs.docuburst.Param;
+import ca.utoronto.cs.docuburst.Param.DepthFilter;
 import ca.utoronto.cs.docuburst.prefuse.action.HighlightTextHoverActionControl;
 import ca.utoronto.cs.docuburst.prefuse.action.NodeColorAction;
 import ca.utoronto.cs.docuburst.prefuse.action.NodeStrokeColorAction;
@@ -89,6 +91,7 @@ import ca.utoronto.cs.prefuseextensions.layout.StarburstLayout.WidthType;
 import ca.utoronto.cs.prefuseextensions.lib.Colors;
 import ca.utoronto.cs.prefuseextensions.render.ArcLabelRenderer;
 import ca.utoronto.cs.prefuseextensions.render.DecoratorLabelRenderer;
+import ca.utoronto.cs.prefuseextensions.render.HandlerRenderer;
 import ca.utoronto.cs.prefuseextensions.render.SectorRenderer;
 import ca.utoronto.cs.prefuseextensions.sort.TreeDepthItemSorter;
 import ca.utoronto.cs.wordnetexplorer.prefuse.FisheyeDocument;
@@ -110,6 +113,10 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 	// This column indicates whether or not a node belongs to the tree cut.
 	// 1 = True; 0 = False. For some reason the Node structure does not support Boolean.
 	public static final String CUT = "cut";
+	
+	// Marks nodes that are in the visibility boundary and have invisible children.
+	public static final String AGGREGATE = "agg";
+	
 
 	/**
 	 * Counts are stored as arrays of counts for each section or tile of the document.
@@ -124,17 +131,20 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 	// node field names
 	public static final String HIGHLIGHT = "highlight";
 	public static final String LABELS = "labels";
+	public static final String HANDLERS = "handlers";
 	
 	public static boolean omitWords = true;
 	public static boolean omitZeros = true;
 	
 	// create data description of labels, setting colors, fonts ahead of time
 	private static final Schema LABEL_SCHEMA = PrefuseLib.getVisualItemSchema();
+	private static final Schema AGG_SCHEMA = PrefuseLib.getVisualItemSchema();
 
 	// predicate filtering which nodes should be labeled 
 	private static Predicate labelPredicate = new AndPredicate(ExpressionParser.predicate("(type = 1 or type = 0)"), 
-//			new OrPredicate(new VisiblePredicate(), new StartVisiblePredicate()));
-	new OrPredicate(new VisiblePredicate()));
+			new OrPredicate(new VisiblePredicate()));
+	private static Predicate aggregatePredicate = ExpressionParser.predicate(
+			String.format("%s = true",AGGREGATE));
 
 	public static final boolean FONTFROMDIAGONAL = false;
 	
@@ -172,6 +182,7 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 	private TreeCutFilterIncremental treeCutFilterInc;
 	public CachedTreeCutFilter cachedTreeCutFilter;
 	private NodeColorAction nodeColor;
+	private ColorAction handlerFillColor;
 	
 	StarburstLayout treeLayout;
 	
@@ -244,7 +255,8 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 
 		// -- set up renderers --
 
-		m_vis.setRendererFactory(createRenderers());
+		m_vis.setRendererFactory(createRenderers(isTreeCutEnabled()));
+		
 		// -- set up processing actions --
 
 		// search
@@ -291,13 +303,12 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 		// colors
 		nodeColor = new NodeColorAction(this, "graph.nodes", true);
 		ColorAction nodeStrokeColor = new NodeStrokeColorAction(this, "graph.nodes");
-		// Color by POS
-		// DataColorAction dca = new DataColorAction("graph.nodes", "pos",
-		// Constants.NOMINAL, VisualItem.FILLCOLOR);
-		// nodeColor.add("type = 1", dca);
+		handlerFillColor = new ColorAction(HANDLERS, VisualItem.FILLCOLOR, ColorLib.hex("#52576A"));
+		
+		// Color by POS	
 		ActionList nodeColorList = new ActionList();
-		// nodeColorList.add(dca);
 		nodeColorList.add(nodeColor);
+		nodeColorList.add(handlerFillColor);
 		nodeColorList.add(nodeStrokeColor);
 
 		// edge colors
@@ -442,18 +453,18 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 		// create the filtering and layout
 		
 		this.add(fisheyeTreeFilter);
-//		this.add(vF);
+		this.add(treeLayout);
 		this.add(new GroupAction() {			
 			@Override
 			public void run(double frac) {
-				addLabels();				
+				addLabels();
+			    addHandlers();
 			}
 		});
-		this.add(treeLayout);
+//		this.add(new NodeHandlerLayout(HANDLERS));
 		this.add(new LabelLayout(LABELS));
 		this.add(decoratorFonts);
 		this.add(lemmaFont);
-//		this.add(subLayout);
 		this.add(recolor);
 		m_vis.putAction("layout", this);
 
@@ -473,9 +484,17 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 		// add listeners to displays, for "click" and "hover"
 		for (int i = 0; i < m_vis.getDisplayCount(); i++) {
 			Display display = m_vis.getDisplay(i);
-			TreeDepthItemSorter tdis = new TreeDepthItemSorter();
+			final TreeDepthItemSorter tdis = new TreeDepthItemSorter();
 			tdis.addGroup("pathToRoot");
-			display.setItemSorter(tdis);
+			display.setItemSorter(new ItemSorter(){
+				@Override
+				public int score(VisualItem item) {
+					int score = tdis.score(item);
+					if (item.getGroup().equals(HANDLERS))
+						score = -1000;
+					return score;
+				}
+			});
 			display.addControlListener(zoomToFitControl = new ZoomToFitControl());
 			zoomToFitControl.setZoomOverItem(false);
 
@@ -485,32 +504,6 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 			display.addControlListener(panControl = new PanControl(true));
 			display.addControlListener(zoomControl = new ZoomControl());
 			
-//			if (TREECUT){
-//    	         display.addControlListener(mouseWheelControl = new ControlAdapter() {
-//    	              public void itemWheelMoved(VisualItem item, MouseWheelEvent e) {
-//    	                  int deltaWeightIndex = -e.getWheelRotation();
-//    	                  double currWeight    = cachedTreeCutFilter.getWeight();
-//    	                  List<Double> weights = cachedTreeCutFilter.getSortedWeights();
-//    	                  int currWeightIndex  = weights.indexOf(currWeight);
-//    	                  int newWeightIndex   = currWeightIndex + deltaWeightIndex;
-//    	                  double newWeight     = weights.get(newWeightIndex);
-//    //		                  treeCutFilterWagner.updateDistance(- e.getWheelRotation());
-//    //		                  treeCutFilterInc.updateDistance(- e.getWheelRotation());
-//    	                  setTreeCutWeight(newWeight);
-//    	              }
-//    	            });
-//			} else {
-//	          display.addControlListener(mouseWheelControl = new ControlAdapter() {
-//              public void itemWheelMoved(VisualItem item, MouseWheelEvent e) {
-//                  if (e.getWheelRotation() < 0)
-//                      item.setDouble("angleFactor", item.getDouble("angleFactor") + 0.1);
-//                  else
-//                      item.setDouble("angleFactor", (item.getDouble("angleFactor") > 0.2 ? item.getDouble("angleFactor") - 0.1 : 0.1));
-//                      m_vis.cancel("layout");
-//                      m_vis.cancel("animate");
-//                      m_vis.run("layout");
-//                  }
-//	          });
 			display.addControlListener(mouseWheelControl = new ControlAdapter() {
 			    public void itemWheelMoved(VisualItem item, MouseWheelEvent e) {
 			        setDepthFilterDistance(getDepthFilterDistance() - e.getWheelRotation());
@@ -526,6 +519,10 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 //		this.treeCutCache = buildTreeCutCache();
 	}
 	
+	public boolean isTreeCutEnabled(){
+	    return getDepthFilterApproach().equals(DepthFilter.TREECUT);
+	}
+	
 	public void setDepthFilterApproach(Param.DepthFilter a){
 	    if (a.equals(depthFilter)) return;
 	    
@@ -535,9 +532,16 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 	    if (depthFilter.equals(Param.DepthFilter.TREECUT))
 	        fisheyeTreeFilter = new CachedTreeCutFilter("graph", depthFilterScope, 
 	        		getDepthFilterDistance(), getTreeFilterPredicates());
-	    else
+	    else{
 	        fisheyeTreeFilter = new MultiCriteriaFisheyeFilter("graph", depthFilterScope, 
 	        		getDepthFilterDistance(), getTreeFilterPredicates());
+	        m_vis.setValue(HANDLERS, aggregatePredicate, AGGREGATE, false);
+	    }
+	        
+
+	    // reset renderer and toggle action that paints the handler
+	    m_vis.setRendererFactory(createRenderers(isTreeCutEnabled()));
+//	    handlerFillColor.setDefaultColor(ColorLib.rgba(242, 183, 56, isTreeCutEnabled() ? 255 : 0));
 	    
 	    fisheyeTreeFilter.setDistance(getDepthFilterDistance());
 	    this.add(0, fisheyeTreeFilter);
@@ -601,8 +605,18 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
         m_vis.run("layout");
         m_vis.run("resize");
 	}
+
+    
+	public void addHandlers() {
+		try {
+			m_vis.addDecorators(HANDLERS, "graph.nodes", aggregatePredicate, AGG_SCHEMA);
+		}
+		catch (IllegalArgumentException e) {
+			
+		}
+	}
 	
-	
+
 	public void addLabels() {
 		try {
 			m_vis.addDecorators(LABELS, "graph.nodes", labelPredicate, LABEL_SCHEMA);
@@ -729,6 +743,8 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 //			countsSchema.addColumn(CONDENTROPY, float.class, null);
 			// if true, the nodes belongs to the tree cut
 			countsSchema.addColumn(CUT, boolean.class, false);
+			countsSchema.addColumn(AGGREGATE, boolean.class, false);
+			
 			
 			// Graph graph = (Graph) m_vis.getGroup(m_group);
 			graph.addColumns(countsSchema);
@@ -981,7 +997,7 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 		//nodeMaxTotal = (float) Math.log(nodeMaxTotal);
 	}
 
-	private DefaultRendererFactory createRenderers() {
+	private DefaultRendererFactory createRenderers(boolean addHandlerRenderer) {
 		EdgeRenderer S2WedgeRenderer = new EdgeRenderer(Constants.EDGE_TYPE_LINE, Constants.EDGE_ARROW_NONE);
 
 		// renderer to draw labels for words, not senses
@@ -995,17 +1011,24 @@ public class DocuBurstActionList extends WordNetExplorerActionList {
 		shapeRenderer.setRenderType(AbstractShapeRenderer.RENDER_TYPE_DRAW_AND_FILL);
 		DefaultRendererFactory rf = new DefaultRendererFactory();
 
+		HandlerRenderer handlerRenderer = new HandlerRenderer();
+		handlerRenderer.setRenderType(AbstractShapeRenderer.RENDER_TYPE_FILL);
+		
 		// for angular rotating of non-curved labels
 		DecoratorLabelRenderer decoratorLabelRenderer = new DecoratorLabelRenderer("label", false, MINFONTHEIGHT);
 		// decoratorLabelRenderer.setHorizontalAlignment(Constants.LEFT);
 		// for arching of labels
+		
 		ArcLabelRenderer arcLabelRenderer = new ArcLabelRenderer("label", MINFONTHEIGHT, MAXFONTHEIGHT);
 		rf.add("ingroup('labels') and rotation == 0", arcLabelRenderer); // all sector labels
 		rf.add("ingroup('labels') and rotation != 0", decoratorLabelRenderer); // all sector labels
+		if (addHandlerRenderer) 
+		    rf.add(String.format("ingroup('%s')", HANDLERS), handlerRenderer);
 		rf.add("type = 4", labelRenderer); // central lemmas
 		rf.add("type = 1 or type = 0", shapeRenderer);
 		rf.add("type = 2", S2WedgeRenderer);
 		rf.add("type = 5", S2WedgeRenderer);
+		
 		return rf;
 	}
 
